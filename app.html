@@ -104,9 +104,28 @@
   // while signed in, re-check every 2 minutes (and when the tab comes back): if this user's access changed, sign out so the new settings apply
   var myEntry=null;function revOf(a){var e=((a||{}).users||{})[window.TL_UHASH];return e?'r'+(e.rev||0):'none'}window.addEventListener('tl-unlocked',function(){myEntry=revOf(window.TL_ACCESS)});
   function recheck(){if(!myEntry||!window.TL_REMOTE)return;fetch(window.TL_REMOTE+'?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(v){window.TL_LOG_URL=v.logUrl||window.TL_LOG_URL;var e=revOf(v.access);
-    if(e!==myEntry){myEntry=null;window.TL_LOG&&window.TL_LOG('forced_logout');alert('تم تحديث بيانات حسابك أو صلاحياتك من الإدارة. سجّل الدخول تاني.');window.TL_LOCK()}}).catch(function(){})}
+    if(e!==myEntry){myEntry=null;window.TL_LOG&&window.TL_LOG('forced_logout');alert('تم تحديث بيانات حسابك أو صلاحياتك من الإدارة. سجّل الدخول تاني.');window.TL_LOCK();return}
+    liveApply(v)}).catch(function(){})}
+  // live data refresh: new data published while the file is open is decrypted and redrawn in place
+  var NM={tsrf:'التصرفات العقارية',reta:'الضرائب العقارية'},JS={reta_snapshots:1,reta_actions:1};
+  function liveApply(v){var S=crypto.subtle,old=window.TL_VAULT||{},ch=Object.keys(window.TL_KEYS||{}).filter(function(p){return v.vault&&v.vault[p]&&(!old[p]||old[p].ct!==v.vault[p].ct)});
+    window.TL_NOTICES=v.notices||window.TL_NOTICES;window.TL_PWPUB=v.pwPub||window.TL_PWPUB;window.TL_PWPRIV_BOX=v.pwPriv||window.TL_PWPRIV_BOX;window.TL_BELL&&window.TL_BELL();
+    if(!ch.length)return;
+    Promise.all(ch.map(function(pl){return S.importKey('raw',ub(window.TL_KEYS[pl]),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(v.vault[pl].iv)},k,ub(v.vault[pl].ct))})
+      .then(function(b){var d=JSON.parse(new TextDecoder().decode(b));Object.keys(d).forEach(function(id){window.TL_DATA[id]=d[id];if(!window.dash||!dash.__setData)return;var rows;
+          if(JS[id]){try{rows=JSON.parse(d[id])}catch(e){rows=[]}}else{rows=window.d3?d3.csvParse(String(d[id]).replace(/^﻿/,''),function(r){Object.keys(r).forEach(function(c){if(r[c]==='')r[c]=null});return r}):[]}
+          dash.__setData(id,rows)});return pl})}))
+      .then(function(done){window.TL_VAULT=v.vault;window.TL_BUILT=v.built;
+        if(done.indexOf('reta')>=0&&window.RETA_RELOAD){var rp=document.getElementById('plat-reta');if(rp&&!rp.hidden)window.RETA_RELOAD();else window.__retaStale=1}
+        if(done.indexOf('tsrf')>=0&&window.TSRF_REPLAY)setTimeout(window.TSRF_REPLAY,200);
+        var last=(v.notices||[]).filter(function(n){return done.indexOf(n.plat)>=0}).pop();toast(last?last.text:'تحديث جديد على بيانات '+done.map(function(p){return NM[p]}).join(' و')+'.');
+        window.TL_LOG&&window.TL_LOG('live_refresh',done.map(function(p){return NM[p]}).join('، '))}).catch(function(){})}
+  function toast(t){var x=document.createElement('div');x.className='tl-live';x.setAttribute('dir','rtl');x.innerHTML='<span>🔄</span><div><b>البيانات اتحدثت دلوقتي</b><p></p></div>';x.querySelector('p').textContent=t;document.body.appendChild(x);
+    setTimeout(function(){x.classList.add('out')},7000);setTimeout(function(){x.remove()},7600)}
+  var lst=document.createElement('style');lst.textContent='.tl-live{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:210;display:flex;gap:12px;align-items:center;background:#1E7B45;color:#fff;border-radius:14px;padding:10px 16px;box-shadow:0 12px 30px rgba(0,0,0,.25);font:600 14px "Cairo","Segoe UI",Tahoma,sans-serif;max-width:calc(100% - 24px);animation:tlIn .35s ease;transition:opacity .5s}.tl-live span{font-size:22px}.tl-live p{margin:2px 0 0;font-weight:500;font-size:13px}.tl-live.out{opacity:0}@keyframes tlIn{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}';
+  (document.head||document.documentElement).appendChild(lst);
   window.TL_SET_MY_ENTRY=function(v){if(myEntry)myEntry=revOf(v.access)};
-  setInterval(recheck,120000);document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
+  setInterval(recheck,60000);document.addEventListener('visibilitychange',function(){if(!document.hidden)recheck()});
   window.TL_LOCK=function(){window.TL_DATA={};try{location.reload()}catch(e){}};
 })();
 
@@ -147,10 +166,10 @@
   var NAMES={'plat-tsrf':'التصرفات العقارية','plat-reta':'الضرائب العقارية','tl-home':'الرئيسية'};
   window.addEventListener('tl-unlocked',function(){
     window.TL_LOG('login');last=Date.now();
-    try{var o=dash.setLink;dash.setLink=function(x){var n=NAMES[x]||x;if(n!==where){where=n;if(x!=='tl-home')window.TL_LOG('open_platform',n)}return o.apply(this,arguments)}}catch(e){}
+    try{var o=dash.setLink;dash.setLink=function(x){if(x==='plat-reta'&&window.__retaStale&&window.RETA_RELOAD){window.__retaStale=0;setTimeout(window.RETA_RELOAD,60)}var n=NAMES[x]||x;if(n!==where){where=n;if(x!=='tl-home')window.TL_LOG('open_platform',n)}return o.apply(this,arguments)}}catch(e){}
     if(window.TL_PUBLISH_VAULT&&!window.TL_PUBLISH_VAULT.__l){var p=window.TL_PUBLISH_VAULT;window.TL_PUBLISH_VAULT=function(m){var pl=m.__plat||(where==='التصرفات العقارية'?'tsrf':'reta'),nm=pl==='tsrf'?'التصرفات العقارية':'الضرائب العقارية',d=m.__last?new Date(m.__last+'T12:00:00'):new Date(),ds=d.getDate()+' '+['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][d.getMonth()];
-      return p(function(V){return Promise.resolve(m(V)).then(function(V2){V2=V2||V;if(m.__noNotice)return V2;var N={id:'n'+Date.now(),plat:pl,at:d.toISOString(),type:m.__type||'data',text:m.__text||('تحديث جديد: بيانات '+nm+' بقت لحد '+ds+'.')};V2.notices=(V2.notices||[]).filter(function(x){return Date.now()-new Date(x.at)<30*864e5}).concat([N]);window.TL_NOTICES=V2.notices;return V2})})
-        .then(function(r){if(!m.__noNotice)window.TL_LOG('data_update',nm,{p:pl});window.TL_BELL&&window.TL_BELL();return r})};window.TL_PUBLISH_VAULT.__l=1}
+      return p(function(V){return Promise.resolve(m(V)).then(function(V2){V2=V2||V;window.__pubV=V2;if(m.__noNotice)return V2;var N={id:'n'+Date.now(),plat:pl,at:d.toISOString(),type:m.__type||'data',text:m.__text||('تحديث جديد: بيانات '+nm+' بقت لحد '+ds+'.')};V2.notices=(V2.notices||[]).filter(function(x){return Date.now()-new Date(x.at)<30*864e5}).concat([N]);window.TL_NOTICES=V2.notices;return V2})})
+        .then(function(r){if(window.__pubV){window.TL_VAULT=window.__pubV.vault;window.TL_NOTICES=window.__pubV.notices||window.TL_NOTICES}if(!m.__noNotice)window.TL_LOG('data_update',nm,{p:pl});window.TL_BELL&&window.TL_BELL();return r})};window.TL_PUBLISH_VAULT.__l=1}
     showNotices();
     setInterval(function(){if(!document.hidden)window.TL_LOG('ping')},60000);
     btn.hidden=false});
@@ -678,7 +697,7 @@ body{background:#FFFFFF}.reta-root .card{box-shadow:0 1px 3px rgba(20,48,106,.06
       </p>
     </div>
   </header>
-  <div class="ex-stale" id="freshness"><i></i><span>آخر بيانات في الشيت حتى <b data-source="totals" data-field="last_date" data-fmt="date">—</b> (<span class="ex-stale-days">—</span>)</span><span class="ex-stale-msg"></span><span class="ex-auto" style="margin-inline-start:auto;color:var(--color-fg-muted)">التحديث التلقائي كل يوم أحد الساعة 5 مساءً</span><span class="ex-actions"><button type="button" class="ex-act" id="btn-show">▶ وضع العرض</button><button type="button" class="ex-act" id="btn-card">⤓ بطاقة الأسبوع</button></span></div>
+  <div class="ex-stale" id="freshness"><i></i><span>آخر بيانات في الشيت حتى <b data-source="totals" data-field="last_date" data-fmt="date">—</b> (<span class="ex-stale-days">—</span>)</span><span class="ex-stale-msg"></span><span class="ex-auto" style="margin-inline-start:auto;color:var(--color-fg-muted)">الشاشة بتتحدث لوحدها أول ما بيانات جديدة تتنشر</span><span class="ex-actions"><button type="button" class="ex-act" id="btn-show">▶ وضع العرض</button><button type="button" class="ex-act" id="btn-card">⤓ بطاقة الأسبوع</button></span></div>
 
   <nav class="ex-tabs" role="tablist">
     <button class="ex-tab" role="tab" data-tab="leaders" aria-selected="true">عرض القيادة</button>
