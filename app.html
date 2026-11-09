@@ -226,7 +226,7 @@
       return S.encrypt({name:'AES-GCM',iv:iv},x[0],new TextEncoder().encode(t.p)).then(function(ct){return get('who').then(function(o){return put('who',{u:t.u,iv:iv,ct:ct,rev:x[1],bio:(o&&o.u===t.u&&o.bio)||null})})})}).catch(function(){})});
   function setup(){var go=document.getElementById('tl-go'),pw=document.getElementById('tl-p');if(!go||!pw)return;
     var l=document.createElement('label');l.style.cssText='display:flex;align-items:center;gap:8px;margin:2px 0 12px;font-size:14px;color:#4A5875;cursor:pointer;font-weight:600';
-    box=document.createElement('input');box.type='checkbox';box.style.cssText='width:18px;height:18px;margin:0;accent-color:#14306A';l.append(box,document.createTextNode('تذكرني على الجهاز ده'));go.parentNode.insertBefore(l,go);
+    box=document.createElement('input');box.type='checkbox';box.style.cssText='width:18px;height:18px;margin:0;accent-color:#14306A';l.append(box,document.createTextNode('تذكرني'));go.parentNode.insertBefore(l,go);
     var noauto=false;try{noauto=!!sessionStorage.getItem('tl_noauto');sessionStorage.removeItem('tl_noauto')}catch(e){}
     (window.TL_READY||Promise.resolve()).then(function(){return get('who')}).then(function(w){if(!w)return;
       return Promise.all([devKey(),revFor(w.u)]).then(function(x){if(x[1]!==w.rev)return window.TL_FORGET();
