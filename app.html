@@ -5368,7 +5368,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var mm={};dd.forEach(function(r){var k=String(r.month).slice(0,7),o=mm[k]||(mm[k]={month:k,disposals:0,registered:0,inspections:0,tax_paid:0,tax_claims:0});['disposals','registered','inspections','tax_paid','tax_claims'].forEach(function(c){o[c]+=+r[c]||0})});
     var M=Object.keys(mm).sort().map(function(k){var o=mm[k];o.collection_rate=o.tax_claims?o.tax_paid/o.tax_claims:0;return o});daily=dd;
     // inspection-reasons report on or before the chosen week
-    var ds=[];IR.forEach(function(r){var d=String(r.report_date).slice(0,10);if(d<=cut&&ds.indexOf(d)<0)ds.push(d)});ds.sort();
+    var cut2=new Date(D0(cut).getTime()+2*864e5).toISOString().slice(0,10),ds=[];IR.forEach(function(r){var d=String(r.report_date).slice(0,10);if(d<=cut2&&ds.indexOf(d)<0)ds.push(d)});/* the reasons report is issued on the Sunday right after the week ends */ds.sort();
     var rdl=ds[ds.length-1],rdp=ds[ds.length-2],RL=[],RS=null;
     if(rdl){var curR=IR.filter(function(r){return String(r.report_date).slice(0,10)===rdl}),pv={};IR.forEach(function(r){if(rdp&&String(r.report_date).slice(0,10)===rdp)pv[r.reason]=+r.count});
       var sm=curR.reduce(function(a,r){return a+(+r.count)},0)||1;RL=curR.map(function(r){return{reason:r.reason,count:+r.count,share:+r.count/sm,change:pv[r.reason]?+r.count/pv[r.reason]-1:null}}).sort(function(x,y){return y.count-x.count});
