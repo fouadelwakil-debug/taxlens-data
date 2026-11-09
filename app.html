@@ -5622,6 +5622,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     ['reta','tsrf'].forEach(function(p){var i=I[p];if(!i)return;var b=el('div','tlx-pl'),h=el('h4');h.appendChild(document.createTextNode('📊 '+i.title));b.appendChild(h);var k=el('div','tlx-k');
       i.k.forEach(function(x){var d=el('div');d.append(el('b',null,x[1]),el('span',null,x[0]));if(x[2]!=null){var t=el('i',x[2]>=0?'tlx-up':'tlx-dn',(x[2]>=0?'▲ +':'▼ ')+(x[2]*100).toFixed(1)+'% عن الأسبوع اللي فات');d.appendChild(el('br'));d.appendChild(t)}if(x[3]){d.appendChild(el('br'));d.appendChild(el('i','tlx-up',x[3]))}k.appendChild(d)});b.appendChild(k);
       if(i.alerts.length){var a=el('div','tlx-al');i.alerts.forEach(function(t){a.appendChild(el('p',null,t))});b.appendChild(a)}s.appendChild(b)})}
+  window.TLX_INFO=function(){return{tsrf:has('tsrf')?tsrfInfo():null,reta:has('reta')?retaInfo():null}};
   window.TLX_ALERTS=function(){var o=[];['tsrf','reta'].forEach(function(p){if(!has(p))return;var i=p==='tsrf'?tsrfInfo():retaInfo();if(i)o=o.concat(i.alerts)});return o};
   if(window.dash&&dash.onData)dash.onData(function(){setTimeout(drawHome,0)});
   new MutationObserver(function(){clearTimeout(drawHome.t);drawHome.t=setTimeout(function(){if(!document.querySelector('#tl-grid .tlx-fr')||!document.getElementById('tlx-strip'))drawHome()},60)}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});

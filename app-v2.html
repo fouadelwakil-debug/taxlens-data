@@ -5727,6 +5727,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     ['reta','tsrf'].forEach(function(p){var i=I[p];if(!i)return;var b=el('div','tlx-pl'),h=el('h4');h.appendChild(document.createTextNode('📊 '+i.title));b.appendChild(h);var k=el('div','tlx-k');
       i.k.forEach(function(x){var d=el('div');d.append(el('b',null,x[1]),el('span',null,x[0]));if(x[2]!=null){var t=el('i',x[2]>=0?'tlx-up':'tlx-dn',(x[2]>=0?'▲ +':'▼ ')+(x[2]*100).toFixed(1)+'% عن الأسبوع اللي فات');d.appendChild(el('br'));d.appendChild(t)}if(x[3]){d.appendChild(el('br'));d.appendChild(el('i','tlx-up',x[3]))}k.appendChild(d)});b.appendChild(k);
       if(i.alerts.length){var a=el('div','tlx-al');i.alerts.forEach(function(t){a.appendChild(el('p',null,t))});b.appendChild(a)}s.appendChild(b)})}
+  window.TLX_INFO=function(){return{tsrf:has('tsrf')?tsrfInfo():null,reta:has('reta')?retaInfo():null}};
   window.TLX_ALERTS=function(){var o=[];['tsrf','reta'].forEach(function(p){if(!has(p))return;var i=p==='tsrf'?tsrfInfo():retaInfo();if(i)o=o.concat(i.alerts)});return o};
   if(window.dash&&dash.onData)dash.onData(function(){setTimeout(drawHome,0)});
   new MutationObserver(function(){clearTimeout(drawHome.t);drawHome.t=setTimeout(function(){if(!document.querySelector('#tl-grid .tlx-fr')||!document.getElementById('tlx-strip'))drawHome()},60)}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
@@ -5902,6 +5903,38 @@ C.defaults.font.family='Cairo, Tahoma, sans-serif';C.defaults.color=d?'#C9D6EE':
 try{Object.values(C.instances||{}).forEach(function(ch){try{['x','y','r'].forEach(function(a){var s=ch.options.scales&&ch.options.scales[a];if(s){s.ticks=s.ticks||{};s.ticks.color=C.defaults.color;s.grid=s.grid||{};s.grid.color=C.defaults.borderColor;}});if(ch.options.plugins&&ch.options.plugins.legend&&ch.options.plugins.legend.labels)ch.options.plugins.legend.labels.color=C.defaults.color;ch.update('none')}catch(e){}})}catch(e){}}
 var t=setInterval(function(){if(window.Chart){apply();clearInterval(t)}},400);
 new MutationObserver(apply).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});})();
+;(function(){/* Phase 6: نظرة القيادة + تقرير القيادة الأسبوعي */
+var FA=function(t){return String(t).replace(/اللي فات/g,'السابق').replace(/اللي قبلها/g,'السابقة').replace(/نزلت/g,'انخفضت').replace(/لحد/g,'حتى').replace(/من (\d+) يوم/g,'منذ $1 يوماً').replace(/من (\d+) أيام/g,'منذ $1 أيام')};
+function isLead(){try{var u=window.TL_USER,a=window.TL_ACCESS,g=a&&a.users&&a.users[u]&&a.users[u].group;return g==='lead'}catch(e){return false}}
+function pc(x){return x==null?'':(x>=0?'ارتفاع بنسبة ':'انخفاض بنسبة ')+Math.abs(x*100).toFixed(1)+'%'}
+function brief(I){var s=[];if(I.reta){var k=I.reta.k;s.push('في الضرائب العقارية بلغ عدد الحسابات '+k[0][1]+' والإقرارات '+k[1][1]+'، وبلغ إجمالي المحصّل '+k[2][1]+' جنيه، وذلك حتى '+FA(I.reta.title.split('حتى ')[1]||'')+'.')}
+  if(I.tsrf){var t=I.tsrf.k;s.push('وفي التصرفات العقارية سُجّل '+t[0][1]+' مسجلاً جديداً و'+t[1][1]+' عملية تصرف خلال الأسبوع الأخير'+(t[1][2]!=null?' ('+pc(t[1][2])+' في عمليات التصرف مقارنة بالأسبوع السابق)':'')+'.')}
+  return s.join(' ')}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function draw(){if(!document.body.classList.contains('v2'))return;var s=document.getElementById('tlx-strip');if(!s||!window.TLX_INFO)return;var I=window.TLX_INFO();if(!I.reta&&!I.tsrf)return;
+  var c=document.getElementById('tlv2-lead');if(c&&c.parentNode===s&&s.firstChild===c)return;if(c)c.remove();
+  c=el('div','tlx-pl');c.id='tlv2-lead';c.style.cssText='grid-column:1/-1;border-inline-start:4px solid var(--acc,#14306A)';
+  var h=el('h4',null,isLead()?'نظرة القيادة · القيادة العليا – وزارة المالية':'ملخص اليوم');c.appendChild(h);
+  var p=el('p',null,brief(I));p.style.cssText='margin:4px 0 10px;font-size:14.5px;line-height:1.9';c.appendChild(p);
+  var al=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[]);if(al.length){var a=el('div','tlx-al');al.forEach(function(t){a.appendChild(el('p',null,FA(t)))});c.appendChild(a)}
+  var b=el('button',null,'تقرير القيادة الأسبوعي (PDF)');b.style.cssText='margin-top:10px;height:40px;border-radius:10px;border:0;background:var(--acc,#14306A);color:#fff;font:700 14px Cairo,Tahoma,sans-serif;padding:0 18px;cursor:pointer';
+  b.onclick=function(){b.disabled=true;b.textContent='جارٍ إعداد التقرير…';pdf(I).then(function(){b.textContent='تقرير القيادة الأسبوعي (PDF)'}).catch(function(e){alert('تعذّر إعداد التقرير: '+e.message);b.textContent='تقرير القيادة الأسبوعي (PDF)'}).then(function(){b.disabled=false})};
+  c.appendChild(b);s.insertBefore(c,s.firstChild)}
+function sec(i,name,col){if(!i)return'';return'<div style="background:#fff;border-radius:14px;border:1px solid #E1E7F0;margin:0 0 18px;overflow:hidden"><div style="height:6px;background:'+col+'"></div><div style="padding:18px 22px"><div style="font-size:20px;font-weight:800;color:#14306A;margin-bottom:12px">'+FA(i.title)+'</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">'+
+  i.k.map(function(k){return'<div style="background:#F2F6FC;border-radius:10px;padding:12px"><div style="font-size:13px;color:#4A5875">'+FA(k[0])+'</div><div style="font-size:24px;font-weight:800;color:#14306A">'+k[1]+'</div><div style="font-size:12px;font-weight:700;color:'+(k[2]!=null&&k[2]<0?'#C21B28':'#1E7B45')+'">'+(k[2]!=null?pc(k[2])+' عن الأسبوع السابق':FA(k[3]||''))+'</div></div>'}).join('')+'</div>'+
+  (i.alerts.length?'<div style="margin-top:12px">'+i.alerts.map(function(t){return'<div style="background:#FFF1E6;color:#9A3412;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;margin-top:6px">'+FA(t)+'</div>'}).join('')+'</div>':'')+'</div></div>'}
+function pdf(I){if(!window.htmlToImage||!window.jspdf)return Promise.reject(new Error('مكتبات التصدير غير متاحة'));
+  var W=794,H=1123,d=new Date(),ds=d.toLocaleDateString('ar-EG',{dateStyle:'long'});
+  var n=document.createElement('div');n.dir='rtl';n.style.cssText='position:fixed;left:-10000px;top:0;width:'+W+'px;height:'+H+'px;background:#EEF3FA;font-family:Cairo,Tahoma,sans-serif;color:#141413;box-sizing:border-box';
+  n.innerHTML='<div style="background:#14306A;color:#fff;padding:26px 34px"><div style="font-size:14px;color:#FFB3B8;font-weight:700">القيادة العليا · وزارة المالية</div><div style="font-size:30px;font-weight:800;margin-top:4px">تقرير القيادة الأسبوعي</div><div style="font-size:14px;opacity:.85">TAX Lens · صدر في '+ds+'</div></div>'+
+   '<div style="padding:24px 34px"><div style="background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:18px;border:1px solid #E1E7F0"><div style="font-size:16px;font-weight:800;color:#14306A;margin-bottom:6px">الملخص</div><div style="font-size:15px;line-height:2">'+brief(I)+'</div></div>'+
+   sec(I.reta,'reta','#1F4C9A')+sec(I.tsrf,'tsrf','#0D7C77')+'</div><div style="position:absolute;bottom:18px;left:34px;right:34px;font-size:11px;color:#4A5875;display:flex;justify-content:space-between"><span>مصلحة الضرائب المصرية · eTax</span><span>سري – للاستخدام الداخلي</span></div>';
+  document.body.appendChild(n);var go=function(){return window.htmlToImage.toCanvas(n,{pixelRatio:2,width:W,height:H}).then(function(cv){var J=window.jspdf.jsPDF,doc=new J({unit:'px',format:[W,H],compress:true});doc.addImage(cv.toDataURL('image/jpeg',.92),'JPEG',0,0,W,H);
+    var blob=doc.output('blob'),nm='تقرير_القيادة_'+d.toISOString().slice(0,10)+'.pdf',f=new File([blob],nm,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})&&/Mobi|iPhone|Android/i.test(navigator.userAgent)){return navigator.share({files:[f],title:'تقرير القيادة الأسبوعي'}).catch(function(){dl(blob,nm)})}dl(blob,nm)})};
+  return(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go).then(function(){n.remove();window.TL_LOG&&window.TL_LOG('report','تقرير القيادة الأسبوعي')},function(e){n.remove();throw e})}
+function dl(b,nm){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nm;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},2000)}
+setInterval(draw,1500);})();
 </script>
 </body>
 </html>
