@@ -397,6 +397,26 @@ html[data-theme=dark] body.v2 #plat-tsrf svg text{fill:#C9D6EE}
 html[data-theme=dark] body.v2 #plat-tsrf svg line[stroke="#E1E7F0"],html[data-theme=dark] body.v2 #plat-tsrf svg .grid line{stroke:#22355E!important}
 html[data-theme=dark] body.v2 #plat-tsrf b,html[data-theme=dark] body.v2 #plat-tsrf strong{color:#FFFFFF}
 html[data-theme=dark] body.v2 .tlx-pl,html[data-theme=dark] body.v2 .tlx-m>div{background:#14254A!important;color:#EEF3FA!important}
+/* ===== Phase 4 · RETA (الضرائب العقارية) on the unified system ===== */
+body.v2 .reta-root{--bg:var(--v2-bg);--card:#FFFFFF;--ink:#141413;--mute:#4A5875;--line:#E1E7F0;--soft:#F2F6FC;--a:#14306A;--e:#D6202E;font-family:var(--v2-font)!important}
+body.v2 .reta-root .wrap{max-width:1360px;padding:20px 28px 48px}
+body.v2 .reta-root header .ex-logo,body.v2 .reta-root header img[src*="etax"],body.v2 .reta-root .ex-logo{display:none!important}
+body.v2 .reta-root h1{font-size:26px;color:#14306A}
+body.v2 .reta-root .badge{background:var(--v2-red)}
+body.v2 .reta-root .card{border-radius:12px;border-color:#E1E7F0;box-shadow:0 2px 8px rgba(20,48,106,.08)}
+body.v2 .reta-root .kl{font-size:13px;font-weight:600}
+body.v2 .reta-root .kv{font-size:30px;font-weight:800;color:#14306A}
+body.v2 .reta-root h2{font-size:16px;font-weight:700;color:#14306A}
+body.v2 .reta-root .tabs button.on{color:var(--acc);border-color:var(--acc)}
+body.v2 .reta-root .seg button.on,body.v2 .reta-root .chip.on{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}
+body.v2 .reta-root select,body.v2 .reta-root input[type=search],body.v2 .reta-root .seg button,body.v2 .reta-root .chip,body.v2 .reta-root .hbtn{border-radius:9px;min-height:36px;font-family:var(--v2-font)}
+body.v2 .reta-root .tbl th,body.v2 .reta-root table th{background:#14254A;color:#fff}
+html[data-theme=dark] body.v2 .reta-root{--bg:#0B1A3B;--card:#14254A;--ink:#EEF3FA;--mute:#A9B3C7;--line:#22355E;--soft:#142A57;--a:#C9D6EE;background:#0B1A3B;color:#EEF3FA}
+html[data-theme=dark] body.v2 .reta-root h1,html[data-theme=dark] body.v2 .reta-root h2,html[data-theme=dark] body.v2 .reta-root .kv{color:#EEF3FA}
+html[data-theme=dark] body.v2 .reta-root .card,html[data-theme=dark] body.v2 .reta-root [style*="background:#fff"],html[data-theme=dark] body.v2 .reta-root [style*="background:#FFF"],html[data-theme=dark] body.v2 .reta-root [style*="background: #fff"]{background:#14254A!important;color:#EEF3FA!important;border-color:#22355E!important;box-shadow:none}
+html[data-theme=dark] body.v2 .reta-root table td{border-color:#22355E}
+html[data-theme=dark] body.v2 .reta-root table tr:nth-child(even) td{background:#142A57}
+html[data-theme=dark] body.v2 .reta-root svg text{fill:#C9D6EE}
 </style>
 </head>
 <body>
@@ -5863,6 +5883,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   window.addEventListener('tl-unlocked',function(){document.body.classList.add('v2');top.hidden=false;setTimeout(sync,300)});
   if(window.dash&&dash.onData)dash.onData(function(){setTimeout(asOf,0)});
 })();
+;(function(){/* Phase 4: unified chart defaults (Chart.js) for light/dark */
+function apply(){var C=window.Chart;if(!C||!C.defaults)return;var d=document.documentElement.getAttribute('data-theme')==='dark';
+C.defaults.font.family='Cairo, Tahoma, sans-serif';C.defaults.color=d?'#C9D6EE':'#4A5875';C.defaults.borderColor=d?'#22355E':'#E1E7F0';
+try{Object.values(C.instances||{}).forEach(function(ch){try{['x','y','r'].forEach(function(a){var s=ch.options.scales&&ch.options.scales[a];if(s){s.ticks=s.ticks||{};s.ticks.color=C.defaults.color;s.grid=s.grid||{};s.grid.color=C.defaults.borderColor;}});if(ch.options.plugins&&ch.options.plugins.legend&&ch.options.plugins.legend.labels)ch.options.plugins.legend.labels.color=C.defaults.color;ch.update('none')}catch(e){}})}catch(e){}}
+var t=setInterval(function(){if(window.Chart){apply();clearInterval(t)}},400);
+new MutationObserver(apply).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});})();
 </script>
 </body>
 </html>
