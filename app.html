@@ -81,6 +81,9 @@
   function apiUrl(){var m=/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/.exec(window.TL_REMOTE||'');return m?'https://api.github.com/repos/'+m[1]+'/'+m[2]+'/contents/'+m[4]+'?ref='+m[3]+'&t='+Date.now():null}
   function fetchVault(){var a=apiUrl(),raw=function(){return fetch(window.TL_REMOTE+'?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})};
     if(!a)return raw();return fetch(a,{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'}}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).catch(raw)}
+  // offline: keep the last vault in the browser cache and use it when there is no connection
+  var fv0=fetchVault;fetchVault=function(){return fv0().then(function(v){try{caches.open('tl-v1').then(function(c){c.put('vault',new Response(JSON.stringify(v)))})}catch(e){}window.TL_OFFLINE=false;return v},function(err){
+      try{return caches.open('tl-v1').then(function(c){return c.match('vault')}).then(function(r){if(!r)throw err;window.TL_OFFLINE=true;return r.json()})}catch(e){throw err}})};
   window.TL_FETCH_VAULT=fetchVault;
   var ready=Promise.resolve();
   if(window.TL_REMOTE){
@@ -260,6 +263,31 @@
   var st=document.createElement('style');st.textContent='.tl-pwb{color:#14306A!important}body:has(#tl-radmin:not([hidden])) .tl-pwb{display:none}';
   function mount(){document.head.appendChild(st);window.TL_PLACE(b)}if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);
   window.addEventListener('tl-unlocked',function(){b.hidden=false});
+})();
+
+/* Admin-only "install as app" guide, plus a direct install on Android/desktop Chrome when the browser offers it. */
+(function(){
+  var deferred=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e});
+  var LINK='https://etax-taxlens.github.io/';
+  function kind(){var ua=navigator.userAgent;if(/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1))return'ios';if(/Android/.test(ua))return'android';return'desktop'}
+  function standalone(){return(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone}
+  var STEPS={ios:['افتح اللينك في <b>Safari</b> (مش Chrome ولا من جوه الواتساب).','دوس زرار <b>المشاركة</b> ⬆️ تحت في نص الشاشة.','انزل واختار <b>إضافة إلى الشاشة الرئيسية</b> (Add to Home Screen).','دوس <b>إضافة</b> (Add) فوق على اليمين.','افتح TAX Lens من الأيقونة الجديدة، وعلّم على "تذكرني"، وفعّل الدخول بالبصمة.'],
+    android:['افتح اللينك في <b>Chrome</b>.','دوس النقط التلاتة <b>⋮</b> فوق على اليمين.','اختار <b>تثبيت التطبيق</b> (Install app) أو <b>إضافة إلى الشاشة الرئيسية</b>.','دوس <b>تثبيت</b> (Install).','افتح TAX Lens من الأيقونة، وعلّم على "تذكرني"، وفعّل الدخول بالبصمة.'],
+    desktop:['افتح اللينك في <b>Chrome</b> أو <b>Edge</b>.','في شريط العنوان على اليمين دوس أيقونة <b>التثبيت</b> 🖥️⬇ (أو من القايمة ⋮ ← تثبيت TAX Lens).','دوس <b>تثبيت</b> (Install)، وهيظهرلك TAX Lens في قايمة البرامج وعلى سطح المكتب.']};
+  function open(){var k=kind(),m=document.createElement('div');m.className='tl-xm';m.setAttribute('dir','rtl');
+    var tabs={ios:'آيفون',android:'أندرويد',desktop:'كمبيوتر'};
+    m.innerHTML='<div style="text-align:right;max-width:420px"><h3>📲 تثبيت TAX Lens كتطبيق</h3><p style="margin-bottom:8px">التطبيق بيشتغل من اللينك: <b dir="ltr">etax-taxlens.github.io</b></p><div class="tg" style="display:flex;gap:6px;margin-bottom:8px"></div><ol class="st" style="margin:0 0 10px;padding-inline-start:20px;line-height:1.9;font-size:14px;color:#141413"></ol><div class="ac" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div></div>';
+    document.body.appendChild(m);var tg=m.querySelector('.tg'),st=m.querySelector('.st'),ac=m.querySelector('.ac');
+    function show(x){st.innerHTML=STEPS[x].map(function(s){return'<li>'+s+'</li>'}).join('');[].forEach.call(tg.children,function(b){b.style.background=b.dataset.k===x?'#14306A':'#fff';b.style.color=b.dataset.k===x?'#fff':'#14306A'})}
+    Object.keys(tabs).forEach(function(x){var b=document.createElement('button');b.type='button';b.dataset.k=x;b.textContent=tabs[x]+(x===k?' (جهازك)':'');b.style.cssText='border:1px solid #D5DCE6;border-radius:999px;padding:4px 12px;font:700 12.5px inherit;font-family:inherit;cursor:pointer';b.onclick=function(){show(x)};tg.appendChild(b)});show(k);
+    if(deferred){var ib=document.createElement('button');ib.type='button';ib.className='d';ib.textContent='⬇ ثبّت دلوقتي';ib.onclick=function(){deferred.prompt();deferred.userChoice.then(function(){deferred=null;m.remove()})};ac.appendChild(ib)}
+    var cp=document.createElement('button');cp.type='button';cp.textContent='📋 انسخ اللينك';cp.onclick=function(){try{navigator.clipboard.writeText(LINK);cp.textContent='✓ اتنسخ'}catch(e){prompt('انسخ اللينك:',LINK)}};ac.appendChild(cp);
+    var wa=document.createElement('button');wa.type='button';wa.textContent='ابعت الخطوات واتساب';wa.onclick=function(){window.open('https://wa.me/?text='+encodeURIComponent('TAX Lens\n'+LINK+'\n\n'+STEPS[k].map(function(s,i){return(i+1)+'. '+s.replace(/<[^>]+>/g,'')}).join('\n')),'_blank')};ac.appendChild(wa);
+    var cl=document.createElement('button');cl.type='button';cl.textContent='إغلاق';cl.onclick=function(){m.remove()};ac.appendChild(cl);
+    m.addEventListener('click',function(e){if(e.target===m)m.remove()})}
+  window.addEventListener('tl-unlocked',function(){if(!window.TL_ADMINKEY||standalone())return;setTimeout(function(){if(!window.TL_PLACE||document.getElementById('tl-inst'))return;var b=document.createElement('button');b.id='tl-inst';b.type='button';b.className='tl-xo';b.style.color='#14306A';b.textContent='📲 تثبيت كتطبيق';b.onclick=open;window.TL_PLACE(b)},800)});
+  // offline notice
+  window.addEventListener('tl-unlocked',function(){if(!window.TL_OFFLINE)return;var x=document.createElement('div');x.className='tl-nt';x.setAttribute('dir','rtl');x.style.background='#C2410C';x.innerHTML='<span>📴</span><div><p>مافيش إنترنت دلوقتي — بتشوف آخر بيانات اتحملت على الجهاز ده. هتتحدث لوحدها أول ما النت يرجع.</p></div><button type="button">تمام</button>';x.querySelector('button').onclick=function(){x.remove()};document.body.appendChild(x)});
 })();
 </script>
 </head>
