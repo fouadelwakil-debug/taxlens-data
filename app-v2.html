@@ -422,6 +422,9 @@ html[data-theme=dark] body.v2 #plat-tsrf .ex-title,html[data-theme=dark] body.v2
 html[data-theme=dark] body.v2 #plat-tsrf .lbl,html[data-theme=dark] body.v2 #plat-tsrf .sm,html[data-theme=dark] body.v2 #plat-tsrf .ex-sub{color:#A9B3C7!important}
 html[data-theme=dark] body.v2 #plat-tsrf svg [fill="#F2F6FC"],html[data-theme=dark] body.v2 #plat-tsrf svg [fill="#fff"],html[data-theme=dark] body.v2 #plat-tsrf svg [fill="#FFFFFF"],html[data-theme=dark] body.v2 #plat-tsrf svg [fill="#EEF3FA"]{fill:#142A57}
 html{overflow-x:clip}
+html[data-theme=dark] body.v2 #plat-tsrf .ex-chip{background:#14254A!important;color:#C9D6EE!important;border-color:#22355E!important}
+html[data-theme=dark] body.v2 #plat-tsrf .ex-chip[aria-pressed=true],html[data-theme=dark] body.v2 #plat-tsrf .ex-chip.on{background:var(--acc)!important;color:#fff!important;border-color:var(--acc)!important}
+html[data-theme=dark] body.v2 #plat-tsrf .ex-ctrl,html[data-theme=dark] body.v2 #plat-tsrf .ex-filters,html[data-theme=dark] body.v2 #plat-tsrf .ex-range{background:#14254A!important;color:#EEF3FA!important}
 </style>
 </head>
 <body>
@@ -1775,6 +1778,7 @@ dash.calc('quality', {
 
   // grouped / stacked bar chart, optional line on a right % axis
   function barChart(box, rows, o) {
+    if (window.TL_UI_VERSION === 'v2' && window.Chart) return cjChart(box, rows, o, 'bar');
     box.querySelectorAll('svg, .ex-fail').forEach((s) => s.remove());
     box.classList.remove('dash-skeleton');
     const t = tip(box);
@@ -1840,6 +1844,7 @@ dash.calc('quality', {
   }
 
   function lineChart(box, rows, o) {
+    if (window.TL_UI_VERSION === 'v2' && window.Chart) return cjChart(box, rows, o, 'line');
     box.querySelectorAll('svg, .ex-fail').forEach((s) => s.remove());
     box.classList.remove('dash-skeleton');
     const t = tip(box);
@@ -1883,6 +1888,36 @@ dash.calc('quality', {
         showTip(box, t, ev, o.tipHead ? o.tipHead(r) : o.x(r), o.series.map((s) => [s.color, s.label, r[s.key] == null ? '—' : (o.fmt || pct)(r[s.key])]));
       })
       .on('pointerleave', () => { rule.attr('opacity', 0); t.hidden = true; });
+  }
+
+  // v2: same charts drawn with Chart.js (one charting library across TAX Lens)
+  const clean = (v) => String(v == null ? '—' : v).replace(/[⁦-⁩]/g, '');
+  function cjChart(box, rows, o, kind) {
+    box.querySelectorAll('svg.ex-svg, .ex-fail, .ex-cj').forEach((s) => { const c = s.querySelector && s.querySelector('canvas'); if (c && Chart.getChart(c)) Chart.getChart(c).destroy(); s.remove(); });
+    box.classList.remove('dash-skeleton');
+    if (!rows.length) return;
+    const H = Math.round((o.h || (kind === 'bar' ? 280 : 260)) * (box.clientWidth < 520 ? 0.8 : 1));
+    const wrap = document.createElement('div'); wrap.className = 'ex-cj'; wrap.style.cssText = 'position:relative;height:' + H + 'px;width:100%';
+    const cv = document.createElement('canvas'); wrap.appendChild(cv); box.insertBefore(wrap, box.firstChild);
+    const last = rows.length - 1, labels = rows.map((r) => clean(o.xLabel ? o.xLabel(r) : o.x(r)));
+    const yFmt = kind === 'bar' ? (o.axisFmt || short) : (o.yFmt || d3.format('.0%'));
+    const tipF = kind === 'bar' ? null : (o.fmt || pct);
+    const ds = o.series.map((s) => {
+      const col = typeof s.color === 'function' ? rows.map((r, i) => s.color(r, i, last)) : s.color;
+      const base = { label: s.label, data: rows.map((r) => (r[s.key] == null ? null : r[s.key])), _fmt: s.fmt || tipF || o.fmt };
+      if (kind === 'bar') return Object.assign(base, { type: 'bar', backgroundColor: col, borderRadius: o.stacked ? 2 : 4, maxBarThickness: 40, stack: o.stacked ? 's' : undefined, yAxisID: 'y' });
+      return Object.assign(base, { type: 'line', borderColor: col, backgroundColor: col, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2.5, tension: 0.25, spanGaps: true, yAxisID: 'y' });
+    });
+    const scales = { x: { stacked: !!o.stacked, grid: { display: false }, ticks: { autoSkip: true, maxRotation: 0, font: { family: 'Cairo' } } },
+      y: { stacked: !!o.stacked, beginAtZero: true, ticks: { callback: (v) => clean(yFmt(v)), maxTicksLimit: 6, font: { family: 'Cairo' } } } };
+    if (kind === 'bar' && o.line) {
+      ds.push({ type: 'line', label: o.line.label, data: rows.map((r) => (r[o.line.key] == null ? null : r[o.line.key])), borderColor: o.line.color, backgroundColor: o.line.color, pointRadius: 3.5, borderWidth: 2.5, yAxisID: 'y1', spanGaps: true, _fmt: pct, order: -1 });
+      scales.y1 = { position: 'right', beginAtZero: true, grid: { display: false }, ticks: { callback: (v) => d3.format('.0%')(v), maxTicksLimit: 5, font: { family: 'Cairo' } } };
+    }
+    new Chart(cv, { data: { labels, datasets: ds }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 400 }, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { rtl: true, textDirection: 'rtl', titleFont: { family: 'Cairo' }, bodyFont: { family: 'Cairo' },
+        callbacks: { title: (it) => (it.length ? clean(o.tipHead ? o.tipHead(rows[it[0].dataIndex]) : labels[it[0].dataIndex]) : ''), label: (c) => ' ' + c.dataset.label + ': ' + (c.raw == null ? '—' : clean((c.dataset._fmt || int)(c.raw))) } } },
+      scales } });
   }
 
 
@@ -2871,6 +2906,19 @@ dash.calc('quality', {
     const hist = simB.W.map((w) => ({ week: w.week, v: w[simMetric], kind: 'a' }));
     const sc = scen.rows.map((r) => ({ week: r.week, v: r[simMetric], kind: 's' })), bs = base.rows.map((r) => ({ week: r.week, v: r[simMetric] }));
     const all = hist.concat(sc);
+    if (window.TL_UI_VERSION === 'v2' && window.Chart) {
+      box.querySelectorAll('.ex-cj').forEach((n) => { const c = n.querySelector('canvas'); if (c && Chart.getChart(c)) Chart.getChart(c).destroy(); n.remove(); });
+      const wrap = el('div', 'ex-cj'); wrap.style.cssText = 'position:relative;width:100%;height:' + (box.clientWidth < 520 ? 210 : 290) + 'px'; const cv = document.createElement('canvas'); wrap.appendChild(cv); box.insertBefore(wrap, box.firstChild);
+      const fm = (v) => String(isMoney ? money(v) : int(Math.round(v))).replace(/[⁦-⁩]/g, '');
+      const bl = all.map((d) => { if (d.kind === 'a') return d === hist[hist.length - 1] ? d.v : null; const b = bs.find((r) => r.week === d.week); return b ? b.v : null; });
+      new Chart(cv, { data: { labels: all.map((d) => d.week), datasets: [
+        { type: 'bar', label: 'القيمة', data: all.map((d) => d.v), backgroundColor: all.map((d) => (d.kind === 'a' ? NAVY : 'rgba(47,111,208,.35)')), borderColor: all.map((d) => (d.kind === 'a' ? NAVY : BLUE)), borderWidth: all.map((d) => (d.kind === 'a' ? 0 : 1.5)), borderRadius: 3, maxBarThickness: 40 },
+        { type: 'line', label: 'الأساس', data: bl, borderColor: SLATE, borderDash: [5, 4], borderWidth: 2, pointRadius: 0, spanGaps: true }] },
+        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false },
+          tooltip: { rtl: true, textDirection: 'rtl', callbacks: { title: (it) => (it.length ? all[it[0].dataIndex].week + (all[it[0].dataIndex].kind === 'a' ? ' · فعلي' : ' · محاكاة') : ''), label: (c) => (c.raw == null ? null : ' ' + (c.datasetIndex ? 'الأساس' : all[c.dataIndex].kind === 'a' ? 'القيمة' : 'السيناريو') + ': ' + fm(c.raw)) } } },
+          scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } }, y: { beginAtZero: true, ticks: { maxTicksLimit: 5, callback: (v) => d3.format('.2~s')(v) } } } } });
+      return;
+    }
     const Wd = box.clientWidth, Hd = Wd < 520 ? 210 : 290, m = { t: 14, r: 8, b: 26, l: 50 };
     const x = d3.scaleBand(all.map((d) => d.week), [m.l, Wd - m.r]).padding(0.22);
     const y = d3.scaleLinear([0, d3.max(all.concat(bs), (d) => d.v) || 1], [Hd - m.b, m.t]).nice(4);
@@ -5940,8 +5988,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 ;(function(){/* Phase 4: unified chart defaults (Chart.js) for light/dark */
 function apply(){var C=window.Chart;if(!C||!C.defaults)return;var d=document.documentElement.getAttribute('data-theme')==='dark';
 C.defaults.font.family='Cairo, Tahoma, sans-serif';C.defaults.color=d?'#C9D6EE':'#4A5875';C.defaults.borderColor=d?'#22355E':'#E1E7F0';
-try{Object.values(C.instances||{}).forEach(function(ch){try{['x','y','r'].forEach(function(a){var s=ch.options.scales&&ch.options.scales[a];if(s){s.ticks=s.ticks||{};s.ticks.color=C.defaults.color;s.grid=s.grid||{};s.grid.color=C.defaults.borderColor;}});if(ch.options.plugins&&ch.options.plugins.legend&&ch.options.plugins.legend.labels)ch.options.plugins.legend.labels.color=C.defaults.color;ch.update('none')}catch(e){}})}catch(e){}}
-var t=setInterval(function(){if(window.Chart){apply();clearInterval(t)}},400);
+try{Object.values(C.instances||{}).forEach(function(ch){try{var SW={'#14306A':'#7FA7E6','#14254A':'#9FBBEA','#1F4C9A':'#8DB3F0','#0D1F47':'#9FBBEA'};var sw=function(c){if(typeof c!=='string')return c;var k=c.toUpperCase();return d?(SW[k]||c):c};
+  (ch.data.datasets||[]).forEach(function(ds){['backgroundColor','borderColor'].forEach(function(p){if(ds['_o'+p]===undefined)ds['_o'+p]=ds[p];var o=ds['_o'+p];ds[p]=Array.isArray(o)?o.map(sw):sw(o)})});}catch(e){console.warn('sw',e)}try{Object.keys(ch.options.scales||{}).forEach(function(a){var s=ch.options.scales[a];try{if(s.ticks)s.ticks.color=C.defaults.color}catch(e){}try{if(s.grid)s.grid.color=C.defaults.borderColor}catch(e){}try{if(s.border)s.border.color=C.defaults.borderColor}catch(e){}});if(ch.options.plugins&&ch.options.plugins.legend&&ch.options.plugins.legend.labels)ch.options.plugins.legend.labels.color=C.defaults.color;ch.update('none')}catch(e){}})}catch(e){}}
+var t=setInterval(function(){if(window.Chart){apply();clearInterval(t)}},400);var nC=0;setInterval(function(){var C=window.Chart;if(!C||!C.instances)return;var n=Object.keys(C.instances).length;if(n!==nC){nC=n;if(document.documentElement.getAttribute('data-theme')==='dark')apply()}},1000);
 new MutationObserver(apply).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});})();
 ;(function(){/* Phase 6: نظرة القيادة + تقرير القيادة الأسبوعي */
 var FA=function(t){return String(t);return String(t).replace(/اللي فات/g,'السابق').replace(/اللي قبلها/g,'السابقة').replace(/نزلت/g,'انخفضت').replace(/لحد/g,'حتى').replace(/من (\d+) يوم/g,'منذ $1 يوماً').replace(/من (\d+) أيام/g,'منذ $1 أيام')};
