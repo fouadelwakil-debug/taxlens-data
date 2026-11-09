@@ -124,17 +124,49 @@
     setInterval(function(){if(!document.hidden)window.TL_LOG('ping')},60000);
     btn.hidden=false});
   ['mousemove','keydown','touchstart','scroll','click'].forEach(function(e){document.addEventListener(e,function(){last=Date.now()},{passive:true,capture:true})});
-  setInterval(function(){if(window.TL_USER&&Date.now()-last>IDLE){window.TL_LOG('idle_logout');window.TL_LOCK()}},30000);
+  setInterval(function(){if(window.TL_USER&&Date.now()-last>IDLE){window.TL_LOG('idle_logout');try{sessionStorage.setItem('tl_noauto','1')}catch(e){}window.TL_LOCK()}},30000);
   // sign-out button + confirmation
   var st=document.createElement('style');st.textContent='.tl-xo{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:90;border:1px solid #D5DCE6;background:#fff;color:#D6202E;border-radius:999px;padding:6px 14px;font:700 13px "Cairo","Segoe UI",Tahoma,sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(20,48,106,.12)}.tl-xm{position:fixed;inset:0;z-index:200;background:rgba(10,20,45,.55);display:flex;align-items:center;justify-content:center;padding:16px}.tl-xm>div{background:#fff;border-radius:16px;padding:22px;max-width:360px;width:100%;text-align:center;font-family:"Cairo","Segoe UI",Tahoma,sans-serif;color:#14306A;box-shadow:0 20px 50px rgba(0,0,0,.3)}.tl-xm h3{margin:0 0 6px;font-size:19px}.tl-xm p{margin:0 0 18px;color:#4A5875;font-size:14px}.tl-xm button{font:700 14px inherit;font-family:inherit;border-radius:999px;padding:8px 22px;margin:0 5px;cursor:pointer;border:1px solid #D5DCE6;background:#fff;color:#14306A}.tl-xm button.d{background:#D6202E;border-color:#D6202E;color:#fff}.rp-ov~.tl-xo{display:none}body:has(.tl-xm) .tl-xo{display:none}body:has(#tl-radmin:not([hidden])) .tl-xo{bottom:auto;top:12px}';
   var btn=document.createElement('button');btn.className='tl-xo';btn.type='button';btn.textContent='⎋ تسجيل الخروج';btn.hidden=true;
   function ask(){var m=document.createElement('div');m.className='tl-xm';m.setAttribute('dir','rtl');m.innerHTML='<div><h3>تسجيل الخروج</h3><p>متأكد إنك عاوز تخرج من TAX Lens؟</p><button class="d" type="button">خروج</button><button type="button">إلغاء</button></div>';
     document.body.appendChild(m);var b=m.querySelectorAll('button');b[1].onclick=function(){m.remove()};m.onclick=function(e){if(e.target===m)m.remove()};
-    b[0].onclick=function(){window.TL_LOG('logout');setTimeout(function(){window.TL_LOCK()},150)}}
+    b[0].onclick=function(){window.TL_LOG('logout');(window.TL_FORGET?window.TL_FORGET():Promise.resolve()).then(function(){setTimeout(function(){window.TL_LOCK()},150)})}}
   btn.onclick=ask;
   document.addEventListener('click',function(e){var o=e.target.closest&&e.target.closest('#tl-out');if(o&&window.TL_USER){e.preventDefault();e.stopImmediatePropagation();ask()}},true);
   function mount(){document.head.appendChild(st);document.body.appendChild(btn)}
   if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);
+})();
+
+/* Remember me: the password is kept encrypted with a key that never leaves this browser (IndexedDB, non-extractable).
+   Cleared on sign-out, on a wrong/changed password, and when the admin edits, kicks or disables the account. */
+(function(){
+  var S=crypto.subtle,DB='tl_remember',ST='kv';
+  function idb(){return new Promise(function(ok,no){try{var r=indexedDB.open(DB,1);r.onupgradeneeded=function(){r.result.createObjectStore(ST)};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}}catch(e){no(e)}})}
+  function op(mode,fn){return idb().then(function(db){return new Promise(function(ok,no){var t=db.transaction(ST,mode),q=fn(t.objectStore(ST));t.oncomplete=function(){ok(q&&q.result)};t.onerror=function(){no(t.error)}})})}
+  var get=function(k){return op('readonly',function(s){return s.get(k)})},put=function(k,v){return op('readwrite',function(s){return s.put(v,k)})},del=function(){return op('readwrite',function(s){return s.clear()})};
+  function devKey(){return get('k').then(function(k){if(k)return k;return S.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']).then(function(n){return put('k',n).then(function(){return n})})})}
+  function hx(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return('0'+x.toString(16)).slice(-2)}).join('')}
+  function revFor(u){return S.digest('SHA-256',new TextEncoder().encode('tl:'+u)).then(function(h){var e=((window.TL_ACCESS||{}).users||{})[hx(h)];return e?'r'+(e.rev||0):'none'})}
+  window.TL_FORGET=function(){return del().catch(function(){})};
+  var tried=null;
+  var orig=window.TL_UNLOCK;window.TL_UNLOCK=function(u,p){tried={u:u,p:p};return orig(u,p).then(function(r){if(!r&&auto)window.TL_FORGET();return r})};
+  var box,auto=false;
+  window.addEventListener('tl-unlocked',function(){var t=tried;tried=null;if(!t)return;
+    if(!(box&&box.checked)){if(!auto)window.TL_FORGET();return}
+    Promise.all([devKey(),revFor(t.u)]).then(function(x){var iv=crypto.getRandomValues(new Uint8Array(12));
+      return S.encrypt({name:'AES-GCM',iv:iv},x[0],new TextEncoder().encode(t.p)).then(function(ct){return put('who',{u:t.u,iv:iv,ct:ct,rev:x[1]})})}).catch(function(){})});
+  function setup(){var go=document.getElementById('tl-go'),pw=document.getElementById('tl-p');if(!go||!pw)return;
+    var l=document.createElement('label');l.style.cssText='display:flex;align-items:center;gap:8px;margin:2px 0 12px;font-size:14px;color:#4A5875;cursor:pointer;font-weight:600';
+    box=document.createElement('input');box.type='checkbox';box.style.cssText='width:18px;height:18px;margin:0;accent-color:#14306A';l.append(box,document.createTextNode('تذكرني على الجهاز ده'));go.parentNode.insertBefore(l,go);
+    var noauto=false;try{noauto=!!sessionStorage.getItem('tl_noauto');sessionStorage.removeItem('tl_noauto')}catch(e){}
+    (window.TL_READY||Promise.resolve()).then(function(){return get('who')}).then(function(w){if(!w)return;
+      return Promise.all([devKey(),revFor(w.u)]).then(function(x){if(x[1]!==w.rev)return window.TL_FORGET();
+        return S.decrypt({name:'AES-GCM',iv:w.iv},x[0],w.ct).then(function(b){var p=new TextDecoder().decode(b),u=document.getElementById('tl-u');u.value=w.u;box.checked=true;
+          var run=function(){pw.value=p;auto=true;go.click();setTimeout(function(){auto=false;pw.value=''},4000)};
+          if(!noauto)return run();
+          var q=document.createElement('button');q.type='button';q.className='tl-lbtn';q.style.cssText='margin-bottom:10px;background:#1E7B45';q.textContent='متابعة كـ '+w.u;q.onclick=function(){q.remove();run()};go.parentNode.insertBefore(q,l)})})})
+      .catch(function(){window.TL_FORGET()})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
 })();
 </script>
 </head>
