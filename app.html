@@ -89,7 +89,7 @@
   var ready=Promise.resolve();
   if(window.TL_REMOTE){
     ready=fetchVault()
-      .then(function(v){window.TL_ACCESS=v.access;window.TL_VAULT=v.vault;window.TL_ADMIN_BOX=v.admin||null;window.TL_BUILT=v.built;window.TL_LOG_URL=v.logUrl||'';window.TL_NOTICES=v.notices||[];window.TL_UIALL=v.uiAll||'v1';window.TL_PWPUB=v.pwPub||null;window.TL_PWPRIV_BOX=v.pwPriv||null;window.dispatchEvent(new Event('tl-vault'))});
+      .then(function(v){window.TL_ACCESS=v.access;window.TL_VAULT=v.vault;window.TL_ADMIN_BOX=v.admin||null;window.TL_BUILT=v.built;window.TL_LOG_URL=v.logUrl||'';window.TL_NOTICES=v.notices||[];window.TL_UIALL=v.uiAll||'v1';window.TL_STORY=v.story||null;window.TL_PWPUB=v.pwPub||null;window.TL_PWPRIV_BOX=v.pwPriv||null;window.dispatchEvent(new Event('tl-vault'))});
     ready.catch(function(){var e=document.querySelector('#tl-err');if(e)e.textContent='تعذر تحميل البيانات. تأكد من الاتصال بالإنترنت ثم أعد فتح الملف.'});
   }
   window.TL_READY=ready;
@@ -98,7 +98,7 @@
     return ready.then(function(){return S.digest('SHA-256',new TextEncoder().encode('tl:'+u))}).then(function(h){var hx=Array.prototype.map.call(new Uint8Array(h),function(b){return('0'+b.toString(16)).slice(-2)}).join('');r=((window.TL_ACCESS||{}).users||{})[hx];window.TL_UHASH=hx;if(!r)throw new Error('no user');return S.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveKey'])})
      .then(function(base){return S.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:ub(r.salt),iterations:200000},base,{name:'AES-GCM',length:256},false,['decrypt'])})
      .then(function(kek){return S.decrypt({name:'AES-GCM',iv:ub(r.iv)},kek,ub(r.ct))})
-     .then(function(buf){var body=JSON.parse(new TextDecoder().decode(buf));window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_UIPREF=body.ui||'';window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_LOGKEY=body.lk||'';window.TL_USER=u;
+     .then(function(buf){var body=JSON.parse(new TextDecoder().decode(buf));window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_UIPREF=body.ui||'';window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_LOGKEY=body.lk||'';window.TL_EL_KEY=body.el||'';window.TL_USER=u;
         return Promise.all(Object.keys(body.k).map(function(pl){var v=window.TL_VAULT[pl];
           return S.importKey('raw',ub(body.k[pl]),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(v.iv)},k,ub(v.ct))})
            .then(function(b){var d=JSON.parse(new TextDecoder().decode(b));(window.TL_PLATKEYS=window.TL_PLATKEYS||{})[pl]=Object.keys(d);Object.keys(d).forEach(function(id){window.TL_DATA[id]=d[id]})})}))
@@ -4580,7 +4580,74 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
     ts.onclick=function(){o.to=pick();schSave(o);if(!o.to.length){msg.textContent='مفيش حد عنده إيميل';return}if(!confirm('هيتبعت الملخص دلوقتي لـ '+o.to.length+' شخص. نكمّل؟'))return;msg.textContent='بيبعت…';schRun(true).then(function(r){o=schGet();upd();msg.textContent=r==='sent'?'اتبعت ✓':r==='nolog'?'حط رابط السجل ومفتاح القراءة الأول':'لسه مفيش بيانات'}).catch(function(e){msg.textContent='معرفناش نبعت: '+e.message})};
     [on,dy,hr,gp].forEach(function(x){x.onchange=upd});bs.append(sv,ts,msg);c.appendChild(bs)}
   setTimeout(function tryRun(){if(!window.TL_USER||!window.TLX_INFO){setTimeout(tryRun,5000);return}schRun(false).then(function(r){if(r==='nodata')setTimeout(tryRun,15000)}).catch(function(){})},8000);
-  window.TLA_LOADLOG=function(){try{schCard()}catch(e){console.warn(e)};try{drawUsage()}catch(e){};loadPres();loadLog()};setInterval(function(){if(!sec.hidden)loadPres()},60000);R('tok').addEventListener('change',function(){lsSet('tl_gh_token',this.value.trim())});
+  /* ضبط الحكاية + أصوات ElevenLabs */
+  var ELB='https://api.elevenlabs.io/v1/';
+  function elKey(){return lsGet('tl_el_key')||window.TL_EL_KEY||''}
+  function b64buf(buf){var b='',u=new Uint8Array(buf);for(var i=0;i<u.length;i+=0x8000)b+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(b)}
+  function ub64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+  function stCur(){var D=(window.TL_STORY_DEF||{}).defaults||{};var o=JSON.parse(JSON.stringify(D));var s=window.TL_STORY||{};Object.keys(s).forEach(function(k){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&o[k]&&typeof o[k]==='object')Object.assign(o[k],s[k]);else o[k]=s[k]});return o}
+  function elTTS(text,e){return fetch(ELB+'text-to-speech/'+encodeURIComponent(e.voice)+'?output_format=mp3_44100_64',{method:'POST',headers:{'xi-api-key':elKey(),'Content-Type':'application/json',Accept:'audio/mpeg'},body:JSON.stringify({text:text,model_id:e.model,voice_settings:{stability:+e.stability,similarity_boost:+e.similarity,style:+e.style,speed:+e.speed,use_speaker_boost:true}})})
+    .then(function(r){if(!r.ok)return r.text().then(function(t){var m='';try{m=JSON.parse(t).detail;m=m.message||m.status||JSON.stringify(m)}catch(x){m=t.slice(0,160)}throw new Error('ElevenLabs: '+m)});return r.arrayBuffer()})}
+  function ghFile(path){var tok=lsGet('tl_gh_token')||window.TL_GH_TOKEN;return{tok:tok,url:'https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+path}}
+  function putFile(path,obj,msg){var f=ghFile(path);if(!f.tok)return Promise.reject(new Error('محتاج مفتاح GitHub'));var H={'Authorization':'Bearer '+f.tok,'Accept':'application/vnd.github+json'};
+    return fetch(f.url+'?t='+Date.now(),{headers:H,cache:'no-store'}).then(function(r){return r.ok?r.json():{}}).then(function(j){return fetch(f.url,{method:'PUT',headers:H,body:JSON.stringify({message:msg,content:b64buf(new TextEncoder().encode(JSON.stringify(obj))),sha:j.sha||undefined})})})
+     .then(function(r){if(!r.ok)return r.json().then(function(j){throw new Error(j.message||'GitHub')})})}
+  function makeVoice(onMsg,only){var s=stCur(),e=s.el;if(!elKey())return Promise.reject(new Error('حط مفتاح ElevenLabs الأول'));if(!e.voice)return Promise.reject(new Error('اختار الصوت الأول'));if(!window.TL_STORY_TEXTS)return Promise.reject(new Error('افتح الواجهة الجديدة'));
+    var plats=Object.keys(s.plats).filter(function(p){return s.plats[p]&&(!only||only===p)}),made=0,chars=0;
+    return plats.reduce(function(pr,p){return pr.then(function(){var sc=window.TL_STORY_TEXTS(p);if(!sc.length)return;var kb=(window.TL_KEYS||{})[p==='lead'?'reta':p]||(window.TL_KEYS||{}).reta;if(!kb)return;
+      return Promise.all([window.TL_STORY_FETCHPACK(p),crypto.subtle.importKey('raw',ub64(kb),'AES-GCM',false,['encrypt'])]).then(function(x){var old=(x[0]&&x[0].scenes)||{},key=x[1],out={},ch=0;
+        return sc.reduce(function(q,it){return q.then(function(){return window.TL_STORY_HASH(it.text).then(function(h){if(old[it.id]&&old[it.id].h===h){out[it.id]=old[it.id];return}onMsg&&onMsg('بيسجّل صوت '+((window.TL_STORY_DEF||{}).names||{})[p]+' · '+it.id+'…');ch++;chars+=it.text.length;
+          return elTTS(it.text,e).then(function(buf){var iv=crypto.getRandomValues(new Uint8Array(12));return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,buf).then(function(ct){out[it.id]={h:h,iv:b64buf(iv),ct:b64buf(ct)};made++})})})})},Promise.resolve())
+        .then(function(){if(!ch)return;onMsg&&onMsg('بيرفع صوت '+((window.TL_STORY_DEF||{}).names||{})[p]+'…');return putFile('story/'+p+'.json',{v:1,made:new Date().toISOString(),voice:e.voiceName||e.voice,scenes:out},'Story voice: '+p)})})})},Promise.resolve())
+     .then(function(){var r={made:made,chars:chars,at:new Date().toISOString()};lsSet('tl_story_last',JSON.stringify(r));window.TL_LOG&&made&&window.TL_LOG('story_voice',made+' مشهد · '+chars+' حرف');return r})}
+  function storyCard(){var lc=R('logcard');if(!lc||document.getElementById('tla-story'))return;var c=el('div','card');c.id='tla-story';lc.parentNode.insertBefore(c,lc);
+    c.appendChild(el('h3',null,'ضبط الحكاية'));if(!window.TL_STORY_DEF){c.appendChild(el('div','sub','الحكاية شغالة في الواجهة الجديدة. افتح الواجهة الجديدة عشان تضبطها.'));return}
+    var s=stCur(),DEF=window.TL_STORY_DEF;c.appendChild(el('div','sub','الحكاية بتعرض الداشبورد كفيلم قصير بالصوت والحركة، وبتتبني لوحدها من آخر بيانات. أي تغيير هنا بيوصل لكل المستخدمين لما تدوس «احفظ وانشر».'));
+    var box=el('div');box.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:12px';c.appendChild(box);
+    var sec2=function(t){var d=el('div');d.style.cssText='border:1px solid var(--l,#E1E7F0);border-radius:12px;padding:12px';d.appendChild(el('b',null,t));box.appendChild(d);return d};
+    var row=function(host,label,node){var l=el('label');l.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;font-size:13.5px';var sp=el('span',null,label);sp.style.flex='1';if(node.tagName==='INPUT'&&node.type==='checkbox')node.style.flex='none';l.append(sp,node);host.appendChild(l);return node};
+    var chk=function(v){var x=el('input');x.type='checkbox';x.checked=!!v;return x};var sel=function(opts,v){var x=el('select');opts.forEach(function(o){x.appendChild(new Option(o[1],o[0]))});x.value=v;return x};
+    var rng=function(min,max,step,v){var w=el('span');w.style.cssText='display:flex;align-items:center;gap:6px';var x=el('input');x.type='range';x.min=min;x.max=max;x.step=step;x.value=v;var o=el('b',null,String(v));o.style.minWidth='34px';x.oninput=function(){o.textContent=x.value};w.append(x,o);w.inp=x;return w};
+    // ١. عام
+    var g1=sec2('عام');var on=row(g1,'تشغيل الحكاية',chk(s.on));var who=row(g1,'مين يشوفها',sel([['all','كل المستخدمين'],['reports','اللي عندهم صلاحية التقارير'],['lead','القيادة العليا بس'],['admin','الأدمن بس']],s.who));
+    var pl={};Object.keys(DEF.names).forEach(function(p){pl[p]=row(g1,'حكاية '+DEF.names[p],chk(s.plats[p]))});
+    var th=row(g1,'الشكل',sel([['dark','داكن (للشاشات الكبيرة)'],['light','فاتح']],s.theme));
+    // ٢. الإيقاع
+    var g2=sec2('الإيقاع والعرض');var pace=row(g2,'أقل مدة للمشهد (ثانية)',rng(4,15,1,s.pace));var subs=row(g2,'الكلام مكتوب على الشاشة',chk(s.subs));var loop=row(g2,'يلف لوحده (للشاشات الكبيرة)',chk(s.loop));var lp=row(g2,'الراحة بين كل لفة (ثانية)',rng(0,120,5,s.loopPause));
+    var intro=el('textarea');intro.value=s.intro||'';intro.placeholder='سيبها فاضية والحكاية تكتبها لوحدها';intro.rows=2;intro.style.cssText='width:100%;font:500 13.5px Cairo,Tahoma,sans-serif;border:1px solid #E1E7F0;border-radius:8px;padding:6px';g2.appendChild(el('div','sub','جملة الافتتاح'));g2.appendChild(intro);
+    var outro=el('textarea');outro.value=s.outro||'';outro.placeholder='سيبها فاضية والحكاية تكتبها لوحدها';outro.rows=2;outro.style.cssText='width:100%;font:500 13.5px Cairo,Tahoma,sans-serif;border:1px solid #E1E7F0;border-radius:8px;padding:6px';g2.appendChild(el('div','sub','جملة الختام'));g2.appendChild(outro);
+    // ٣. المشاهد
+    var g3=sec2('المشاهد');var scn={};Object.keys(DEF.scenes).forEach(function(p){g3.appendChild(el('div','sub',DEF.names[p]));var w=el('div');w.style.cssText='display:flex;flex-wrap:wrap;gap:4px 12px;margin-bottom:6px';scn[p]={};DEF.scenes[p].forEach(function(x){var l=el('label','chk');var cb=chk(!(s.scenes[p]&&s.scenes[p][x[0]]===false));l.append(cb,document.createTextNode(' '+x[1]));w.appendChild(l);scn[p][x[0]]=cb});g3.appendChild(w)});
+    // ٤. الصوت
+    var g4=sec2('الصوت');var vo=row(g4,'الصوت',sel([['el','ElevenLabs (صوت احترافي)'],['browser','صوت المتصفح (مجاني)'],['off','من غير صوت']],s.voice));
+    var mu=row(g4,'موسيقى خلفية هادية',chk(s.music));var mv=row(g4,'علو الموسيقى',rng(0,0.4,0.02,s.musicVol));
+    var elw=el('div');g4.appendChild(elw);var ek=el('input');ek.type='password';ek.placeholder='sk_…';ek.value=elKey();ek.className='ltr';row(elw,'مفتاح ElevenLabs',ek);
+    var vs=row(elw,'الصوت',sel([[s.el.voice||'',s.el.voiceName||(s.el.voice?s.el.voice:'— اختار —')]],s.el.voice||''));var lv=el('button','btn','هات الأصوات');elw.appendChild(lv);
+    var md=row(elw,'الموديل',sel([['eleven_multilingual_v2','Multilingual v2 (الأفضل للعربي)'],['eleven_v3','Eleven v3 (أكثر تعبير)'],['eleven_turbo_v2_5','Turbo v2.5 (أسرع وأرخص)'],['eleven_flash_v2_5','Flash v2.5 (الأسرع)']],s.el.model));
+    var stb=row(elw,'الثبات',rng(0,1,0.05,s.el.stability)),sim=row(elw,'التطابق مع الصوت',rng(0,1,0.05,s.el.similarity)),sty=row(elw,'الحماس والتعبير',rng(0,1,0.05,s.el.style)),spd=row(elw,'سرعة الكلام',rng(0.7,1.2,0.05,s.el.speed));
+    var av=row(elw,'سجّل الصوت لوحده بعد كل تحديث بيانات',chk(s.autoVoice));
+    var bt=el('div');bt.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-top:8px';var tryB=el('button','btn','🔈 جرّب الصوت'),genB=el('button','btn p','🎙 سجّل صوت الحكاية دلوقتي');bt.append(tryB,genB);elw.appendChild(bt);var em=el('div','sub');elw.appendChild(em);
+    var last=null;try{last=JSON.parse(lsGet('tl_story_last')||'null')}catch(x){}if(last)em.textContent='آخر تسجيل: '+new Date(last.at).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'})+' · '+last.made+' مشهد · '+last.chars+' حرف';
+    var showEl=function(){elw.style.display=vo.value==='el'?'':'none'};vo.onchange=showEl;showEl();
+    ek.onchange=function(){lsSet('tl_el_key',ek.value.trim());em.textContent='المفتاح اتحفظ على الجهاز ده. دوس «نشر التغييرات» فوق عشان يتحفظ في حسابك على كل أجهزتك.'};
+    lv.onclick=function(){lsSet('tl_el_key',ek.value.trim());em.textContent='بيجيب الأصوات…';fetch(ELB+'voices',{headers:{'xi-api-key':elKey()}}).then(function(r){if(!r.ok)throw new Error(r.status===401?'المفتاح مش صحيح':'HTTP '+r.status);return r.json()}).then(function(j){var cur=vs.value;vs.replaceChildren();vs.appendChild(new Option('— اختار —',''));(j.voices||[]).forEach(function(v){var lab=v.name+(v.labels&&(v.labels.accent||v.labels.language)?' · '+(v.labels.accent||v.labels.language):'')+(v.category==='cloned'||v.category==='professional'?' ★':'');vs.appendChild(new Option(lab,v.voice_id))});vs.value=cur;em.textContent=(j.voices||[]).length+' صوت. الأصوات اللي عليها ★ أصواتك الخاصة.'}).catch(function(x){em.textContent='معرفناش نجيب الأصوات: '+x.message})};
+    var collect=function(){var o={on:on.checked,who:who.value,plats:{},scenes:{},voice:vo.value,el:{voice:vs.value,voiceName:(vs.selectedOptions[0]||{}).text||'',model:md.value,stability:+stb.inp.value,similarity:+sim.inp.value,style:+sty.inp.value,speed:+spd.inp.value},autoVoice:av.checked,music:mu.checked,musicVol:+mv.inp.value,subs:subs.checked,theme:th.value,pace:+pace.inp.value,loop:loop.checked,loopPause:+lp.inp.value,intro:intro.value.trim(),outro:outro.value.trim()};
+      Object.keys(pl).forEach(function(p){o.plats[p]=pl[p].checked});Object.keys(scn).forEach(function(p){o.scenes[p]={};Object.keys(scn[p]).forEach(function(k){if(!scn[p][k].checked)o.scenes[p][k]=false})});return o};
+    tryB.onclick=function(){var o=collect();if(!elKey()||!o.el.voice){em.textContent='حط المفتاح واختار الصوت الأول';return}em.textContent='بيجهّز العينة…';elTTS('أهلاً بيكم في حكاية TAX Lens. المحصّل وصل مليار وأربعين مليون جنيه، والأمور ماشية تمام.',o.el).then(function(b){var a=new Audio(URL.createObjectURL(new Blob([b],{type:'audio/mpeg'})));a.play();em.textContent='بيشغّل العينة 🔈'}).catch(function(x){em.textContent=x.message})};
+    // ٥. المعاينة والشاشات الكبيرة
+    var g5=sec2('المعاينة والشاشات الكبيرة');var pv=el('div');pv.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-top:8px';Object.keys(DEF.names).forEach(function(p){var b=el('button','btn','▶ '+DEF.names[p]);b.onclick=function(){var keep=window.TL_STORY;window.TL_STORY=collect();window.TL_STORY_PLAY&&window.TL_STORY_PLAY(p);window.TL_STORY=keep};pv.appendChild(b)});g5.appendChild(pv);
+    g5.appendChild(el('div','sub','لينك للشاشة الكبيرة: بيفتح الحكاية ويلفّ لوحده بعد تسجيل الدخول (فعّل «تذكرني» على جهاز الشاشة).'));
+    Object.keys(DEF.names).forEach(function(p){var u='https://etax-taxlens.github.io/#story='+p+'&loop=1',r2=el('div');r2.style.cssText='display:flex;gap:6px;align-items:center;margin-top:6px';var i2=el('input','ltr');i2.readOnly=true;i2.value=u;i2.style.flex='1';var cb=el('button','btn','نسخ');cb.onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(u);cb.textContent='✓'};r2.append(el('span',null,DEF.names[p]),i2,cb);g5.appendChild(r2)});
+    // حفظ
+    var f=el('div');f.style.cssText='display:flex;gap:8px;align-items:center;margin-top:14px';var sv=el('button','btn p','احفظ وانشر'),msg=el('span','sub');f.append(sv,msg);c.appendChild(f);
+    sv.onclick=function(){var o=collect();msg.textContent='بيحفظ…';var mut=function(V){V.story=o;return V};mut.__noNotice=true;mut.__plat='all';
+      window.TL_PUBLISH_VAULT(mut).then(function(){window.TL_STORY=o;msg.textContent='اتحفظت ✓ ووصلت لكل المستخدمين';window.TL_LOG&&window.TL_LOG('story_settings','')}).catch(function(x){msg.textContent='معرفناش نحفظ: '+x.message})};
+    genB.onclick=function(){var o=collect();window.TL_STORY=o;genB.disabled=true;makeVoice(function(t){em.textContent=t}).then(function(r){em.textContent=r.made?('اتسجّل '+r.made+' مشهد ('+r.chars+' حرف) واترفع ✓. لو غيّرت إعدادات الصوت دوس «احفظ وانشر» كمان.'):'كل المشاهد متسجّلة وجاهزة، مفيش حاجة جديدة ✓'}).catch(function(x){em.textContent=x.message}).then(function(){genB.disabled=false})}}
+  // تسجيل الصوت لوحده بعد تحديث البيانات (من جهاز الأدمن)
+  setTimeout(function auto(){if(!window.TL_ADMINKEY||!window.TL_STORY_TEXTS){if(!window.TL_USER)setTimeout(auto,8000);return}var s=stCur();if(!s.on||s.voice!=='el'||!s.autoVoice||!elKey()||!(lsGet('tl_gh_token')||window.TL_GH_TOKEN))return;
+    if(!window.TLX_INFO||(!window.TLX_INFO().reta&&!window.TLX_INFO().tsrf)){setTimeout(auto,10000);return}makeVoice(null).catch(function(e){console.warn('story voice',e)})},20000);
+
+  window.TLA_LOADLOG=function(){try{storyCard()}catch(e){console.warn(e)};try{schCard()}catch(e){console.warn(e)};try{drawUsage()}catch(e){};loadPres();loadLog()};setInterval(function(){if(!sec.hidden)loadPres()},60000);R('tok').addEventListener('change',function(){lsSet('tl_gh_token',this.value.trim())});
   function say(t,ok){var m=R('msg');m.className='msg '+(ok?'ok':'er');m.textContent=t;m.scrollIntoView&&m.scrollIntoView({block:'nearest'})}
   function diffCount(){var n=0,a=Object.keys(DIR),b=Object.keys(WORK);b.forEach(function(u){var w=WORK[u],o=DIR[w._orig||u];if(!o||cmp(w)!==cmp(o)||(w._orig&&w._orig!==u))n++});a.forEach(function(u){if(!b.some(function(k){return(WORK[k]._orig||k)===u}))n++});return n}
   function strip(o){var c={};Object.keys(o).forEach(function(k){if(k[0]!=='_'&&k!=='rev')c[k]=o[k]});if(o.rev!=null)c.rev=o.rev;return c}
@@ -4694,7 +4761,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
     var body={k:{},name:info.name,group:info.group};(info.platforms||[]).forEach(function(p){if(window.TL_KEYS[p])body.k[p]=window.TL_KEYS[p]});
     if(info.admin)body.a=window.TL_ADMINKEY;
     if((info.upload||info.admin)&&PUB_TOKEN)body.t=PUB_TOKEN;if(info.admin&&(lsGet('tl_log_key')||window.TL_LOGKEY))body.lk=lsGet('tl_log_key')||window.TL_LOGKEY;
-    if(info.reports)body.r=1;
+    if(info.reports)body.r=1;if(info.admin&&(lsGet('tl_el_key')||window.TL_EL_KEY))body.el=lsGet('tl_el_key')||window.TL_EL_KEY;
     if(info.scr)body.s=info.scr;if(info.ui)body.ui=info.ui;if(info.nof&&info.nof.length)body.x=info.nof;
     return S.importKey('raw',enc(pw),'PBKDF2',false,['deriveKey']).then(function(base){return S.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:salt,iterations:200000},base,{name:'AES-GCM',length:256},false,['encrypt'])})
      .then(function(k){return S.encrypt({name:'AES-GCM',iv:iv},k,enc(JSON.stringify(body)))}).then(function(ct){return{salt:b64(salt),iv:b64(iv),ct:b64(ct)}});
