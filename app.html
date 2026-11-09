@@ -5433,7 +5433,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       D.text(s,x+0.25,1.48,1.83,0.36,badge,12,acc,true,'c','m',{fill:partial?'FFF1E6':'E7F4EC'});D.text(s,x+0.25,1.92,3.2,0.3,'الفترة من '+dA(sp.a)+' حتى '+dA(sp.b),12,SLATE);
       mets.forEach(function(m,j){var y=2.3+j*0.53,v=r[m[1]]||0;D.text(s,x+1.12,y,2.34,0.32,m[0],12,INK);D.text(s,x+0.25,y-0.02,0.96,0.34,m[3](v),18,NAVY,true,'l');
         D.rect(s,x+0.25,y+0.36,3.2,0.07,TRK,null,0.5);var w=Math.max(0.05,3.2*(m[1]==='collection_rate'?Math.min(1,v):v/mx[m[1]]));D.rect(s,x+0.25+3.2-w,y+0.36,w,0.07,m[2],null,0.5)})});
-    if(L3.length>=2){var c=L3[L3.length-1],p=L3[L3.length-2],nm=function(r){return AR_M[D0(r.month+'-01').getMonth()]};card(s,0.89,5.18,11.55,1.32,NAVY);
+    var lastSp=span[L3[L3.length-1].month],lastPart=lastSp&&(function(){var b=D0(lastSp.b);return b.getDate()<new Date(b.getFullYear(),b.getMonth()+1,0).getDate()-1})(),CM=lastPart&&L3.length>=3?L3.slice(0,2):L3.slice(-2);
+    if(CM.length>=2){var c=CM[1],p=CM[0],nm=function(r){return AR_M[D0(r.month+'-01').getMonth()]};card(s,0.89,5.18,11.55,1.32,NAVY);
       D.text(s,1.19,5.26,10.95,0.36,'إجمالي '+nm(c)+' مقارنة بإجمالي '+nm(p),15,NAVY,true);
       [['عمليات التصرف','disposals'],['المسجلون','registered'],['عمليات الفحص','inspections'],['مدفوعات الضريبة','tax_paid']].forEach(function(m,i){var x=9.45-i*2.785,v=p[m[1]]?c[m[1]]/p[m[1]]-1:0,up=v>=0;
         D.text(s,x,5.63,2.79,0.45,(up?'▲ +':'▼ ')+(v*100).toFixed(1)+'%',22,up?GREEN:RED,true,'c','m');D.text(s,x,6.08,2.79,0.3,m[0],12,INK,false,'c')})}
