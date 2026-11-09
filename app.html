@@ -94,7 +94,7 @@
     return ready.then(function(){return S.digest('SHA-256',new TextEncoder().encode('tl:'+u))}).then(function(h){var hx=Array.prototype.map.call(new Uint8Array(h),function(b){return('0'+b.toString(16)).slice(-2)}).join('');r=((window.TL_ACCESS||{}).users||{})[hx];window.TL_UHASH=hx;if(!r)throw new Error('no user');return S.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveKey'])})
      .then(function(base){return S.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:ub(r.salt),iterations:200000},base,{name:'AES-GCM',length:256},false,['decrypt'])})
      .then(function(kek){return S.decrypt({name:'AES-GCM',iv:ub(r.iv)},kek,ub(r.ct))})
-     .then(function(buf){var body=JSON.parse(new TextDecoder().decode(buf));window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_USER=u;
+     .then(function(buf){var body=JSON.parse(new TextDecoder().decode(buf));window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_USER=u;
         return Promise.all(Object.keys(body.k).map(function(pl){var v=window.TL_VAULT[pl];
           return S.importKey('raw',ub(body.k[pl]),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(v.iv)},k,ub(v.ct))})
            .then(function(b){var d=JSON.parse(new TextDecoder().decode(b));(window.TL_PLATKEYS=window.TL_PLATKEYS||{})[pl]=Object.keys(d);Object.keys(d).forEach(function(id){window.TL_DATA[id]=d[id]})})}))
@@ -4494,6 +4494,15 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
   function strip(o){var c={};Object.keys(o).forEach(function(k){if(k[0]!=='_'&&k!=='rev')c[k]=o[k]});if(o.rev!=null)c.rev=o.rev;return c}
   function cmp(o){var c=strip(o);delete c.rev;return JSON.stringify(c)}
   function changed(u){var w=WORK[u],o=DIR[w._orig||u];return !o||cmp(w)!==cmp(o)||(w._orig&&w._orig!==u)}
+  var SCR={tsrf:[['leaders','عرض القيادة'],['summary','الملخص التنفيذي'],['weekly','التحليل الأسبوعي'],['monthly','التحليل الشهري'],['compare','مقارنة الفترات'],['reasons','أسباب التحويل للفحص'],['story','قصة الأسبوع'],['sim','محاكاة ماذا لو'],['readings','القراءة التحليلية']],
+    reta:[['p0','الملخص التنفيذي'],['p1','نظرة عامة'],['p10','المقارنة اليومية'],['p7','الخريطة وبطاقات الأداء'],['p8','ماذا لو؟'],['p9','المستهدف والتوقعات'],['p6','التشغيل والمخاطر'],['p5','التحليلات والرؤى'],['p2','المحافظات'],['p3','النشاط بالساعة'],['p4','التحصيل']]};
+  var FEAT={tsrf:[['tsrf_show','وضع العرض'],['tsrf_ask','اسأل البيانات'],['tsrf_print','طباعة / PDF']],reta:[['reta_ops','غرفة العمليات'],['reta_print','طباعة / PDF']],all:[['excel','تحميل الجداول Excel']]};
+  function scrBox(r){var w=el('div');w.style.cssText='grid-column:1/-1;border:1px dashed var(--l);border-radius:12px;padding:10px 12px;margin-top:6px';w.dataset.e='scrbox';
+    w.appendChild(el('b',null,'الشاشات والإمكانيات جوه كل منصة'));var n=el('div','sub','شيل العلامة عن أي شاشة أو إمكانية مش عاوز المستخدم يشوفها.');n.style.margin='2px 0 8px';w.appendChild(n);
+    PLATS.forEach(function(P){if(!SCR[P.id])return;var g=el('div');g.dataset.plat=P.id;g.style.margin='6px 0';g.hidden=(r.platforms||[]).indexOf(P.id)<0;var h=el('div');h.style.cssText='font-weight:700;font-size:13px;margin-bottom:4px;color:#14306A';h.textContent=P.name;g.appendChild(h);
+      var al=r.scr&&r.scr[P.id];SCR[P.id].forEach(function(s){var l=el('label','chk');var x=el('input');x.type='checkbox';x.dataset.e='scr';x.dataset.p=P.id;x.value=s[0];x.checked=!al||al.indexOf(s[0])>=0;l.append(x,document.createTextNode(s[1]));g.appendChild(l)});
+      var fl=el('div');fl.style.marginTop='4px';FEAT[P.id].forEach(function(f){var l=el('label','chk');var x=el('input');x.type='checkbox';x.dataset.e='feat';x.value=f[0];x.checked=(r.nof||[]).indexOf(f[0])<0;l.append(x,document.createTextNode('⚙ '+f[1]));fl.appendChild(l)});g.appendChild(fl);w.appendChild(g)});
+    var ga=el('div');FEAT.all.forEach(function(f){var l=el('label','chk');var x=el('input');x.type='checkbox';x.dataset.e='feat';x.value=f[0];x.checked=(r.nof||[]).indexOf(f[0])<0;l.append(x,document.createTextNode('⚙ '+f[1]));ga.appendChild(l)});w.appendChild(ga);return w}
   function td(l,cls){var t=el('td',cls);t.dataset.l=l;return t}
   function render(){
     var tb=R('users');tb.replaceChildren();
@@ -4512,7 +4521,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
         var ul=el('label','chk');var ux=el('input');ux.type='checkbox';ux.dataset.e='upload';ux.checked=!!r.upload;ul.append(ux,document.createTextNode('رفع وتحديث البيانات (المنصات المتاحة له)'));pl.appendChild(ul);
         var dl=el('label','chk');var dx=el('input');dx.type='checkbox';dx.dataset.e='dis';dx.checked=!!r.disabled;dl.append(dx,document.createTextNode('موقوف'));pl.appendChild(dl);
         var iM=el('input','ltr');iM.dataset.e='phone';iM.value=r.phone||'';iM.placeholder='01xxxxxxxxx';iM.inputMode='tel';var iE=el('input','ltr');iE.dataset.e='email';iE.value=r.email||'';iE.placeholder='name@example.com';iE.type='email';
-        f.append(lab('اسم الدخول',iu),lab('الاسم',iN),lab('المجموعة',sG),lab('موبايل (واتساب)',iM),lab('الإيميل',iE),lab('كلمة السر الحالية',pw0),lab('كلمة سر جديدة',pr),lab('الصلاحيات',pl));
+        f.append(lab('اسم الدخول',iu),lab('الاسم',iN),lab('المجموعة',sG),lab('موبايل (واتساب)',iM),lab('الإيميل',iE),lab('كلمة السر الحالية',pw0),lab('كلمة سر جديدة',pr),lab('الصلاحيات',pl));f.appendChild(scrBox(r));pl.querySelectorAll('[data-e="plat"]').forEach(function(x){x.addEventListener('change',function(){var g=f.querySelector('[data-plat="'+x.value+'"]');if(g)g.hidden=!x.checked})});
         var acts=el('div','acts');acts.style.marginTop='10px';var ap=el('button','btn p','تطبيق');ap.dataset.a='apply';var cn=el('button','btn','إلغاء');cn.dataset.a='cancel';acts.append(ap,cn);
         if(u!==window.TL_USER){var dd=el('button','btn d','حذف المستخدم');dd.dataset.a='del';acts.appendChild(dd)}
         c.append(f,acts);tr.appendChild(c);tb.appendChild(tr);
@@ -4521,7 +4530,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
       var t;t=td('اسم الدخول','ltr');t.textContent=u;tr.appendChild(t);
       t=td('الاسم');t.textContent=r.name;tr.appendChild(t);
       t=td('المجموعة');t.textContent=GROUPS[r.group]?GROUPS[r.group].name:'—';tr.appendChild(t);
-      t=td('المنصات');t.textContent=platLabel(r.platforms)+(r.admin?' · إدارة':'');tr.appendChild(t);t=td('التقارير');[['reports','عرض وتحميل التقارير'],['upload','رفع وتحديث البيانات']].forEach(function(k){var l=el('label','chk');l.style.whiteSpace='nowrap';var x=el('input');x.type='checkbox';x.checked=!!r[k[0]];x.disabled=EDIT!=null;x.addEventListener('change',function(){if(k[0]==='upload'&&x.checked&&!(r.platforms||[]).length){x.checked=false;alert('تحديث البيانات محتاج منصة واحدة على الأقل');return}r[k[0]]=x.checked;render()});l.append(x,document.createTextNode(' '+k[1]));t.appendChild(l);t.appendChild(el('br'))});tr.appendChild(t);
+      t=td('المنصات');t.textContent=platLabel(r.platforms)+(r.admin?' · إدارة':'')+(r.scr||(r.nof&&r.nof.length)?' · شاشات محددة':'');tr.appendChild(t);t=td('التقارير');[['reports','عرض وتحميل التقارير'],['upload','رفع وتحديث البيانات']].forEach(function(k){var l=el('label','chk');l.style.whiteSpace='nowrap';var x=el('input');x.type='checkbox';x.checked=!!r[k[0]];x.disabled=EDIT!=null;x.addEventListener('change',function(){if(k[0]==='upload'&&x.checked&&!(r.platforms||[]).length){x.checked=false;alert('تحديث البيانات محتاج منصة واحدة على الأقل');return}r[k[0]]=x.checked;render()});l.append(x,document.createTextNode(' '+k[1]));t.appendChild(l);t.appendChild(el('br'))});tr.appendChild(t);
       t=td('كلمة السر الحالية');t.appendChild(el('span','pw',r.pw||'—'));tr.appendChild(t);
       t=td('آخر ظهور');t.appendChild(seen(u));tr.appendChild(t);t=td('الحالة');var ch=changed(u);t.appendChild(el('span','pill '+(ch?'chg':r.disabled?'off':'on'),ch?'بانتظار النشر':r.disabled?'موقوف':'فعّال'));tr.appendChild(t);
       t=td('','full');var eb=el('button','btn','تعديل');eb.dataset.a='edit';eb.disabled=EDIT!=null;t.appendChild(eb);var ab=el('button','btn','النشاط');ab.dataset.a='act';t.appendChild(ab);if(u!==window.TL_USER&&!r.disabled){var kb=el('button','btn d',r.kick?'هيخرج بعد النشر':'إخراج الآن');kb.dataset.a='kick';kb.disabled=!!r.kick||EDIT!=null;t.appendChild(kb)}t.style.whiteSpace='nowrap';tr.appendChild(t);
@@ -4559,6 +4568,9 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
       if(u===window.TL_USER&&(!q('admin').checked||q('dis').checked))return say('ما ينفعش تشيل الإدارة أو توقف حسابك إنت');
       var w=WORK[u];if(q('upload').checked&&!ps.length)return say('تحديث البيانات محتاج منصة واحدة على الأقل');
       var o={_orig:w._orig||u,name:nm,group:gg,platforms:ps,admin:q('admin').checked,upload:q('upload').checked,reports:q('reports').checked,disabled:q('dis').checked,pw:np||w.pw,phone:q('phone').value.trim(),email:q('email').value.trim()};if(!o.phone)delete o.phone;if(!o.email)delete o.email;
+      var scr={},anyLim=false;Object.keys(SCR).forEach(function(p){if(ps.indexOf(p)<0)return;var on=[].filter.call(tr.querySelectorAll('[data-e="scr"][data-p="'+p+'"]'),function(x){return x.checked}).map(function(x){return x.value});if(!on.length)anyLim='none:'+p;else if(on.length<SCR[p].length){scr[p]=on;anyLim=anyLim||true}});
+      if(typeof anyLim==='string')return say('لازم تسيب شاشة واحدة على الأقل في كل منصة مختارة');if(anyLim)o.scr=scr;
+      var nof=[].filter.call(tr.querySelectorAll('[data-e="feat"]'),function(x){return !x.checked}).map(function(x){return x.value});if(nof.length)o.nof=nof;
       if(w._new)o._new=true;delete WORK[u];WORK[nu]=o;EDIT=null;render();say('اتطبق التعديل على '+nu+'. دوس "نشر التغييرات" علشان يتفعل',true);return}
     if(a==='add'){var nu2=R('nu').value.trim().toLowerCase(),nn=R('nn').value.trim(),g2=R('ng').value,pw=R('np').value.trim();
       if(!/^[a-z0-9][a-z0-9._-]{2,40}$/.test(nu2))return say('اسم الدخول لازم يكون إنجليزي (حروف صغيرة وأرقام و . _ -)');
@@ -4578,6 +4590,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
     if(info.admin)body.a=window.TL_ADMINKEY;
     if(info.upload&&PUB_TOKEN)body.t=PUB_TOKEN;
     if(info.reports)body.r=1;
+    if(info.scr)body.s=info.scr;if(info.nof&&info.nof.length)body.x=info.nof;
     return S.importKey('raw',enc(pw),'PBKDF2',false,['deriveKey']).then(function(base){return S.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:salt,iterations:200000},base,{name:'AES-GCM',length:256},false,['encrypt'])})
      .then(function(k){return S.encrypt({name:'AES-GCM',iv:iv},k,enc(JSON.stringify(body)))}).then(function(ct){return{salt:b64(salt),iv:b64(iv),ct:b64(ct)}});
   }
@@ -5575,7 +5588,20 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   function addHelp(){document.querySelectorAll('#plat-tsrf .lbl, #plat-reta .kl, #plat-tsrf h2, #plat-reta h2, #plat-tsrf th, #plat-reta th').forEach(function(n){if(n.dataset.tlh||n.children.length)return;var t=n.textContent.trim(),h=HELP[t];if(!h)return;n.dataset.tlh=1;var i=el('span','tlx-i','i');i.setAttribute('role','img');i.setAttribute('aria-label',h);
       i.addEventListener('mouseenter',function(e){showTip(e,h)});i.addEventListener('mouseleave',hideTip);i.addEventListener('click',function(e){e.stopPropagation();tip?hideTip():showTip(e,h)});n.appendChild(i)})}
   document.addEventListener('scroll',hideTip,true);document.addEventListener('click',hideTip);
-  var mt=null;new MutationObserver(function(){clearTimeout(mt);mt=setTimeout(function(){addXl();addHelp()},250)}).observe(document.documentElement,{childList:true,subtree:true});
+  /* ---------- per-user screens and features (set by the admin) ---------- */
+  function noF(f){return (window.TL_NOFEAT||[]).indexOf(f)>=0}
+  function hideEl(e,h){if(!e)return;if(h){e.hidden=true;e.style.setProperty('display','none','important');e.dataset.tlperm=1}}
+  function applyPerms(){var S=window.TL_SCREENS||{};
+    var ts=S.tsrf;if(ts){var tabs=[].slice.call(document.querySelectorAll('#plat-tsrf .ex-tab[data-tab]')),vis=[];tabs.forEach(function(b){var ok=ts.indexOf(b.dataset.tab)>=0||b.dataset.tab==='collection'||b.dataset.tab==='detail';if(!ok)hideEl(b,1);else if(!b.dataset.tlperm)vis.push(b)});
+      var sel=tabs.filter(function(b){return b.getAttribute('aria-selected')==='true'})[0];if(sel&&sel.dataset.tlperm&&vis[0])vis[0].click()}
+    var rs=S.reta;if(rs){var rt=[].slice.call(document.querySelectorAll('#plat-reta #tabs button[data-p]')),rv=[];rt.forEach(function(b){if(b.dataset.p==='p11')return;if(rs.indexOf(b.dataset.p)<0)hideEl(b,1);else rv.push(b)});
+      var on=rt.filter(function(b){return b.classList.contains('on')})[0];if(on&&on.dataset.tlperm&&rv[0])rv[0].click()}
+    document.querySelectorAll('#plat-tsrf .ex-act, #plat-tsrf button, #plat-tsrf [role=button]').forEach(function(b){var t=b.textContent;if((noF('tsrf_show')&&/وضع العرض/.test(t))||(noF('tsrf_ask')&&/اسأل البيانات/.test(t))||(noF('tsrf_print')&&/طباعة/.test(t)))hideEl(b,1)});
+    if(noF('reta_ops'))document.querySelectorAll('[data-reta-act="ops"]').forEach(function(b){hideEl(b,1)});
+    if(noF('reta_print'))document.querySelectorAll('[data-reta-act="print"], #plat-reta .pbtn, #plat-reta button.print').forEach(function(b){hideEl(b,1)});
+    if(noF('excel'))document.querySelectorAll('.tlx-xl').forEach(function(b){hideEl(b,1)})}
+  window.addEventListener('tl-unlocked',function(){setTimeout(applyPerms,300)});
+  var mt=null;new MutationObserver(function(){clearTimeout(mt);mt=setTimeout(function(){addXl();addHelp();applyPerms()},250)}).observe(document.documentElement,{childList:true,subtree:true});
 
   /* ---------- disposals data upload (tasrofat.xlsx) ---------- */
   function canT(){return !!(window.TL_REMOTE&&(window.TL_ADMINKEY||window.TL_UPLOAD)&&window.TL_KEYS&&window.TL_KEYS.tsrf&&window.TL_PUBLISH_VAULT)}
