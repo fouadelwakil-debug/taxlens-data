@@ -89,7 +89,7 @@
   var ready=Promise.resolve();
   if(window.TL_REMOTE){
     ready=fetchVault()
-      .then(function(v){window.TL_ACCESS=v.access;window.TL_VAULT=v.vault;window.TL_ADMIN_BOX=v.admin||null;window.TL_BUILT=v.built;window.TL_LOG_URL=v.logUrl||'';window.TL_NOTICES=v.notices||[];window.TL_PWPUB=v.pwPub||null;window.TL_PWPRIV_BOX=v.pwPriv||null;window.dispatchEvent(new Event('tl-vault'))});
+      .then(function(v){window.TL_ACCESS=v.access;window.TL_VAULT=v.vault;window.TL_ADMIN_BOX=v.admin||null;window.TL_BUILT=v.built;window.TL_LOG_URL=v.logUrl||'';window.TL_NOTICES=v.notices||[];window.TL_UIALL=v.uiAll||'v1';window.TL_PWPUB=v.pwPub||null;window.TL_PWPRIV_BOX=v.pwPriv||null;window.dispatchEvent(new Event('tl-vault'))});
     ready.catch(function(){var e=document.querySelector('#tl-err');if(e)e.textContent='تعذر تحميل البيانات. تأكد من الاتصال بالإنترنت ثم أعد فتح الملف.'});
   }
   window.TL_READY=ready;
@@ -98,7 +98,7 @@
     return ready.then(function(){return S.digest('SHA-256',new TextEncoder().encode('tl:'+u))}).then(function(h){var hx=Array.prototype.map.call(new Uint8Array(h),function(b){return('0'+b.toString(16)).slice(-2)}).join('');r=((window.TL_ACCESS||{}).users||{})[hx];window.TL_UHASH=hx;if(!r)throw new Error('no user');return S.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveKey'])})
      .then(function(base){return S.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:ub(r.salt),iterations:200000},base,{name:'AES-GCM',length:256},false,['decrypt'])})
      .then(function(kek){return S.decrypt({name:'AES-GCM',iv:ub(r.iv)},kek,ub(r.ct))})
-     .then(function(buf){var body=JSON.parse(new TextDecoder().decode(buf));window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_LOGKEY=body.lk||'';window.TL_USER=u;
+     .then(function(buf){var body=JSON.parse(new TextDecoder().decode(buf));window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_UIPREF=body.ui||'';window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_LOGKEY=body.lk||'';window.TL_USER=u;
         return Promise.all(Object.keys(body.k).map(function(pl){var v=window.TL_VAULT[pl];
           return S.importKey('raw',ub(body.k[pl]),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(v.iv)},k,ub(v.ct))})
            .then(function(b){var d=JSON.parse(new TextDecoder().decode(b));(window.TL_PLATKEYS=window.TL_PLATKEYS||{})[pl]=Object.keys(d);Object.keys(d).forEach(function(id){window.TL_DATA[id]=d[id]})})}))
@@ -289,6 +289,28 @@
   window.addEventListener('tl-unlocked',function(){if(!window.TL_ADMINKEY||standalone())return;setTimeout(function(){if(!window.TL_PLACE||document.getElementById('tl-inst'))return;var b=document.createElement('button');b.id='tl-inst';b.type='button';b.className='tl-xo';b.style.color='#14306A';b.textContent='📲 تثبيت كتطبيق';b.onclick=open;window.TL_PLACE(b)},800)});
   // offline notice
   window.addEventListener('tl-unlocked',function(){if(!window.TL_OFFLINE)return;var x=document.createElement('div');x.className='tl-nt';x.setAttribute('dir','rtl');x.style.background='#C2410C';x.innerHTML='<span>📴</span><div><p>مافيش إنترنت دلوقتي — بتشوف آخر بيانات اتحملت على الجهاز ده. هتتحدث لوحدها أول ما النت يرجع.</p></div><button type="button">تمام</button>';x.querySelector('button').onclick=function(){x.remove()};document.body.appendChild(x)});
+})();
+
+/* Interface version switch: v1 (current) and v2 (new) read the same data. Admin chooses per user or for everyone. */
+window.TL_UI_VERSION=window.TL_UI_VERSION||'v1';
+if(window.TL_UI_VERSION==='v2')window.addEventListener('tl-unlocked',function(){var b=document.createElement('div');b.textContent='الواجهة الجديدة · تجريبية';b.style.cssText='position:fixed;bottom:10px;left:10px;z-index:90;background:#D6202E;color:#fff;font:700 12px Cairo,Tahoma,sans-serif;padding:4px 10px;border-radius:999px;opacity:.85;pointer-events:none';document.body.appendChild(b)});
+(function(){
+  var FILES={v1:'app.html',v2:'app-v2.html'},cred=null,o=window.TL_UNLOCK;
+  window.TL_UNLOCK=function(u,p){cred={u:u,p:p};return o(u,p)};
+  function want(){return window.TL_UIPREF||window.TL_UIALL||'v1'}
+  function load(file){var m=/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//.exec(window.TL_REMOTE||'');if(!m)return fetch(new URL(file,window.TL_REMOTE).href+'?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.text()});
+    var api='https://api.github.com/repos/'+m[1]+'/'+m[2]+'/contents/'+file+'?ref='+m[3]+'&t='+Date.now(),raw='https://raw.githubusercontent.com/'+m[1]+'/'+m[2]+'/'+m[3]+'/'+file+'?t='+Date.now();
+    return fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'}}).then(function(r){if(!r.ok)throw 0;return r.text()}).catch(function(){return fetch(raw,{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.text()})})}
+  window.addEventListener('tl-unlocked',function(){var w=want();if(w===window.TL_UI_VERSION||!FILES[w]||!cred)return;var c=cred;
+    try{sessionStorage.setItem('tl_hand',JSON.stringify(c))}catch(e){}
+    if(window.TL_PORTAL>=2){try{localStorage.setItem('tl_ui',w)}catch(e){}location.reload();return}
+    // older portal file: show the other version in a full-page frame (separate page context, same data and storage)
+    load(FILES[w]).then(function(h){if(h.indexOf('TAX Lens')<0)throw 0;var f=document.createElement('iframe');f.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0;z-index:2147483647;background:#fff';f.setAttribute('allow','clipboard-write; microphone; publickey-credentials-get *; publickey-credentials-create *');f.srcdoc=h;document.body.appendChild(f);window.TL_LOG=function(){};window.TL_FRAMED=1}).catch(function(){})});
+  if(window.TL_PORTAL>=2){try{localStorage.setItem('tl_ui',window.TL_UI_VERSION)}catch(e){}}
+  // hand-over sign-in after switching versions
+  var hand=null;try{hand=JSON.parse(sessionStorage.getItem('tl_hand')||'null');sessionStorage.removeItem('tl_hand')}catch(e){}
+  if(hand){var go=function(){var u=document.getElementById('tl-u'),p=document.getElementById('tl-p'),b=document.getElementById('tl-go');if(!u||!b)return setTimeout(go,200);u.value=hand.u;p.value=hand.p;(window.TL_READY||Promise.resolve()).then(function(){b.click();setTimeout(function(){p.value=''},3000)})};
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go()}
 })();
 </script>
 </head>
@@ -4441,13 +4463,14 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
    '<div class="card"><h2>المجموعات</h2><p class="sub">المجموعة بتحدد المنصات الافتراضية للمستخدم الجديد، وتقدر تغيّر منصات أي مستخدم لوحده من "تعديل".</p><div data-r="groups"></div><div class="g" style="margin-top:10px"><label>اسم المجموعة<input data-r="gn"></label><label>الكود (إنجليزي)<input data-r="gc" class="ltr"></label><div data-r="gp"></div><button class="btn" data-a="gadd">إضافة مجموعة</button></div></div>'+
    '<div class="card" data-r="ntcard"><h2>إشعار المستخدمين بالتحديث</h2><p class="sub">اختار المنصة واكتب الرسالة، وابعتها واتساب لكل واحد بضغطة، أو إيميل للكل مرة واحدة. بتوصل بس للي عندهم صلاحية المنصة.</p><div class="g"><label>المنصة<select data-r="nt_p"></select></label></div><label style="display:block;margin-top:10px">الرسالة<textarea data-r="nt_t" rows="4" style="display:block;width:100%;box-sizing:border-box;margin-top:4px;font:inherit;padding:10px;border:1px solid var(--l);border-radius:10px;resize:vertical"></textarea></label><div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><button class="btn p" type="button" data-a="nt_bell">📢 انشر كإشعار جوه الداشبورد</button><button class="btn p" type="button" data-a="nt_mail">✉ ابعت إيميل للكل</button><span class="sub" data-r="nt_msg" style="margin:0"></span></div><div style="overflow:auto"><table><thead><tr><th>المستخدم</th><th>الموبايل</th><th>الإيميل</th><th>واتساب</th></tr></thead><tbody data-r="nt_rows"></tbody></table></div></div>'+
    '<div class="card" data-r="logcard"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0;flex:1">متابعة نشاط المستخدمين</h2><span class="sub" data-r="logupd" style="margin:0"></span><button class="btn" data-a="logref" type="button">تحديث ↻</button></div><div data-r="tiles" class="tl-tiles"></div><h3 class="tl-h3">حالة المستخدمين</h3><div style="overflow:auto"><table><thead><tr><th>المستخدم</th><th>الحالة</th><th>آخر ظهور</th><th>آخر مكان</th><th>الجهاز</th><th>حركات النهارده</th><th></th></tr></thead><tbody data-r="presrows"></tbody></table></div><h3 class="tl-h3">سجل الحركات</h3><div class="g"><label>المستخدم<select data-r="lf_u"><option value="">الكل</option></select></label><label>الفترة<select data-r="lf_d"><option value="1">آخر 24 ساعة</option><option value="7" selected>آخر 7 أيام</option><option value="30">آخر 30 يوم</option></select></label><label>نوع الحركة<select data-r="lf_e"><option value="">الكل</option></select></label><label>&nbsp;<button class="btn p" data-a="logq" type="button">عرض</button></label></div><div data-r="logmsg" class="sub"></div><div style="overflow:auto;max-height:420px"><table><thead><tr><th>الوقت</th><th>المستخدم</th><th>الحركة</th><th>التفاصيل</th><th>المكان</th><th>الجهاز</th></tr></thead><tbody data-r="logrows"></tbody></table></div><details style="margin-top:12px"><summary class="sub" style="cursor:pointer">إعدادات السجل</summary><div class="g" style="margin-top:8px"><label>رابط السجل (Google Apps Script)<input data-r="logu" class="ltr" placeholder="https://script.google.com/macros/s/.../exec"></label><label>مفتاح القراءة<input data-r="logk" type="password" class="ltr"></label></div><p class="sub">الرابط بيتنشر لكل المستخدمين مع "نشر التغييرات". مفتاح القراءة بيتحفظ متشفر مع حسابات الأدمن بعد النشر، فمش هتحتاج تكتبه على أجهزة تانية.</p></div></div>'+
+   '<div class="card"><h2>الواجهة الافتراضية لكل المستخدمين</h2><p class="sub">المستخدم اللي اخترتله واجهة معينة من "تعديل" بيفضل عليها. الاتنين بيقروا نفس البيانات، والتغيير بيتطبق خلال دقايق.</p><div class="g"><label>الواجهة<select data-r="uiall"><option value="v1">الواجهة الحالية</option><option value="v2">الواجهة الجديدة</option></select></label></div></div>'+
    '<div class="card" data-r="histcard"><h2>سجل تحديثات البيانات والرجوع</h2><p class="sub">لو اتنشر ملف بيانات غلط، تقدر ترجّع أي منصة لنسخة سابقة.</p><button class="btn p" type="button" data-a="hist">عرض النسخ السابقة</button><div class="sub" data-r="histmsg" style="margin-top:8px"></div><div style="overflow:auto"><table><thead><tr><th>التاريخ</th><th>التحديث</th><th>رجوع</th></tr></thead><tbody data-r="hist"></tbody></table></div></div>'+
    '<div class="card"><h2>مفتاح GitHub</h2><p class="sub">مطلوب للنشر. Fine-grained token بصلاحية Contents: Read and write على taxlens-data. بيتحفظ متشفر مع حسابات الأدمن، فبعد أول نشر مش هتحتاج تكتبه على أي جهاز تاني.</p><input data-r="tok" type="password" class="ltr" placeholder="github_pat_..."></div>'+
    '<div class="bar"><span data-r="pending" class="sub" style="margin:0">لا توجد تعديلات</span><div class="acts"><button class="btn" data-a="undo">إلغاء كل التعديلات</button><button class="btn p" data-a="pub">نشر التغييرات</button></div></div></div>';
   document.querySelector('#dash-root').appendChild(sec);
   var R=function(n){return sec.querySelector('[data-r="'+n+'"]')};
   R('tok').value=lsGet('tl_gh_token')||window.TL_GH_TOKEN||'';R('logk').value=(lsGet('tl_log_key')||window.TL_LOGKEY||'');R('logk').addEventListener('change',function(){lsSet('tl_log_key',this.value.trim());loadLog();syncRecipients()});
-  R('logu').value=window.TL_LOG_URL||'';R('logu').addEventListener('input',function(){state.groupsChanged=(this.value.trim()!==(window.TL_LOG_URL||''));render()});
+  R('logu').value=window.TL_LOG_URL||'';R('uiall').value=window.TL_UIALL||'v1';R('uiall').addEventListener('change',function(){state.groupsChanged=(this.value!==(window.TL_UIALL||'v1'));render()});R('logu').addEventListener('input',function(){state.groupsChanged=(this.value.trim()!==(window.TL_LOG_URL||''));render()});
   var EVN={login:'دخول',logout:'خروج',idle_logout:'خروج تلقائي (عدم نشاط)',forced_logout:'خروج بأمر الإدارة',open_platform:'فتح منصة',report_open:'فتح تقرير',report_download:'تحميل تقرير',report_share:'مشاركة تقرير',data_update:'تحديث بيانات',users_published:'نشر تعديلات المستخدمين',notify_whatsapp:'إشعار واتساب',notify_email:'إشعار إيميل'};
   (function(){var s=R('lf_e');Object.keys(EVN).forEach(function(k){s.appendChild(new Option(EVN[k],k))})})();
   var PRES={};
@@ -4555,7 +4578,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
         var ul=el('label','chk');var ux=el('input');ux.type='checkbox';ux.dataset.e='upload';ux.checked=!!r.upload;ul.append(ux,document.createTextNode('رفع وتحديث البيانات (المنصات المتاحة له)'));pl.appendChild(ul);
         var dl=el('label','chk');var dx=el('input');dx.type='checkbox';dx.dataset.e='dis';dx.checked=!!r.disabled;dl.append(dx,document.createTextNode('موقوف'));pl.appendChild(dl);
         var iM=el('input','ltr');iM.dataset.e='phone';iM.value=r.phone||'';iM.placeholder='01xxxxxxxxx';iM.inputMode='tel';var iE=el('input','ltr');iE.dataset.e='email';iE.value=r.email||'';iE.placeholder='name@example.com';iE.type='email';
-        f.append(lab('اسم الدخول',iu),lab('الاسم',iN),lab('المجموعة',sG),lab('موبايل (واتساب)',iM),lab('الإيميل',iE),lab('كلمة السر الحالية',pw0),lab('كلمة سر جديدة',pr),lab('الصلاحيات',pl));f.appendChild(scrBox(r));pl.querySelectorAll('[data-e="plat"]').forEach(function(x){x.addEventListener('change',function(){var g=f.querySelector('[data-plat="'+x.value+'"]');if(g)g.hidden=!x.checked})});
+        f.append(lab('اسم الدخول',iu),lab('الاسم',iN),lab('المجموعة',sG),lab('موبايل (واتساب)',iM),lab('الإيميل',iE),lab('كلمة السر الحالية',pw0),lab('كلمة سر جديدة',pr),lab('الصلاحيات',pl));f.appendChild(scrBox(r));var sU=el('select');sU.dataset.e='ui';[['','حسب الإعداد العام'],['v1','الواجهة الحالية'],['v2','الواجهة الجديدة (تجريبية)']].forEach(function(x){var op=new Option(x[1],x[0]);if((r.ui||'')===x[0])op.selected=true;sU.appendChild(op)});f.appendChild(lab('الواجهة',sU));pl.querySelectorAll('[data-e="plat"]').forEach(function(x){x.addEventListener('change',function(){var g=f.querySelector('[data-plat="'+x.value+'"]');if(g)g.hidden=!x.checked})});
         var acts=el('div','acts');acts.style.marginTop='10px';var ap=el('button','btn p','تطبيق');ap.dataset.a='apply';var cn=el('button','btn','إلغاء');cn.dataset.a='cancel';acts.append(ap,cn);
         if(u!==window.TL_USER){var dd=el('button','btn d','حذف المستخدم');dd.dataset.a='del';acts.appendChild(dd)}
         c.append(f,acts);tr.appendChild(c);tb.appendChild(tr);
@@ -4564,7 +4587,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
       var t;t=td('اسم الدخول','ltr');t.textContent=u;tr.appendChild(t);
       t=td('الاسم');t.textContent=r.name;tr.appendChild(t);
       t=td('المجموعة');t.textContent=GROUPS[r.group]?GROUPS[r.group].name:'—';tr.appendChild(t);
-      t=td('المنصات');t.textContent=platLabel(r.platforms)+(r.admin?' · إدارة':'')+(r.scr||(r.nof&&r.nof.length)?' · شاشات محددة':'');tr.appendChild(t);t=td('التقارير');[['reports','عرض وتحميل التقارير'],['upload','رفع وتحديث البيانات']].forEach(function(k){var l=el('label','chk');l.style.whiteSpace='nowrap';var x=el('input');x.type='checkbox';x.checked=!!r[k[0]];x.disabled=EDIT!=null;x.addEventListener('change',function(){if(k[0]==='upload'&&x.checked&&!(r.platforms||[]).length){x.checked=false;alert('تحديث البيانات محتاج منصة واحدة على الأقل');return}r[k[0]]=x.checked;render()});l.append(x,document.createTextNode(' '+k[1]));t.appendChild(l);t.appendChild(el('br'))});tr.appendChild(t);
+      t=td('المنصات');t.textContent=platLabel(r.platforms)+(r.admin?' · إدارة':'')+(r.ui==='v2'?' · الواجهة الجديدة':r.ui==='v1'?' · الواجهة الحالية':'')+(r.scr||(r.nof&&r.nof.length)?' · شاشات محددة':'');tr.appendChild(t);t=td('التقارير');[['reports','عرض وتحميل التقارير'],['upload','رفع وتحديث البيانات']].forEach(function(k){var l=el('label','chk');l.style.whiteSpace='nowrap';var x=el('input');x.type='checkbox';x.checked=!!r[k[0]];x.disabled=EDIT!=null;x.addEventListener('change',function(){if(k[0]==='upload'&&x.checked&&!(r.platforms||[]).length){x.checked=false;alert('تحديث البيانات محتاج منصة واحدة على الأقل');return}r[k[0]]=x.checked;render()});l.append(x,document.createTextNode(' '+k[1]));t.appendChild(l);t.appendChild(el('br'))});tr.appendChild(t);
       t=td('كلمة السر الحالية');t.appendChild(el('span','pw',r.pw||'—'));tr.appendChild(t);
       t=td('آخر ظهور');t.appendChild(seen(u));tr.appendChild(t);t=td('الحالة');var ch=changed(u);t.appendChild(el('span','pill '+(ch?'chg':r.disabled?'off':'on'),ch?'بانتظار النشر':r.disabled?'موقوف':'فعّال'));tr.appendChild(t);
       t=td('','full');var eb=el('button','btn','تعديل');eb.dataset.a='edit';eb.disabled=EDIT!=null;t.appendChild(eb);var ab=el('button','btn','النشاط');ab.dataset.a='act';t.appendChild(ab);if(u!==window.TL_USER&&!r.disabled){var kb=el('button','btn d',r.kick?'هيخرج بعد النشر':'إخراج الآن');kb.dataset.a='kick';kb.disabled=!!r.kick||EDIT!=null;t.appendChild(kb)}t.style.whiteSpace='nowrap';tr.appendChild(t);
@@ -4601,7 +4624,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
       if(!ps.length&&!q('admin').checked)return say('اختار منصة واحدة على الأقل');
       if(u===window.TL_USER&&(!q('admin').checked||q('dis').checked))return say('ما ينفعش تشيل الإدارة أو توقف حسابك إنت');
       var w=WORK[u];if(q('upload').checked&&!ps.length)return say('تحديث البيانات محتاج منصة واحدة على الأقل');
-      var o={_orig:w._orig||u,name:nm,group:gg,platforms:ps,admin:q('admin').checked,upload:q('upload').checked,reports:q('reports').checked,disabled:q('dis').checked,pw:np||w.pw,phone:q('phone').value.trim(),email:q('email').value.trim()};if(!o.phone)delete o.phone;if(!o.email)delete o.email;
+      var o={_orig:w._orig||u,name:nm,group:gg,platforms:ps,admin:q('admin').checked,upload:q('upload').checked,reports:q('reports').checked,disabled:q('dis').checked,pw:np||w.pw,phone:q('phone').value.trim(),email:q('email').value.trim()};o.ui=q('ui').value;if(!o.ui)delete o.ui;if(!o.phone)delete o.phone;if(!o.email)delete o.email;
       var scr={},anyLim=false;Object.keys(SCR).forEach(function(p){if(ps.indexOf(p)<0)return;var on=[].filter.call(tr.querySelectorAll('[data-e="scr"][data-p="'+p+'"]'),function(x){return x.checked}).map(function(x){return x.value});if(!on.length)anyLim='none:'+p;else if(on.length<SCR[p].length){scr[p]=on;anyLim=anyLim||true}});
       if(typeof anyLim==='string')return say('لازم تسيب شاشة واحدة على الأقل في كل منصة مختارة');if(anyLim)o.scr=scr;
       var nof=[].filter.call(tr.querySelectorAll('[data-e="feat"]'),function(x){return !x.checked}).map(function(x){return x.value});if(nof.length)o.nof=nof;
@@ -4624,7 +4647,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
     if(info.admin)body.a=window.TL_ADMINKEY;
     if((info.upload||info.admin)&&PUB_TOKEN)body.t=PUB_TOKEN;if(info.admin&&(lsGet('tl_log_key')||window.TL_LOGKEY))body.lk=lsGet('tl_log_key')||window.TL_LOGKEY;
     if(info.reports)body.r=1;
-    if(info.scr)body.s=info.scr;if(info.nof&&info.nof.length)body.x=info.nof;
+    if(info.scr)body.s=info.scr;if(info.ui)body.ui=info.ui;if(info.nof&&info.nof.length)body.x=info.nof;
     return S.importKey('raw',enc(pw),'PBKDF2',false,['deriveKey']).then(function(base){return S.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:salt,iterations:200000},base,{name:'AES-GCM',length:256},false,['encrypt'])})
      .then(function(k){return S.encrypt({name:'AES-GCM',iv:iv},k,enc(JSON.stringify(body)))}).then(function(ct){return{salt:b64(salt),iv:b64(iv),ct:b64(ct)}});
   }
@@ -4639,13 +4662,13 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
     var btn=sec.querySelector('[data-a="pub"]');btn.disabled=true;say('جارٍ النشر…',true);
     var fileSha,V,users={},dir={};
     gh('GET',null,tok).then(function(j){fileSha=j.sha;return ghRaw(tok,j.sha)})
-    .then(function(v){V=v;V.logUrl=(R('logu').value||'').trim();return Promise.all(Object.keys(WORK).map(function(u){var o=DIR[WORK[u]._orig||u],ch=changed(u),w=strip(WORK[u]);delete w.kick;w.rev=((o&&o.rev)||0)+(ch?1:0);dir[u]=w;if(w.disabled)return null;
+    .then(function(v){V=v;V.logUrl=(R('logu').value||'').trim();V.uiAll=R('uiall').value||'v1';return Promise.all(Object.keys(WORK).map(function(u){var o=DIR[WORK[u]._orig||u],ch=changed(u),w=strip(WORK[u]);delete w.kick;w.rev=((o&&o.rev)||0)+(ch?1:0);dir[u]=w;if(w.disabled)return null;
         return Promise.all([uhash(u),entryFor(w.pw,w)]).then(function(x){x[1].rev=w.rev;users[x[0]]=x[1]})}))})
     .then(function(){V.access={groups:GROUPS,users:users};var iv=crypto.getRandomValues(new Uint8Array(12));
       return S.importKey('raw',ub(window.TL_ADMINKEY),'AES-GCM',false,['encrypt']).then(function(k){return S.encrypt({name:'AES-GCM',iv:iv},k,enc(JSON.stringify(dir)))})
        .then(function(ct){V.admin={iv:b64(iv),ct:b64(ct)};return ensurePwKeys(V)}).then(function(){V.built=new Date().toISOString();
          return gh('PUT',{message:'Update users from TAX Lens ('+window.TL_USER+')',content:b64(enc(JSON.stringify(V))),sha:fileSha},tok).then(function(r){window.TL_SET_MY_ENTRY&&window.TL_SET_MY_ENTRY(V);return r})})})
-    .then(function(){var n=diffCount()+(state.groupsChanged?1:0);DIR=clone(dir);WORK=clone(dir);window.TL_ACCESS.groups=clone(GROUPS);window.TL_LOG_URL=V.logUrl;window.TL_LOG&&window.TL_LOG('users_published',n+' تعديل');syncRecipients();pwDone();state.groupsChanged=false;render();say('اتنشر ('+n+' تعديل). التعديلات بتوصل على طول؛ اللي فاتح الملف دلوقتي هيتطلب منه يسجل دخول تاني خلال دقيقتين.',true)})
+    .then(function(){var n=diffCount()+(state.groupsChanged?1:0);DIR=clone(dir);WORK=clone(dir);window.TL_ACCESS.groups=clone(GROUPS);window.TL_LOG_URL=V.logUrl;window.TL_UIALL=V.uiAll;window.TL_LOG&&window.TL_LOG('users_published',n+' تعديل');syncRecipients();pwDone();state.groupsChanged=false;render();say('اتنشر ('+n+' تعديل). التعديلات بتوصل على طول؛ اللي فاتح الملف دلوقتي هيتطلب منه يسجل دخول تاني خلال دقيقتين.',true)})
     .catch(function(e){say('تعذر النشر: '+e.message+'. اتأكد من مفتاح GitHub وصلاحياته.')})
     .then(function(){btn.disabled=false});
   }
