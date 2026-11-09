@@ -4553,7 +4553,34 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
       g.append(list('الأكثر استخداماً',U),list('نوع النشاط',E,function(k){return EV[k]||k}),list('النشاط اليومي',Dd));c.appendChild(g);
       if(FB.length){var f=el('div');f.style.marginTop='12px';f.appendChild(el('b',null,'ملاحظات المستخدمين ('+FB.length+')'));FB.slice(-10).reverse().forEach(function(r){var p=el('div','sub',(r.name||r.user)+' · '+new Date(r.time).toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})+': '+(r.detail||''));p.style.margin='4px 0';f.appendChild(p)});c.appendChild(f)}
     }).catch(function(e){b.textContent='تعذّر تحميل الإحصاءات: '+e.message})}
-  window.TLA_LOADLOG=function(){try{drawUsage()}catch(e){};loadPres();loadLog()};setInterval(function(){if(!sec.hidden)loadPres()},60000);R('tok').addEventListener('change',function(){lsSet('tl_gh_token',this.value.trim())});
+  /* التقرير المجدول: يُرسل ملخص القيادة بالبريد مرة أسبوعياً عند أول فتح للمنصة من حساب المدير بعد الموعد */
+  function schGet(){try{return JSON.parse(lsGet('tl_sched')||'null')}catch(e){return null}}
+  function schSave(o){lsSet('tl_sched',JSON.stringify(o))}
+  function schText(){var I=window.TLX_INFO?window.TLX_INFO():{},L=['السلام عليكم،','','ملخص TAX Lens الأسبوعي:'];
+    if(I.reta){L.push('','• '+I.reta.title);I.reta.k.forEach(function(k){L.push('   - '+k[0]+': '+k[1]+(k[3]?' ('+k[3]+')':''))})}
+    if(I.tsrf){L.push('','• '+I.tsrf.title);I.tsrf.k.forEach(function(k){L.push('   - '+k[0]+': '+k[1]+(k[2]!=null?' ('+(k[2]>=0?'+':'')+(k[2]*100).toFixed(1)+'% عن الأسبوع السابق)':''))})}
+    var al=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[]);if(al.length){L.push('','تنبيهات:');al.forEach(function(a){L.push('   - '+a)})}
+    L.push('','لمزيد من التفاصيل: https://etax-taxlens.github.io/');return L.join('\n')}
+  function weekKey(d){var x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-x.getDay());return x.toISOString().slice(0,10)}
+  function schRun(force){var o=schGet();if(!o||(!o.on&&!force)||!(o.to||[]).length)return Promise.resolve('off');var now=new Date();
+    if(!force){if(now.getDay()<o.day||(now.getDay()===o.day&&now.getHours()<o.hour))return Promise.resolve('wait');if(o.sent===weekKey(now))return Promise.resolve('done')}
+    if(!window.TLX_INFO||(!window.TLX_INFO().reta&&!window.TLX_INFO().tsrf))return Promise.resolve('nodata');
+    var url=window.TL_LOG_URL,k=(lsGet('tl_log_key')||window.TL_LOGKEY||'');if(!url||!k)return Promise.resolve('nolog');
+    return fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({a:'mail',key:k,to:o.to,subject:'TAX Lens · الملخص الأسبوعي للقيادة',text:schText()})}).then(function(r){return r.json()}).then(function(j){if(j&&j.ok===false)throw new Error(j.error||'تعذّر الإرسال');o.sent=weekKey(now);o.last=now.toISOString();schSave(o);window.TL_LOG&&window.TL_LOG('sched_report',o.to.length+' مستلم');return'sent'})}
+  function schCard(){var lc=R('logcard');if(!lc||document.getElementById('tla-sched'))return;var c=el('div','card');c.id='tla-sched';lc.parentNode.insertBefore(c,lc);var o=schGet()||{on:false,day:0,hour:9,grp:'lead',to:[]};
+    c.appendChild(el('h3',null,'التقرير المجدول'));var n=el('div','sub','يُرسل ملخصاً أسبوعياً بالبريد الإلكتروني للمستلمين المحددين. لأن البيانات مشفّرة، يُعدّ التقرير من جهازك: يُرسل تلقائياً عند أول فتح لـ TAX Lens من حسابك بعد الموعد المحدد.');c.appendChild(n);
+    var f=el('div');f.style.cssText='display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0';var on=el('input');on.type='checkbox';on.checked=!!o.on;var lo=el('label','chk');lo.append(on,document.createTextNode(' تفعيل'));
+    var dy=el('select');['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'].forEach(function(d,i){dy.appendChild(new Option(d,i))});dy.value=o.day;var hr=el('select');for(var h=6;h<=20;h++)hr.appendChild(new Option(h+':00',h));hr.value=o.hour;
+    var gp=el('select');gp.appendChild(new Option('مجموعة القيادة العليا','lead'));gp.appendChild(new Option('كل من لديه صلاحية التقارير','reports'));gp.appendChild(new Option('كل المستخدمين النشطين','all'));gp.value=o.grp||'lead';
+    f.append(lo,document.createTextNode('اليوم'),dy,document.createTextNode('الساعة'),hr,document.createTextNode('المستلمون'),gp);c.appendChild(f);var info=el('div','sub');c.appendChild(info);
+    var pick=function(){return Object.keys(WORK||{}).filter(function(u){var w=WORK[u];return!w.disabled&&w.email&&(gp.value==='all'||(gp.value==='reports'&&w.reports)||(gp.value==='lead'&&w.group==='lead'))}).map(function(u){return WORK[u].email})};
+    var upd=function(){var t=pick();info.textContent=t.length+' مستلم لديه بريد إلكتروني'+(o.last?' · آخر إرسال: '+new Date(o.last).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'}):'')};upd();
+    var bs=el('div');bs.style.marginTop='8px';var sv=el('button','btn p','حفظ الجدولة'),ts=el('button','btn','إرسال الآن للتجربة'),msg=el('span','sub');msg.style.marginInlineStart='8px';
+    sv.onclick=function(){o.on=on.checked;o.day=+dy.value;o.hour=+hr.value;o.grp=gp.value;o.to=pick();schSave(o);upd();msg.textContent=o.to.length?'حُفظت الجدولة ✓':'لا يوجد مستلمون لديهم بريد إلكتروني'};
+    ts.onclick=function(){o.to=pick();schSave(o);if(!o.to.length){msg.textContent='لا يوجد مستلمون لديهم بريد إلكتروني';return}if(!confirm('سيُرسل الملخص الآن إلى '+o.to.length+' مستلم. هل تريد المتابعة؟'))return;msg.textContent='جارٍ الإرسال…';schRun(true).then(function(r){o=schGet();upd();msg.textContent=r==='sent'?'أُرسل ✓':r==='nolog'?'أضف رابط السجل ومفتاح القراءة أولاً':'لا توجد بيانات بعد'}).catch(function(e){msg.textContent='تعذّر الإرسال: '+e.message})};
+    [on,dy,hr,gp].forEach(function(x){x.onchange=upd});bs.append(sv,ts,msg);c.appendChild(bs)}
+  setTimeout(function tryRun(){if(!window.TL_USER||!window.TLX_INFO){setTimeout(tryRun,5000);return}schRun(false).then(function(r){if(r==='nodata')setTimeout(tryRun,15000)}).catch(function(){})},8000);
+  window.TLA_LOADLOG=function(){try{schCard()}catch(e){console.warn(e)};try{drawUsage()}catch(e){};loadPres();loadLog()};setInterval(function(){if(!sec.hidden)loadPres()},60000);R('tok').addEventListener('change',function(){lsSet('tl_gh_token',this.value.trim())});
   function say(t,ok){var m=R('msg');m.className='msg '+(ok?'ok':'er');m.textContent=t;m.scrollIntoView&&m.scrollIntoView({block:'nearest'})}
   function diffCount(){var n=0,a=Object.keys(DIR),b=Object.keys(WORK);b.forEach(function(u){var w=WORK[u],o=DIR[w._orig||u];if(!o||cmp(w)!==cmp(o)||(w._orig&&w._orig!==u))n++});a.forEach(function(u){if(!b.some(function(k){return(WORK[k]._orig||k)===u}))n++});return n}
   function strip(o){var c={};Object.keys(o).forEach(function(k){if(k[0]!=='_'&&k!=='rev')c[k]=o[k]});if(o.rev!=null)c.rev=o.rev;return c}
