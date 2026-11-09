@@ -364,6 +364,39 @@ html[data-theme=dark] body.v2 .tl-hero h1,html[data-theme=dark] body.v2 .tl-hero
 html[data-theme=dark] body.v2 .tl-card,html[data-theme=dark] body.v2 .tlx-pl{background:var(--v2-surface)!important;border-color:var(--v2-line)!important;color:var(--v2-ink)!important}
 html[data-theme=dark] body.v2 .tlx-k b,html[data-theme=dark] body.v2 .tlx-pl h4,html[data-theme=dark] body.v2 .tl-card h3{color:#fff!important}
 body.v2 .tl-hero{padding-top:18px!important}
+/* ===== Phase 3 · Disposals (التصرفات العقارية) on the unified system ===== */
+body.v2 #plat-tsrf .ex-logo,body.v2 #plat-tsrf .ex-head img[src*="etax"],body.v2 #plat-tsrf .ex-head .ex-logo img{display:none!important}
+body.v2 #plat-tsrf .ex{font-family:var(--v2-font)!important;max-width:1360px;margin:0 auto;padding:20px 28px!important}
+body.v2 #plat-tsrf .ex-head{border:0!important;padding-bottom:6px!important;margin-bottom:10px!important}
+body.v2 #plat-tsrf .ex-eyebrow{font-size:13px!important;font-weight:700!important;color:var(--v2-red)!important}
+body.v2 #plat-tsrf .ex-title{font-size:26px!important;line-height:1.3!important;color:var(--ex-navy)!important}
+body.v2 #plat-tsrf .ex-sub{font-size:13.5px!important;color:var(--ex-slate)!important}
+body.v2 #plat-tsrf .ex-take{font-size:14.5px!important;line-height:1.8!important;border-radius:12px!important;box-shadow:0 2px 8px rgba(20,48,106,.08)!important;border:0!important;border-inline-start:0!important}
+body.v2 #plat-tsrf .ex-card{border-radius:12px!important;border:1px solid var(--ex-line)!important;box-shadow:0 2px 8px rgba(20,48,106,.08)!important;border-top-width:1px!important;border-inline-start-width:1px!important;border-inline-end-width:1px!important}
+body.v2 #plat-tsrf .ex-card h3{font-size:16px!important;font-weight:700!important;color:var(--ex-navy)!important}
+body.v2 #plat-tsrf .ex-kpi .lbl{font-size:13px!important;color:var(--ex-slate)!important;font-weight:600!important}
+body.v2 #plat-tsrf .ex-kpi .big{font-size:30px!important;font-weight:800!important;color:var(--ex-navy)!important;line-height:1.35!important}
+body.v2 #plat-tsrf .ex-kpi .sm,body.v2 #plat-tsrf .ex-kpi .avg{font-size:12.5px!important}
+body.v2 #plat-tsrf .ex-sec{font-size:20px!important;color:var(--ex-navy)!important}
+body.v2 #plat-tsrf .ex-sec::before{background:var(--acc)!important}
+body.v2 #plat-tsrf .ex-actions{gap:8px!important;flex-wrap:wrap}
+body.v2 #plat-tsrf .ex-act,body.v2 #plat-tsrf .ex-ctrl select,body.v2 #plat-tsrf .ex-ctrl button{height:38px!important;border-radius:9px!important;font:600 13px var(--v2-font)!important;border:1px solid var(--ex-line)!important;background:var(--color-panel)!important;color:var(--ex-navy)!important;padding:0 14px!important;box-shadow:none!important}
+body.v2 #plat-tsrf .ex-act:first-child,body.v2 #plat-tsrf #tlx-tup{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}
+body.v2 #plat-tsrf .ex-chip{border-radius:999px!important}
+body.v2 #plat-tsrf .ex-tbl table{font-size:13.5px!important}
+body.v2 #plat-tsrf .ex-tbl th{background:var(--ex-navy8)!important;color:#fff!important}
+body.v2 #plat-tsrf .ex-stale{border-radius:10px!important}
+body.v2 #plat-tsrf{background:var(--v2-bg)}
+/* dark */
+html[data-theme=dark] body.v2 #plat-tsrf{--ex-navy:#C9D6EE;--ex-navy8:#0D1F47;--ex-ink:#EEF3FA;--ex-slate:#A9B3C7;--ex-line:#22355E;--ex-tint:#142A57;--ex-page:#0B1A3B;--color-bg:#0B1A3B;--color-panel:#14254A;--color-fg:#EEF3FA;--color-fg-muted:#A9B3C7;--color-border-line:#22355E;--ex-blue:#7FA7E6;--ex-gold:#7FA7E6;--ex-blue6:#9FBBEA;color:#EEF3FA}
+html[data-theme=dark] body.v2 #plat-tsrf .ex,html[data-theme=dark] body.v2 #plat-tsrf section,html[data-theme=dark] body.v2 #plat-tsrf .ex-panel{background:transparent!important}
+html[data-theme=dark] body.v2 #plat-tsrf .ex-card,html[data-theme=dark] body.v2 #plat-tsrf .ex-take,html[data-theme=dark] body.v2 #plat-tsrf .ex-stale,html[data-theme=dark] body.v2 #plat-tsrf .ex-actions-bar,html[data-theme=dark] body.v2 #plat-tsrf [class*="ex-"][style*="background:#fff"],html[data-theme=dark] body.v2 #plat-tsrf [style*="background: #fff"],html[data-theme=dark] body.v2 #plat-tsrf [style*="background:#FFF"]{background:#14254A!important;color:#EEF3FA!important;border-color:#22355E!important;box-shadow:none!important}
+html[data-theme=dark] body.v2 #plat-tsrf .ex-tbl td{border-color:#22355E!important}
+html[data-theme=dark] body.v2 #plat-tsrf .ex-tbl tr:nth-child(even) td{background:#142A57!important}
+html[data-theme=dark] body.v2 #plat-tsrf svg text{fill:#C9D6EE}
+html[data-theme=dark] body.v2 #plat-tsrf svg line[stroke="#E1E7F0"],html[data-theme=dark] body.v2 #plat-tsrf svg .grid line{stroke:#22355E!important}
+html[data-theme=dark] body.v2 #plat-tsrf b,html[data-theme=dark] body.v2 #plat-tsrf strong{color:#FFFFFF}
+html[data-theme=dark] body.v2 .tlx-pl,html[data-theme=dark] body.v2 .tlx-m>div{background:#14254A!important;color:#EEF3FA!important}
 </style>
 </head>
 <body>
