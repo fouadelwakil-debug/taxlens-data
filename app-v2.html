@@ -6351,7 +6351,7 @@ function build(p){var s=S(),out=[];var on=function(id){return!(s.scenes[p]&&s.sc
     var inc=[];for(var i=Math.max(1,L.length-30);i<L.length;i++){var dd=Math.max(1,Math.round((D0(L[i].date)-D0(L[i-1].date))/864e5));inc.push((L[i].decl.total-L[i-1].decl.total)/dd)}
     add({id:'trend',kind:'line',title:'الإقرارات اليومية · آخر 30 تقرير',series:inc,say:mod('reta','momentum')||'ده شكل الإقرارات اليومية في آخر شهر.'});
     add({id:'channels',kind:'split',title:'منين بتيجي الإقرارات؟',items:[['أندرويد',(d.android||0)/dt*100,'#7FA7E6'],['الموقع',(d.web||0)/dt*100,'#FF8A92'],['iOS',(d.ios||0)/dt*100,'#C9D6EE']],say:Math.round(((d.android||0)+(d.ios||0))/dt*100)+'% من الإقرارات جاية من الموبايل، والباقي من الموقع.'});
-    var al=(I.reta&&I.reta.alerts)||[];add({id:'alerts',kind:'alerts',items:al,say:al.length?('خلّي بالك: '+al.map(strip).join('. ')):'مفيش تنبيهات، والأمور ماشية تمام.'});
+    var al=((I.reta&&I.reta.alerts)||[]).filter(function(a){return!/^⏱/.test(a)});add({id:'alerts',kind:'alerts',items:al,say:al.length?('خلّي بالك: '+al.map(strip).join('. ')):'مفيش تنبيهات، والأمور ماشية تمام.'});
     var fc=mod('reta','eom');if(fc)add({id:'forecast',kind:'text',title:'التوقع لآخر الشهر',text:fc,say:fc});
     add({id:'outro',kind:'outro',items:[(G[0]?G[0].g+' في الصدارة':''),'المحصّل '+fC(coll(b))+' جنيه','الإقرارات '+fC(d.total)].filter(Boolean),say:s.outro||'دي كانت حكاية الضرائب العقارية. شكراً ليكم.'})}
   else if(p==='tsrf'){var W=rows('weekly');if(!W||!W.length)return null;var Lw=W[W.length-1],P=W[W.length-2]||{},tot=W.reduce(function(a,w){return a+(+w.tax_paid||0)},0),ch=function(k){return P[k]?((Lw[k]/P[k]-1)*100):null};
@@ -6361,14 +6361,15 @@ function build(p){var s=S(),out=[];var on=function(id){return!(s.scenes[p]&&s.sc
     add({id:'trend',kind:'columns',title:'عمليات التصرف أسبوع بأسبوع',items:W.slice(-12).map(function(w){return[w.week,+w.disposals||0]}),say:mod('tsrf','records')||'ده مسار عمليات التصرف أسبوع بأسبوع.'});
     if(Lw.collection_rate!=null)add({id:'rate',kind:'big',label:'نسبة تحصيل الضريبة · '+Lw.week,value:Lw.collection_rate*100,unit:'%',dec:1,note:P.collection_rate!=null?'الأسبوع اللي فات '+(P.collection_rate*100).toFixed(1)+'%':'',say:'نسبة تحصيل الضريبة في آخر أسبوع '+(Lw.collection_rate*100).toFixed(0)+'%.'});
     var f2=mod('tsrf','forecast');if(f2)add({id:'forecast',kind:'text',title:'التوقع',text:f2,say:f2});
-    var al2=(I.tsrf&&I.tsrf.alerts)||[];add({id:'alerts',kind:'alerts',items:al2,say:al2.length?('خلّي بالك: '+al2.map(strip).join('. ')):'مفيش تنبيهات، والأمور ماشية تمام.'});
+    var al2=((I.tsrf&&I.tsrf.alerts)||[]).filter(function(a){return!/^⏱/.test(a)});add({id:'alerts',kind:'alerts',items:al2,say:al2.length?('خلّي بالك: '+al2.map(strip).join('. ')):'مفيش تنبيهات، والأمور ماشية تمام.'});
     add({id:'outro',kind:'outro',items:[fN(Lw.disposals)+' عملية تصرف في '+Lw.week,'المدفوعات '+fC(tot)+' جنيه من الإطلاق'],say:s.outro||'دي كانت حكاية التصرفات العقارية. شكراً ليكم.'})}
   else if(p==='lead'){if(!I.reta&&!I.tsrf)return null;
     add({id:'intro',kind:'intro',title:'حكاية القيادة',sub:'كل المنصات · '+new Date().toLocaleDateString('ar-EG',{day:'numeric',month:'long'}),say:s.intro||'أهلاً بيكم في حكاية الأسبوع لكل منصات TAX Lens.'});
     if(I.reta)add({id:'reta',kind:'kpis',title:'الضرائب العقارية',items:I.reta.k.map(function(k){return[k[0],k[1],null,null,k[3]]}),say:'في الضرائب العقارية: '+I.reta.k.map(function(k){return k[0]+' '+k[1]}).join('، ')+'.'});
     if(I.tsrf)add({id:'tsrf',kind:'kpis',title:'التصرفات العقارية',items:I.tsrf.k.map(function(k){return[k[0],k[1],k[2]!=null?k[2]*100:null,'%']}),say:'وفي التصرفات العقارية: '+I.tsrf.k.map(function(k){return k[0]+' '+k[1]}).join('، ')+'.'});
-    var al3=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[]);add({id:'alerts',kind:'alerts',items:al3,say:al3.length?('خلّي بالك: '+al3.map(strip).join('. ')):'مفيش تنبيهات في أي منصة.'});
+    var al3=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[]).filter(function(a){return!/^⏱/.test(a)});add({id:'alerts',kind:'alerts',items:al3,say:al3.length?('خلّي بالك: '+al3.map(strip).join('. ')):'مفيش تنبيهات في أي منصة.'});
     add({id:'outro',kind:'outro',items:['TAX Lens','منصة تحليل البيانات الضريبية'],say:s.outro||'دي كانت حكاية الأسبوع. شكراً ليكم.'})}
+  out.forEach(function(o){o.say=String(o.say).replace(/WW(\d+)/g,'الأسبوع $1').replace(/\s*\(ج\.م\)/g,'').replace(/ج\.م/g,'جنيه').replace(/\((-?[\d.]+)%\)/g,function(m,x){return'، يعني '+(+x>=0?'زيادة ':'نقص ')+Math.abs(+x)+'%'}).replace(/\s+/g,' ').replace(/ ،/g,'،').trim()});
   return out}
 window.TL_STORY_TEXTS=function(p){var sc=build(p)||[];return sc.map(function(x){return{id:x.id,text:x.say}})};
 
@@ -6469,7 +6470,7 @@ function go(i){if(!P)return;clearTimeout(P.t);try{speechSynthesis.cancel()}catch
   var next=function(){if(!P||P.paused)return;var rest=Math.max(800,minD-(Date.now()-t0));P.t=setTimeout(function(){go(P.i+1)},rest)};
   var url=P.audio[sc.id];if(mus)mus.duck(true);
   if(!P.muted&&url){var au=new Audio(url);P.au=au;au.onloadedmetadata=function(){setBar(Math.max(minD,au.duration*1000+800))};au.onended=function(){if(mus)mus.duck(false);next()};au.onerror=function(){next()};setTimeout(function(){if(P&&P.au===au)au.play().catch(function(){next()})},600)}
-  else if(!P.muted&&s.voice!=='off'&&window.speechSynthesis){var u=new SpeechSynthesisUtterance(sc.say);u.lang='ar-EG';var v=arVoice();if(v)u.voice=v;u.rate=0.95;var done=0;u.onend=function(){if(done++)return;if(mus)mus.duck(false);next()};u.onerror=u.onend;setBar(Math.max(minD,sc.say.length*85));setTimeout(function(){if(P&&P.scenes[P.i]===sc)speechSynthesis.speak(u)},600);
+  else if(!P.muted&&s.voice==='browser'&&window.speechSynthesis){var u=new SpeechSynthesisUtterance(sc.say);u.lang='ar-EG';var v=arVoice();if(v)u.voice=v;u.rate=0.95;var done=0;u.onend=function(){if(done++)return;if(mus)mus.duck(false);next()};u.onerror=u.onend;setBar(Math.max(minD,sc.say.length*85));setTimeout(function(){if(P&&P.scenes[P.i]===sc)speechSynthesis.speak(u)},600);
     P.t=setTimeout(function(){if(!done){done=1;next()}},Math.max(minD,sc.say.length*110)+4000)}
   else{setBar(minD);if(mus)mus.duck(false);P.t=setTimeout(function(){go(P.i+1)},minD)}}
 function record(b){if(P.rec){P.rec.stop();return}navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'browser',frameRate:30},audio:true,preferCurrentTab:true,selfBrowserSurface:'include'}).then(function(st){var ch=[],r=new MediaRecorder(st,{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':'video/webm'});P.rec=r;b.classList.add('on');b.textContent='⏹ وقّف التسجيل';
