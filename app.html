@@ -199,13 +199,23 @@
   function hx(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return('0'+x.toString(16)).slice(-2)}).join('')}
   function revFor(u){return S.digest('SHA-256',new TextEncoder().encode('tl:'+u)).then(function(h){var e=((window.TL_ACCESS||{}).users||{})[hx(h)];return e?'r'+(e.rev||0):'none'})}
   window.TL_FORGET=function(){return del().catch(function(){})};
+  function bioOK(){return window.isSecureContext&&location.protocol==='https:'&&window.PublicKeyCredential&&navigator.credentials}
+  function b64e(b){return btoa(String.fromCharCode.apply(null,new Uint8Array(b)))}function b64d(s){return Uint8Array.from(atob(s),function(c){return c.charCodeAt(0)})}
+  function bioOffer(){if(!bioOK()||!PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable)return;
+    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function(av){if(!av)return;return get('who').then(function(w){if(!w||w.u!==window.TL_USER||w.bio||!window.TL_PLACE)return;
+      var b=document.createElement('button');b.type='button';b.className='tl-xo';b.style.color='#1E7B45';b.textContent='🔒 فعّل الدخول بالبصمة';
+      b.onclick=function(){navigator.credentials.create({publicKey:{rp:{name:'TAX Lens'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:w.u,displayName:w.u},challenge:crypto.getRandomValues(new Uint8Array(32)),
+          pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000,attestation:'none'}})
+        .then(function(c){w.bio=b64e(c.rawId);return put('who',w)}).then(function(){b.textContent='✓ الدخول بالبصمة اتفعّل';b.disabled=true;window.TL_LOG&&window.TL_LOG('biometric_on')})
+        .catch(function(){b.textContent='🔒 فعّل الدخول بالبصمة (حاول تاني)'})};window.TL_PLACE(b)})})}
+  window.addEventListener('tl-unlocked',function(){setTimeout(bioOffer,1500)});
   var tried=null;
   var orig=window.TL_UNLOCK;window.TL_UNLOCK=function(u,p){tried={u:u,p:p};return orig(u,p).then(function(r){if(!r&&auto)window.TL_FORGET();return r})};
   var box,auto=false;
   window.addEventListener('tl-unlocked',function(){var t=tried;tried=null;if(!t)return;
     if(!(box&&box.checked)){if(!auto)window.TL_FORGET();return}
     Promise.all([devKey(),revFor(t.u)]).then(function(x){var iv=crypto.getRandomValues(new Uint8Array(12));
-      return S.encrypt({name:'AES-GCM',iv:iv},x[0],new TextEncoder().encode(t.p)).then(function(ct){return put('who',{u:t.u,iv:iv,ct:ct,rev:x[1]})})}).catch(function(){})});
+      return S.encrypt({name:'AES-GCM',iv:iv},x[0],new TextEncoder().encode(t.p)).then(function(ct){return get('who').then(function(o){return put('who',{u:t.u,iv:iv,ct:ct,rev:x[1],bio:(o&&o.u===t.u&&o.bio)||null})})})}).catch(function(){})});
   function setup(){var go=document.getElementById('tl-go'),pw=document.getElementById('tl-p');if(!go||!pw)return;
     var l=document.createElement('label');l.style.cssText='display:flex;align-items:center;gap:8px;margin:2px 0 12px;font-size:14px;color:#4A5875;cursor:pointer;font-weight:600';
     box=document.createElement('input');box.type='checkbox';box.style.cssText='width:18px;height:18px;margin:0;accent-color:#14306A';l.append(box,document.createTextNode('تذكرني على الجهاز ده'));go.parentNode.insertBefore(l,go);
@@ -214,6 +224,9 @@
       return Promise.all([devKey(),revFor(w.u)]).then(function(x){if(x[1]!==w.rev)return window.TL_FORGET();
         return S.decrypt({name:'AES-GCM',iv:w.iv},x[0],w.ct).then(function(b){var p=new TextDecoder().decode(b),u=document.getElementById('tl-u');u.value=w.u;box.checked=true;
           var run=function(){pw.value=p;auto=true;go.click();setTimeout(function(){auto=false;pw.value=''},4000)};
+          if(w.bio&&bioOK()){var bb=document.createElement('button');bb.type='button';bb.className='tl-lbtn';bb.style.cssText='margin-bottom:10px;background:#1E7B45';bb.textContent='🔒 الدخول بالبصمة / Face ID · '+w.u;
+            bb.onclick=function(){navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:b64d(w.bio)}],userVerification:'required',timeout:60000}}).then(function(){bb.remove();run()}).catch(function(){var e=document.getElementById('tl-err');if(e)e.textContent='التحقق بالبصمة ماتمش. جرّب تاني أو اكتب كلمة السر.'})};
+            go.parentNode.insertBefore(bb,l);u.value=w.u;return}
           if(!noauto)return run();
           var q=document.createElement('button');q.type='button';q.className='tl-lbtn';q.style.cssText='margin-bottom:10px;background:#1E7B45';q.textContent='متابعة كـ '+w.u;q.onclick=function(){q.remove();run()};go.parentNode.insertBefore(q,l)})})})
       .catch(function(){window.TL_FORGET()})}
