@@ -4632,7 +4632,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
       if(!p.soon&&!allowed(p.id))return;
       var c=document.createElement('button');c.type='button';c.className='tl-card'+(p.soon?' soon':'');c.disabled=!!p.soon;c.id='card-'+p.id;
       [['tl-mark',p.mark],['tl-name',p.name],['tl-en',p.en],['tl-desc',p.desc],['tl-go',p.soon?'قريباً':'دخول ←']].forEach(function(x){var s=document.createElement('span');s.className=x[0];s.textContent=x[1];c.appendChild(s)});
-      var lg={tsrf:'etaT',reta:'eta'}[p.id],IM=window.REP_IMG||{};if(lg&&IM[lg]){var im=document.createElement('img');im.src=IM[lg];im.alt='';im.className='tl-clogo';c.appendChild(im)}
+      var lg={tsrf:'etaT',reta:'eta',simp:'etaT'}[p.id],IM=window.REP_IMG||{};if(lg&&IM[lg]){var im=document.createElement('img');im.src=IM[lg];im.alt='';im.className='tl-clogo';c.appendChild(im)}
       if(!p.soon)c.addEventListener('click',function(){show(p.id)});
       grid.appendChild(c);
     });
@@ -6895,18 +6895,25 @@ function s0(P,D){var T=D.T,L=D.L,Pw=D.P;
     'من الإطلاق اتقبل <b>'+p1(pc(T.acc,T.n))+'</b> من النماذج واترفض <b>'+p1(pc(T.rej,T.n))+'</b>. '+(top?'أكتر نشاط بيسجّل هو <b>'+top.a+'</b> ('+fN(top.n)+' نموذج). ':'')+
     'وفيه <b>'+fN(D.R.over.n)+'</b> ممول اتقبلوا أو مستنيين وحجم أعمالهم فوق حد الـ20 مليون، ودول محتاجين مراجعة.'))}
 
-function s1(P,D){var T=D.T,mode=P.dataset.m||'all';
-  var hd=el('div','sp-hd2'),sw=el('div','sp-sw');[['all','الكل'],['ind','فردي'],['corp','اعتباري']].forEach(function(m){var b=el('button',mode===m[0]?'on':'',m[1]);b.type='button';b.onclick=function(){P.dataset.m=m[0];draw()};sw.appendChild(b)});hd.append(el('p','sp-sub','من تقديم النموذج لحد القبول'),sw);P.appendChild(hd);
-  var X=mode==='all'?{n:T.n,dec:T.dec,acc:T.acc,auto:T.auto,rej:T.rej,pend:T.pend}:(function(t){var a=t.app+t.auto;return{n:a+t.rej+t.pend,dec:a+t.rej,acc:a,auto:t.auto,rej:t.rej,pend:t.pend}})(D.R.typ[mode]);
-  var st=[['قدّموا النموذج',X.n,null],['اتاخد فيها قرار',X.dec,'فاضل '+fN(X.pend)+' تحت المراجعة'],['اتقبلت',X.acc,'منهم '+fN(X.auto)+' موافقة آلية بعد 5 أيام']];
-  var c=card();var worst=pc(st[1][1],st[0][1])<pc(st[2][1],st[1][1])?1:2;
-  st.forEach(function(s,i){if(i){var cv=el('div','sp-conv','<span>↓</span> '+p1(pc(s[1],st[i-1][1]))+' من المرحلة اللي قبلها'+(i===worst?' · <em>هنا أكبر وقعة</em>':''));c.appendChild(cv)}
-    var r=el('div','sp-fr'+(i===worst?' worst':''));var lb=el('div','sp-fl');lb.append(el('b',null,s[0]),el('strong',null,fN(s[1])),el('small',null,s[2]||p1(pc(s[1],st[0][1]))+' من اللي قدّموا'));
-    var tr=el('div','sp-ft'),bar=el('div','sp-fb');bar.style.width=Math.max(2,pc(s[1],st[0][1]))+'%';bar.style.background=i===2?col('green'):i===1?col('navy'):col('teal');tr.appendChild(bar);r.append(lb,tr);c.appendChild(r)});
-  c.appendChild(say('من كل 100 نموذج اتقدّم'+(mode==='all'?'':mode==='ind'?' من الأفراد':' من الشركات')+'، <b>'+Math.round(pc(X.acc,X.n))+'</b> اتقبلوا و<b>'+Math.round(pc(X.rej,X.n))+'</b> اترفضوا. ونسبة القبول من اللي اتاخد فيهم قرار <b>'+p1(pc(X.acc,X.dec))+'</b>.'));
-  P.appendChild(c);
-  var t=D.R.typ,ri=pc(t.ind.rej,t.ind.app+t.ind.auto+t.ind.rej),rc=pc(t.corp.rej,t.corp.app+t.corp.auto+t.corp.rej);
-  P.appendChild(say('<b>مقارنة:</b> نسبة الرفض عند الأفراد <b>'+p1(ri)+'</b> وعند الشركات <b>'+p1(rc)+'</b> من النماذج اللي اتحسمت.'))}
+function s1(P,D){var mode=P.dataset.m||'all',T=D.T,t=D.R.typ,L=D.L;
+  var hd=el('div','rf-hd'),tt=el('div');tt.appendChild(el('p',null,'التسهيلات الضريبية · '+(mode==='week'?('من '+dA(L.start)+' لحد '+dA(L.end)):('من الإطلاق لحد '+dA(D.R.asof)))));
+  var sw=el('div','rf-sw');[['all','من الإطلاق'],['week','آخر أسبوع']].forEach(function(m){var b=el('button',mode===m[0]?'on':'',m[1]);b.type='button';b.onclick=function(){P.dataset.m=m[0];draw()};sw.appendChild(b)});hd.append(tt,sw);P.appendChild(hd);
+  var ti=function(x){return x.app+x.auto+x.rej+x.pend},td=function(x){return x.app+x.auto+x.rej},ta=function(x){return x.app+x.auto};
+  var st=mode==='week'?[{n:'قدّموا النموذج',v:L.n,ch:{ind:L.ind,corp:L.corp}},{n:'اتاخد فيها قرار',v:L.dec},{n:'اتقبلت',v:L.acc,last:1}]
+    :[{n:'قدّموا النموذج',v:T.n,ch:{ind:ti(t.ind),corp:ti(t.corp)}},{n:'اتاخد فيها قرار',v:T.dec,ch:{ind:td(t.ind),corp:td(t.corp)}},{n:'اتقبلت',v:T.acc,last:1}];
+  var v0=st[0].v||1,worst=1;for(var i=2;i<st.length;i++){if(pc(st[i].v,st[i-1].v)<pc(st[worst].v,st[worst-1].v))worst=i}
+  var CHS=[['ind','أفراد','#14306A'],['corp','شركات','#2E7D5B']];var box=el('div','rf');
+  st.forEach(function(x,i){var row=el('div','rf-row'+(i&&i===worst?' worst':''));var lab=el('div','rf-lab');lab.append(el('b',null,x.n),el('strong',null,fN(x.v)),el('small',null,i===2&&mode==='all'?'منهم '+fN(T.auto)+' موافقة آلية':p1(pc(x.v,v0))+' من اللي قدّموا'));
+    var tr=el('div','rf-track'),bar=el('div','rf-bar');bar.style.width=Math.max(2,pc(x.v,v0))+'%';
+    if(x.ch){var tot=x.ch.ind+x.ch.corp;CHS.forEach(function(c){var sp=el('span');sp.style.width=pc(x.ch[c[0]],tot)+'%';sp.style.background=c[2];sp.title=c[1]+': '+fN(x.ch[c[0]])+' ('+pc(x.ch[c[0]],tot).toFixed(0)+'%)';bar.appendChild(sp)})}else bar.classList.add(x.last?'solid':'navy');
+    tr.appendChild(bar);row.append(lab,tr);
+    if(i){var c=el('div','rf-conv','<span>↓</span> '+p1(pc(x.v,st[i-1].v))+' من المرحلة اللي قبلها'+(i===worst?' · <em>هنا أكبر وقعة</em>':''));box.appendChild(c)}box.appendChild(row)});
+  var lg=el('div','rf-lg');CHS.forEach(function(c){var s=el('span'),ii=el('i');ii.style.background=c[2];s.append(ii,document.createTextNode(c[1]));lg.appendChild(s)});box.appendChild(lg);
+  var s0=st[0].v,s1v=st[1].v,s2=st[2].v,ri=pc(t.ind.rej,td(t.ind)),rc=pc(t.corp.rej,td(t.corp));
+  box.appendChild(el('div','rf-say',(mode==='week'?'<b>في آخر أسبوع:</b> ':'<b>الخلاصة:</b> ')+'من كل 100 نموذج اتقدّم، <b>'+Math.round(pc(s2,s0))+'</b> اتقبلوا'+(s0-s1v>0?'، و<b>'+fN(s0-s1v)+'</b> نموذج لسه مستني قرار':'')+'. ونسبة القبول من اللي اتحسموا <b>'+p1(pc(s2,s1v))+'</b>. '+
+    (mode==='all'?'نسبة الرفض عند الأفراد <b>'+p1(ri)+'</b> وعند الشركات <b>'+p1(rc)+'</b>.':'')+
+    (mode==='week'?'<br><span class="rf-note">ملحوظة: نماذج آخر أسبوع كتير منها لسه تحت المراجعة، فنسبة القبول هتعلى لما يتاخد فيها قرار.</span>':'')));
+  P.appendChild(box)}
 
 function wtable(rows){var t=el('table','sp-t');t.innerHTML='<thead><tr><th>الأسبوع</th><th>الفترة</th><th>اتقدّم</th><th>اتقبل</th><th>اترفض</th><th>تحت المراجعة</th><th>نسبة الرفض</th></tr></thead>';var b=el('tbody');
   rows.forEach(function(w){var r=el('tr');r.innerHTML='<td>'+w.no+'</td><td>'+dA(w.start)+' – '+dA(w.end)+'</td><td>'+fN(w.n)+'</td><td>'+fN(w.acc)+'</td><td>'+fN(w.rej)+'</td><td>'+fN(w.pend)+'</td><td>'+p1(pc(w.rej,w.dec))+'</td>';b.appendChild(r)});t.appendChild(b);return t}
@@ -6995,6 +7002,16 @@ var css=el('style');css.textContent=
 '#plat-simp .sp-t{width:100%;border-collapse:collapse;font-size:13.5px}#plat-simp .sp-t th,#plat-simp .sp-t td{padding:7px 8px;border-bottom:1px solid var(--sp-line);text-align:right}#plat-simp .sp-t th{background:#F4F7FB;color:#14306A;position:sticky;top:0}#plat-simp .sp-card:has(.sp-t){max-height:520px;overflow:auto}'+
 '#plat-simp .sp-hd2{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}#plat-simp .sp-sw{display:flex;background:#fff;border:1px solid var(--sp-line);border-radius:999px;padding:4px}#plat-simp .sp-sw button{all:unset;cursor:pointer;padding:5px 14px;border-radius:999px;font-weight:700;font-size:13px;color:#14306A}#plat-simp .sp-sw button.on{background:#14306A;color:#fff}'+
 '#plat-simp .sp-fr{display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px;align-items:center}#plat-simp .sp-fl b{display:block;color:var(--sp-mute);font-size:15px}#plat-simp .sp-fl strong{display:block;font-size:28px;color:#14306A}#plat-simp .sp-fl small{color:var(--sp-mute);font-size:12.5px}#plat-simp .sp-ft{background:#EEF3FA;border-radius:10px;height:46px;overflow:hidden}#plat-simp .sp-fb{height:100%;border-radius:10px;transition:width .8s}#plat-simp .sp-fr.worst .sp-ft{box-shadow:0 0 0 2px #D6202E inset}#plat-simp .sp-conv{padding-inline-start:248px;margin:8px 0;font-size:13px;font-weight:700;color:var(--sp-mute)}#plat-simp .sp-conv em{font-style:normal;color:#D6202E}'+
+'#s1 .rf-hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 14px}#s1 .rf-hd p{margin:4px 0 0;color:var(--sp-mute);font-size:14px}'+
+'#s1 .rf-sw{display:flex;background:#EEF3FA;border-radius:999px;padding:4px}#s1 .rf-sw button{all:unset;cursor:pointer;padding:6px 16px;border-radius:999px;font:700 13px Cairo,Tahoma,sans-serif;color:#14306A}#s1 .rf-sw button.on{background:#14306A;color:#fff}'+
+'#s1 .rf{background:var(--sp-card);border:1px solid var(--sp-line);border-radius:16px;padding:22px 24px;box-shadow:0 2px 8px rgba(20,48,106,.06)}'+
+'#s1 .rf-row{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;align-items:center}#s1 .rf-lab b{display:block;font-size:15px;color:var(--sp-mute)}#s1 .rf-lab strong{display:block;font-size:28px;color:#14306A;line-height:1.3}#s1 .rf-lab small{color:var(--sp-mute);font-size:12.5px}'+
+'#s1 .rf-track{background:#EEF3FA;border-radius:10px;height:46px;overflow:hidden}#s1 .rf-bar{height:100%;display:flex;border-radius:10px;overflow:hidden;transition:width .8s cubic-bezier(.2,.8,.2,1)}#s1 .rf-bar span{height:100%}#s1 .rf-bar.solid{background:#D6202E}#s1 .rf-bar.navy{background:#14306A}'+
+'#s1 .rf-conv{margin:8px 0;padding-inline-start:238px;font-size:13px;color:var(--sp-mute);font-weight:700}#s1 .rf-conv span{color:#14306A}#s1 .rf-conv em{font-style:normal;color:#D6202E}#s1 .rf-row.worst .rf-track{box-shadow:0 0 0 2px #D6202E inset}'+
+'#s1 .rf-lg{display:flex;gap:16px;margin:16px 0 0;font-size:12.5px;color:var(--sp-mute)}#s1 .rf-lg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}'+
+'#s1 .rf-say{margin-top:16px;padding-top:14px;border-top:1px dashed var(--sp-line);font-size:15.5px;line-height:2}#s1 .rf-say b{color:#14306A}#s1 .rf-note{font-size:12.5px;color:var(--sp-mute)}'+
+'@media(max-width:700px){#s1 .rf{padding:16px}#s1 .rf-row{grid-template-columns:1fr;gap:6px}#s1 .rf-conv{padding-inline-start:0}#s1 .rf-lab strong{font-size:22px}#s1 .rf-track{height:30px}}'+
+'html[data-theme=dark] #s1 .rf-lab strong,html[data-theme=dark] #s1 .rf-say b,html[data-theme=dark] #s1 .rf-conv span{color:#9FBBEA}html[data-theme=dark] #s1 .rf-track,html[data-theme=dark] #s1 .rf-sw{background:#0E1A36}html[data-theme=dark] #s1 .rf-sw button{color:#9FBBEA}html[data-theme=dark] #s1 .rf-sw button.on{background:#9FBBEA;color:#0E1A36}html[data-theme=dark] #s1 .rf-bar.navy{background:#7FA7E6}'+
 '#plat-simp .sp-g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}#plat-simp .sp-foot{color:var(--sp-mute);font-size:12px;margin-top:18px}'+
 '@media(max-width:800px){#plat-simp .sp-g2{grid-template-columns:1fr}#plat-simp .sp-fr{grid-template-columns:1fr;gap:6px}#plat-simp .sp-conv{padding-inline-start:0}#plat-simp .sp-ft{height:30px}#plat-simp .sp-wrap{padding:14px 12px 30px}}'+
 'html[data-theme=dark] #plat-simp{--sp-card:#14254A;--sp-line:#22355E;--sp-ink:#EEF3FA;--sp-mute:#B5C3DD;background:#0B1730}html[data-theme=dark] #plat-simp h1,html[data-theme=dark] #plat-simp .sp-ph h2,html[data-theme=dark] #plat-simp .sp-card h3,html[data-theme=dark] #plat-simp .sp-k .b,html[data-theme=dark] #plat-simp .sp-say b,html[data-theme=dark] #plat-simp .sp-fl strong{color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-t th{background:#0E1A36;color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-ft{background:#0E1A36}html[data-theme=dark] #plat-simp .sp-sw{background:#0E1A36}html[data-theme=dark] #plat-simp .sp-sw button{color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-sw button.on{background:#9FBBEA;color:#0E1A36}';
