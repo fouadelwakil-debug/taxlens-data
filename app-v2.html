@@ -5968,6 +5968,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var W=D.W;if(W.length&&W[W.length-1].reg<=0)al.push('⚠ منظومة المرتبات: مفيش مسجلين جداد في آخر أسبوع');
     if(W.length&&W[W.length-1].tech!=null&&Pp.tech&&(L.tech-Pp.tech)/Pp.tech>0.05)al.push('⚠ النماذج المتعطلة فنياً في المرتبات زادت '+((L.tech-Pp.tech)/Pp.tech*100).toFixed(1)+'% في أسبوع');
     var S=D.S,n=S.length;if(n>2){D.regs.forEach(function(r){var a=S[n-3].regions&&S[n-3].regions[r.k],b=S[n-2].regions&&S[n-2].regions[r.k];if(a&&b&&S[n-3].d>=D.lastBrk){var r0=a.sub/a.enr,r1=b.sub/b.enr,r2=r.sr/100;if(r1<=r0+1e-4&&r2<=r1+1e-4)al.push('⚠ مرتبات '+r.n+': نسبة التقديم ثابتة أو بتقل من أسبوعين')}})}
+    var YA=D.R.yrs,Yy=YA&&YA[Object.keys(YA).sort().pop()];if(Yy){if(Yy.sec){var gv=Yy.sec.gov;if(gv[0]&&gv[gv.length-1]<gv[0]*.2)al.unshift('⚠ موظفين القطاع الحكومي في المرتبات نزلوا من '+fN(gv[0])+' لـ '+fN(gv[gv.length-1])+': الجهات الحكومية بطّلت تقدّم')}
+      var sd=0,sp=0;Yy.m.forEach(function(m,i){if(Yy.paid[i]!=null&&Yy.paidOk){sd+=Yy.due[i];sp+=Yy.paid[i]}});if(sd&&sp/sd<.85)al.push('⚠ فجوة سداد ضريبة المرتبات '+(Math.round((sd-sp)/1e8)/10)+' مليار جنيه في '+Yy.yr+' (اتسدد '+(sp/sd*100).toFixed(1)+'%)')}
     if(age>10)al.push('⏱ آخر بيانات للمرتبات من '+Math.round(age)+' يوم');
     return{last:last,old:age>10,alerts:al.slice(0,4),title:'منظومة المرتبات · لحد '+dA(last),k:[['الممولين الملزمين',fN(L.enr),null,null],['المسجلين',fN(L.reg),null,'+'+fN(L.reg-Pp.reg)+' عن التقرير اللي فات'],['المقدّمين',fN(L.sub),null,'+'+fN(L.sub-Pp.sub)+' عن التقرير اللي فات'],['الموظفين',fN(L.emp),null,null]],wk:{sub:L.sub-Pp.sub}}}
   function drawHome(){var home=document.getElementById('tl-home'),grid=document.getElementById('tl-grid');if(!home||home.hidden||!grid||!window.TL_USER&&window.TL_SINGLE)return;
@@ -6164,15 +6166,18 @@ new MutationObserver(apply).observe(document.documentElement,{attributes:true,at
 var FA=function(t){return String(t);return String(t).replace(/اللي فات/g,'السابق').replace(/اللي قبلها/g,'السابقة').replace(/نزلت/g,'انخفضت').replace(/لحد/g,'حتى').replace(/من (\d+) يوم/g,'منذ $1 يوماً').replace(/من (\d+) أيام/g,'منذ $1 أيام')};
 function isLead(){try{var u=window.TL_USER,a=window.TL_ACCESS,g=a&&a.users&&a.users[u]&&a.users[u].group;return g==='lead'}catch(e){return false}}
 function pc(x){return x==null?'':(x>=0?'زيادة ':'نقص ')+Math.abs(x*100).toFixed(1)+'%'}
+function payX(f){try{var D=window.PAY_MODEL&&PAY_MODEL(),A=D&&D.R.yrs,Y=A&&A[Object.keys(A).sort().pop()];if(!Y||!Y.paidOk)return'';var sd=0,sp=0,n=0;Y.m.forEach(function(m,i){if(Y.paid[i]!=null){sd+=Y.due[i];sp+=Y.paid[i];n++}});var b=function(v){return(v/1e9).toFixed(1)+' مليار'};
+  return f?' وبلغت الضريبة المستحقة على المرتبات خلال أول '+n+' أشهر من '+Y.yr+' نحو '+b(sd)+' جنيه، سُدد منها '+b(sp)+' جنيه بنسبة '+(sp/sd*100).toFixed(1)+'%'+(Y.sec?'، مع انخفاض أعداد موظفي القطاع الحكومي المدرجين بالمنظومة من '+Y.sec.gov[0].toLocaleString('en-US')+' إلى '+Y.sec.gov[Y.sec.gov.length-1].toLocaleString('en-US')+' موظفاً':'')+'.':
+   ' وضريبة المرتبات المستحقة في أول '+n+' شهور من '+Y.yr+' '+b(sd)+' جنيه، اتسدد منها '+b(sp)+' ('+(sp/sd*100).toFixed(1)+'%)'+(Y.sec?'، وموظفين القطاع الحكومي نزلوا من '+(Y.sec.gov[0]/1e6).toFixed(1)+' مليون لـ '+Y.sec.gov[Y.sec.gov.length-1]+' بس':'')+'.'}catch(e){return''}}
 function briefF(I){var s=[];if(I.reta){var k=I.reta.k;s.push('في الضرائب العقارية بلغ عدد الحسابات '+k[0][1]+' والإقرارات '+k[1][1]+'، وبلغ إجمالي المحصّل '+k[2][1]+' جنيه، وذلك حتى '+(I.reta.title.split('حتى ')[1]||'')+'.')}
   if(I.tsrf){var t=I.tsrf.k,w=I.tsrf.wk||{};s.push('وفي التصرفات العقارية بلغ منذ الإطلاق عدد المسجلين '+t[0][1]+'، وعمليات التصرف '+t[1][1]+'، ومدفوعات الضريبة '+t[2][1]+' جنيه'+(t[3]?' ومدفوعات الغرامات '+t[3][1]+' جنيه':'')+(w.disp!=null?'، منها '+Number(w.disp).toLocaleString('en-US')+' عملية خلال الأسبوع الأخير':'')+'.')}
   if(I.simp){var q=I.simp.k;s.push('وفي التسهيلات الضريبية بلغ إجمالي نماذج التسجيل في نظام المحاسبة المبسط '+q[0][1]+' نموذجاً، تم قبول '+q[1][1]+' منها ورفض '+q[2][1]+'، ولا يزال '+q[3][1]+' نموذجاً قيد المراجعة.')}
-  if(I.pay){var y=I.pay.k;s.push('وفي منظومة احتساب الأجور والمرتبات بلغ عدد الممولين المقدّمين '+y[2][1]+' من أصل '+y[0][1]+' ممولاً ملزماً، وعدد المسجلين '+y[1][1]+'، وتغطي المنظومة '+y[3][1]+' موظفاً.')}
+  if(I.pay){var y=I.pay.k;s.push('وفي منظومة احتساب الأجور والمرتبات بلغ عدد الممولين المقدّمين '+y[2][1]+' من أصل '+y[0][1]+' ممولاً ملزماً، وعدد المسجلين '+y[1][1]+'، وتغطي المنظومة '+y[3][1]+' موظفاً.'+payX(1))}
   return s.join(' ')}
 function brief(I){var s=[];if(I.reta){var k=I.reta.k;s.push('في الضرائب العقارية عندنا '+k[0][1]+' حساب و'+k[1][1]+' إقرار، والمحصّل وصل '+k[2][1]+' جنيه، لحد '+(I.reta.title.split('حتى ')[1]||'')+'.')}
   if(I.tsrf){var t=I.tsrf.k,w=I.tsrf.wk||{};s.push('وفي التصرفات العقارية من الإطلاق: '+t[0][1]+' مسجل، و'+t[1][1]+' عملية تصرف، ومدفوعات ضريبة '+t[2][1]+' جنيه'+(t[3]?' وغرامات '+t[3][1]+' جنيه':'')+(w.disp!=null?'، منهم '+Number(w.disp).toLocaleString('en-US')+' عملية في آخر أسبوع':'')+'.')}
   if(I.simp){var q=I.simp.k;s.push('وفي التسهيلات الضريبية: '+q[0][1]+' نموذج تسجيل في المحاسبة المبسطة، اتقبل منهم '+q[1][1]+' واترفض '+q[2][1]+'، و'+q[3][1]+' لسه تحت المراجعة.')}
-  if(I.pay){var y=I.pay.k;s.push('وفي منظومة المرتبات: '+y[2][1]+' ممول بيقدّموا من '+y[0][1]+' ملزم، و'+y[1][1]+' مسجلين، والمنظومة بتغطي '+y[3][1]+' موظف.')}
+  if(I.pay){var y=I.pay.k;s.push('وفي منظومة المرتبات: '+y[2][1]+' ممول بيقدّموا من '+y[0][1]+' ملزم، و'+y[1][1]+' مسجلين، والمنظومة بتغطي '+y[3][1]+' موظف.'+payX(0))}
   return s.join(' ')}
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function draw(){if(!document.body.classList.contains('v2'))return;var s=document.getElementById('tlx-strip');if(!s||!window.TLX_INFO)return;var I=window.TLX_INFO();if(!I.reta&&!I.tsrf&&!I.simp&&!I.pay)return;
@@ -7318,6 +7323,9 @@ function y8(P,D){var L=D.L,mg=D.mg,un=D.un,e=L.enr,base=L.sub;
   var k2=el('div','sp-ks');k2.append(kpi('مقدّمين زيادة','+'+fN(add),'من المأموريات غير المدمجة','g'),kpi('إجمالي المقدّمين',fN(base+add),''),kpi('نسبة التقديم الكلية',p1(pc(base+add,e)),'دلوقتي '+p1(pc(base,e))));c.appendChild(k2);
   var b=box(220);c.appendChild(b);P.appendChild(c);
   chart('y8',b,{type:'bar',data:{labels:['دلوقتي','بعد التحسين'],datasets:[{label:'المدمجة',data:[mg.sub,mg.sub],backgroundColor:col('navy'),stack:'s'},{label:'غير المدمجة',data:[un.sub,un.sub+add],backgroundColor:col('green'),stack:'s'}]},options:{animation:false,indexAxis:'y',scales:{x:{stacked:true,ticks:{callback:kf}},y:{stacked:true}}}});
+  var YA=D.R.yrs,Yy=YA&&YA[Object.keys(YA).sort().pop()];if(Yy&&Yy.paidOk){var sd=0,sp=0;Yy.m.forEach(function(m,i){if(Yy.paid[i]!=null){sd+=Yy.due[i];sp+=Yy.paid[i]}});var gv=Yy.sec?Yy.sec.gov:null,gl=gv?gv.length-1:0,gT=gv?Yy.due.slice(0,3).reduce(function(s2,x){return s2+x},0)/3:0;
+    var c9=card('ماذا لو؟ الضريبة والسداد','من بيانات '+Yy.yr);var k9=el('div','sp-ks');k9.append(kpi('لو نسبة السداد وصلت 90%','+'+fC(Math.max(0,sd*.9-sp)),'جنيه زيادة في التحصيل · دلوقتي '+p1(pc(sp,sd)),'g'),kpi('لو اتسدد كل المستحق','+'+fC(sd-sp),'فجوة السداد كلها','g'));
+    if(gv)k9.appendChild(kpi('لو الجهات الحكومية رجعت تقدّم','+'+fN(gv[0]-gv[gl]),'موظف يرجعوا المنظومة (زي يناير)','g'));c9.appendChild(k9);P.appendChild(c9)}
   P.appendChild(say('<b>الرسالة:</b> أكبر مكسب ممكن ييجي من '+(s1>=s2?'<b>دمج المأموريات غير المدمجة في الميكنة الشاملة</b> أو رفع أدائها، لأنه ممكن يضيف حوالي '+fN(s1)+' مقدّم':'<b>متابعة المسجلين اللي مقدّموش</b>، لأنهم '+fN(s2)+' ممول خلاص سجّلوا')+'. والمسجلين اللي مقدّموش أسرع مكسب لأنهم مش محتاجين تسجيل.'))}
 function y9(P,D){var L=D.L,Pp=D.P,s=D.rate('sub'),regs=D.regs.slice().sort(function(a,b){return(b.enr-b.sub)-(a.enr-a.sub)}),TS=D.R.techSector;
   var steps=[
