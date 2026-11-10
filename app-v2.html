@@ -19,7 +19,7 @@
     daily:{url:'data/daily.csv',fmt:'csv'},breakdowns:{url:'data/breakdowns.csv',fmt:'csv'},
     inspection_reasons:{url:'data/inspection_reasons.csv',fmt:'csv'},open_claims:{url:'data/open_claims.csv',fmt:'csv'},
     targets:{url:'data/targets.csv',fmt:'csv'},weekly_extra:{url:'data/weekly_extra.csv',fmt:'csv'},
-    reta_snapshots:{url:'data/reta_snapshots.json',fmt:'json'},reta_actions:{url:'data/reta_actions.json',fmt:'json'}
+    reta_snapshots:{url:'data/reta_snapshots.json',fmt:'json'},reta_actions:{url:'data/reta_actions.json',fmt:'json'},simp:{url:'data/simp.json',fmt:'json'}
   };
   var store={},calcs={},calcCache={},subs=[],draws={},params={},ver=0,pending=false;
   function notify(){if(pending)return;pending=true;setTimeout(function(){pending=false;ver++;subs.forEach(function(f){try{f()}catch(e){console.error(e)}});Object.keys(draws).forEach(runDraw)},0)}
@@ -464,6 +464,19 @@ body.v2.tl-fit .tl-home .tl-card .tl-en{display:none!important}
 body.v2.tl-fit .tl-home .tl-foot{min-height:30px!important;padding-bottom:6px!important}
 body.v2.tl-fit .tl-home{min-height:calc(100vh - var(--v2-top,64px))!important}
 body.v2.tl-fit .tl-home .tlx-k>div>*:last-child{white-space:nowrap;font-size:12px!important}
+/* fit home with three platforms */
+body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)){grid-template-columns:repeat(3,minmax(0,1fr))!important}
+body.v2.tl-fit .tl-home .tlx-pl:not(#tlv2-lead) .tlx-al{display:none!important}
+body.v2.tl-fit .tl-home #tlv2-lead .tlx-al{display:flex!important;flex-wrap:wrap;gap:6px;margin:0 0 4px}
+body.v2.tl-fit .tl-home #tlv2-lead .tlx-al p{margin:0!important;padding:3px 10px!important;font-size:12.5px!important;display:inline-block}
+body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k{grid-auto-flow:row!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;row-gap:8px!important}
+body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k>div{overflow:hidden;white-space:nowrap;padding-block:2px!important}
+body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k b{font-size:clamp(16px,1.35vw,20px)!important}
+body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k span{font-size:11.5px!important;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:100%;vertical-align:bottom}
+body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k i{font-size:11px!important}
+body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k br{display:none}
+body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k b,body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k span,body.v2.tl-fit .tl-home .tlx-strip:has(.tlx-pl:nth-child(4)) .tlx-k i{display:block}
+body.v2.tl-fit .tl-home .tl-card.soon{display:none!important}
 </style>
 </head>
 <body>
@@ -3665,6 +3678,7 @@ dash.calc('quality', {
 </style>
 
 </section>
+<section id="plat-simp" hidden></section>
 <section id="plat-reta" hidden>
 <div class="reta-root" dir="rtl" lang="ar">
 <div class="wrap">
@@ -4574,6 +4588,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
   var PLATFORMS=[
     {id:'tsrf',name:'التصرفات العقارية',en:'Real-Estate Disposals',desc:'متابعة التسجيل والتصرفات والتحصيل والفحص أسبوعياً وشهرياً',mark:'ت'},
     {id:'reta',name:'الضرائب العقارية',en:'RETA',desc:'منظومة الإقرار الإلكتروني: الحسابات والإقرارات والوحدات والتحصيل بالمحافظات',mark:'ع'},
+    {id:'simp',name:'التسهيلات الضريبية',en:'Simplified Regime',desc:'نماذج التسجيل في نظام المحاسبة المبسط: القبول والرفض وسرعة الإجراء والأنشطة',mark:'س'},
     {id:'soon',name:'منصة جديدة',en:'Coming soon',desc:'تُضاف المنصات القادمة هنا بنفس الهيكل',mark:'+',soon:true}
   ];
   var $=function(s){return document.querySelector(s)};
@@ -4652,7 +4667,7 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
 <script>/* TAX Lens · user management inside the shared file (admins only). Changes are published to GitHub so every copy updates. */
 (function(){
   var OWNER='fouadelwakil-debug',REPO='taxlens-data',FILE='vault.json';
-  var PLATS=[{id:'tsrf',name:'التصرفات العقارية'},{id:'reta',name:'الضرائب العقارية'}];
+  var PLATS=[{id:'tsrf',name:'التصرفات العقارية'},{id:'reta',name:'الضرائب العقارية'},{id:'simp',name:'التسهيلات الضريبية'}];
   var S=crypto.subtle,$=function(s,r){return(r||document).querySelector(s)};
   var b64=function(a){var s='';a=new Uint8Array(a);for(var i=0;i<a.length;i+=8192)s+=String.fromCharCode.apply(null,a.subarray(i,i+8192));return btoa(s)};
   var ub=function(s){var b=atob(s),a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a};
@@ -5939,15 +5954,20 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var dd=Math.max(1,Math.round((D0(last)-D0(ref.date))/864e5));
     var inc=function(v){return'+'+fC(v)+' خلال '+dd+' أيام'};
     return{last:last,old:age>3,alerts:al,title:'الضرائب العقارية · حتى '+dA(last),k:[['الحسابات',fC(b.accounts.total),null,inc(b.accounts.total-ref.accounts.total)],['الإقرارات',fC(b.decl.total),null,inc(b.decl.total-ref.decl.total)],['إجمالي المحصّل (ج.م)',fC(coll(b)),null,inc(coll(b)-coll(ref))]]}}
+  function simpInfo(){var D=window.SIMP_MODEL&&SIMP_MODEL();if(!D)return null;var T=D.T,L=D.L,last=D.R.asof,al=[],age=(Date.now()-D0(last))/864e5;
+    var old3=(D.R.pend[D.R.pend.length-1]||{}).n||0;if(old3)al.push('⚠ '+fN(old3)+' نموذج تسهيلات تحت المراجعة بقالهم أكتر من 3 شهور');
+    if(D.R.over.app)al.push('⚠ '+fN(D.R.over.app)+' نموذج اتقبل وحجم أعمال الممول فوق حد الـ20 مليون');
+    if(age>10)al.push('⏱ آخر بيانات للتسهيلات من '+Math.round(age)+' يوم');
+    return{last:last,old:age>10,alerts:al,title:'التسهيلات الضريبية · من الإطلاق لحد '+dA(last),k:[['إجمالي النماذج',fN(T.n),null,'+'+fN(L.n)+' في آخر أسبوع'],['اتقبلت',fN(T.acc),null,'+'+fN(L.acc)+' في آخر أسبوع'],['اترفضت',fN(T.rej),null,'+'+fN(L.rej)+' في آخر أسبوع'],['تحت المراجعة',fN(T.pend),null,null]],wk:{n:L.n,acc:L.acc,rej:L.rej}}}
   function drawHome(){var home=document.getElementById('tl-home'),grid=document.getElementById('tl-grid');if(!home||home.hidden||!grid||!window.TL_USER&&window.TL_SINGLE)return;
-    var I={tsrf:has('tsrf')?tsrfInfo():null,reta:has('reta')?retaInfo():null};
-    ['tsrf','reta'].forEach(function(p){var c=document.getElementById('card-'+p),i=I[p];if(!c||!i)return;var f=c.querySelector('.tlx-fr');if(!f){f=el('span','tlx-fr');var go=c.querySelector('.tl-go');c.insertBefore(f,go)}f.textContent='آخر تحديث: '+dA(i.last)+(i.old?' · البيانات قديمة':'');f.className='tlx-fr'+(i.old?' old':'')});
+    var I={tsrf:has('tsrf')?tsrfInfo():null,reta:has('reta')?retaInfo():null,simp:has('simp')?simpInfo():null};
+    ['tsrf','reta','simp'].forEach(function(p){var c=document.getElementById('card-'+p),i=I[p];if(!c||!i)return;var f=c.querySelector('.tlx-fr');if(!f){f=el('span','tlx-fr');var go=c.querySelector('.tl-go');c.insertBefore(f,go)}f.textContent='آخر تحديث: '+dA(i.last)+(i.old?' · البيانات قديمة':'');f.className='tlx-fr'+(i.old?' old':'')});
     var s=document.getElementById('tlx-strip');if(!s){s=el('div','tlx-strip');s.id='tlx-strip';grid.parentNode.insertBefore(s,grid)}s.replaceChildren();
-    ['reta','tsrf'].forEach(function(p){var i=I[p];if(!i)return;var b=el('div','tlx-pl'),h=el('h4');h.appendChild(document.createTextNode('📊 '+i.title));b.appendChild(h);var k=el('div','tlx-k');
+    ['reta','tsrf','simp'].forEach(function(p){var i=I[p];if(!i)return;var b=el('div','tlx-pl'),h=el('h4');h.appendChild(document.createTextNode('📊 '+i.title));b.appendChild(h);var k=el('div','tlx-k');
       i.k.forEach(function(x){var d=el('div');d.append(el('b',null,x[1]),el('span',null,x[0]));if(x[2]!=null){var t=el('i',x[2]>=0?'tlx-up':'tlx-dn',(x[2]>=0?'▲ +':'▼ ')+(x[2]*100).toFixed(1)+'% عن الأسبوع اللي فات');d.appendChild(el('br'));d.appendChild(t)}if(x[3]){d.appendChild(el('br'));d.appendChild(el('i','tlx-up',x[3]))}k.appendChild(d)});b.appendChild(k);
       if(i.alerts.length){var a=el('div','tlx-al');i.alerts.forEach(function(t){a.appendChild(el('p',null,t))});b.appendChild(a)}s.appendChild(b)})}
-  window.TLX_INFO=function(){return{tsrf:has('tsrf')?tsrfInfo():null,reta:has('reta')?retaInfo():null}};
-  window.TLX_ALERTS=function(){var o=[];['tsrf','reta'].forEach(function(p){if(!has(p))return;var i=p==='tsrf'?tsrfInfo():retaInfo();if(i)o=o.concat(i.alerts)});return o};
+  window.TLX_INFO=function(){return{tsrf:has('tsrf')?tsrfInfo():null,reta:has('reta')?retaInfo():null,simp:has('simp')?simpInfo():null}};
+  window.TLX_ALERTS=function(){var o=[];['tsrf','reta','simp'].forEach(function(p){if(!has(p))return;var i=p==='tsrf'?tsrfInfo():p==='simp'?simpInfo():retaInfo();if(i)o=o.concat(i.alerts)});return o};
   if(window.dash&&dash.onData)dash.onData(function(){setTimeout(drawHome,0)});
   new MutationObserver(function(){clearTimeout(drawHome.t);drawHome.t=setTimeout(function(){if(!document.querySelector('#tl-grid .tlx-fr')||!document.getElementById('tlx-strip'))drawHome()},60)}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
   window.addEventListener('tl-unlocked',function(){['weekly','reta_snapshots'].forEach(function(id){try{dash.data(id)}catch(e){}});setTimeout(drawHome,300)});
@@ -6045,16 +6065,17 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 <script>/* TAX Lens v2 shell: builds the unified top bar and side navigation over the existing platform pages. */
 (function(){
   if(window.TL_UI_VERSION!=='v2')return;
-  var ACC={reta:'#1F4C9A',tsrf:'#0D7C77'},SW=['#1F4C9A','#0D7C77','#5B3FA8','#0E7490','#3949AB','#B45309','#86198F','#475569'];
-  var NAME={reta:'الضرائب العقارية',tsrf:'التصرفات العقارية'};
+  var ACC={reta:'#1F4C9A',tsrf:'#0D7C77',simp:'#5B3FA8'},SW=['#1F4C9A','#0D7C77','#5B3FA8','#0E7490','#3949AB','#B45309','#86198F','#475569'];
+  var NAME={reta:'الضرائب العقارية',tsrf:'التصرفات العقارية',simp:'التسهيلات الضريبية'};
   var GROUPS={tsrf:[['نظرة عامة',['leaders','summary']],['التحليل',['weekly','monthly','compare','reasons','readings','story']],['الأدوات',['sim','collection','detail']]],
-    reta:[['نظرة عامة',['p0','p1','p10']],['التحليل',['p2','p13','p7','p4','p3','p5','p12']],['الأدوات',['p8','p9','p6','p11']]]};
+    reta:[['نظرة عامة',['p0','p1','p10']],['التحليل',['p2','p13','p7','p4','p3','p5','p12']],['الأدوات',['p8','p9','p6','p11']]],
+    simp:[['نظرة عامة',['s0','s1']],['التحليل',['s2','s3','s4','s5','s6']],['المراجعة',['s7']]]};
   var ICON={leaders:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',summary:'M4 6h16M4 12h16M4 18h10',weekly:'M3 17l6-6 4 4 8-8',monthly:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',compare:'M8 3v18M16 3v18',reasons:'M12 3a9 9 0 109 9h-9z',readings:'M5 4h14v16H5zM9 9h6M9 13h6',story:'M4 19V5l8 4 8-4v14',sim:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3',collection:'M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',detail:'M3 4h18v16H3zM3 10h18M9 4v16',
-    p13:'M3 4h18l-7 8v6l-4 2v-8z',p0:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',p1:'M4 6h16M4 12h16M4 18h10',p10:'M8 3v18M16 3v18',p2:'M3 21h18M5 21V9l7-5 7 5v12',p7:'M12 21s-7-6.5-7-12a7 7 0 0114 0c0 5.5-7 12-7 12z',p4:'M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',p3:'M12 7v5l3 3M12 3a9 9 0 110 18 9 9 0 010-18',p5:'M3 17l6-6 4 4 8-8',p8:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3',p9:'M12 3a9 9 0 110 18 9 9 0 010-18M12 8a4 4 0 110 8 4 4 0 010-8',p6:'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0',p11:'M12 3v12M7 8l5-5 5 5M4 21h16',p12:'M4 19V5l8 4 8-4v14'};
+    p13:'M3 4h18l-7 8v6l-4 2v-8z',s0:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',s1:'M3 4h18l-7 8v6l-4 2v-8z',s2:'M3 17l6-6 4 4 8-8',s3:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',s4:'M12 7v5l3 3M12 3a9 9 0 110 18 9 9 0 010-18',s5:'M4 6h16M4 12h10M4 18h6',s6:'M12 8a4 4 0 100 8 4 4 0 000-8zM4 21a8 8 0 0116 0',s7:'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0',p0:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',p1:'M4 6h16M4 12h16M4 18h10',p10:'M8 3v18M16 3v18',p2:'M3 21h18M5 21V9l7-5 7 5v12',p7:'M12 21s-7-6.5-7-12a7 7 0 0114 0c0 5.5-7 12-7 12z',p4:'M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',p3:'M12 7v5l3 3M12 3a9 9 0 110 18 9 9 0 010-18',p5:'M3 17l6-6 4 4 8-8',p8:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3',p9:'M12 3a9 9 0 110 18 9 9 0 010-18M12 8a4 4 0 110 8 4 4 0 010-8',p6:'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0',p11:'M12 3v12M7 8l5-5 5 5M4 21h16',p12:'M4 19V5l8 4 8-4v14'};
   function svg(d,s){return'<svg width="'+(s||18)+'" height="'+(s||18)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+d+'"/></svg>'}
   function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
   function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}}
-  function cur(){var t=document.getElementById('plat-tsrf'),r=document.getElementById('plat-reta');return t&&!t.hidden?'tsrf':r&&!r.hidden?'reta':null}
+  function cur(){var t=document.getElementById('plat-tsrf'),r=document.getElementById('plat-reta'),q=document.getElementById('plat-simp');return t&&!t.hidden?'tsrf':r&&!r.hidden?'reta':q&&!q.hidden?'simp':null}
   // theme
   function theme(t){document.documentElement.setAttribute('data-theme',t);ls('tl_theme2',t);var b=document.getElementById('v2-theme');if(b)b.innerHTML=svg(t==='dark'?'M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4':'M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z',20)}
   theme(ls('tl_theme2')||'light');
@@ -6078,7 +6099,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var lg=window.REP_IMG&&window.REP_IMG.etax;if(lg)document.getElementById('v2-logo').src=lg;
     document.getElementById('v2-theme').onclick=function(){theme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')};theme(document.documentElement.getAttribute('data-theme'));
     document.getElementById('v2-sw').onclick=function(){var me=this;openMenu(me,function(m){item(m,'الرئيسية',goHome,!cur(),'M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z');
-      Object.keys(NAME).forEach(function(p){if(window.TL_KEYS&&!window.TL_KEYS[p])return;item(m,NAME[p],function(){goPlat(p)},cur()===p,p==='reta'?ICON.p2:'M4 12h16M14 6l6 6-6 6')})})};
+      Object.keys(NAME).forEach(function(p){if(window.TL_KEYS&&!window.TL_KEYS[p])return;item(m,NAME[p],function(){goPlat(p)},cur()===p,p==='reta'?ICON.p2:p==='simp'?ICON.s6:'M4 12h16M14 6l6 6-6 6')})})};
     document.getElementById('v2-user').onclick=function(){var me=this;openMenu(me,function(m){var u=window.TL_USER||'',nm=(((window.TL_ACCESS||{}).users||{})[u]||{}).name||u;
       m.appendChild(el('h6',null,nm));
       var p=cur();if(p){m.appendChild(el('h6',null,'لون منصة '+NAME[p]));var sw=el('div','v2-sw'),c=ls(accKey(p))||ACC[p];SW.forEach(function(x){var b=el('button',x===c?'on':'');b.type='button';b.style.background=x;b.setAttribute('aria-label','اختيار اللون '+x);b.onclick=function(){ls(accKey(p),x);applyAcc();closeMenu()};sw.appendChild(b)});m.appendChild(sw);m.appendChild(el('hr'))}
@@ -6089,7 +6110,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     document.getElementById('v2-ask').onclick=function(){var p=cur();if(p==='tsrf'){var a=[].filter.call(document.querySelectorAll('#plat-tsrf button'),function(b){return /اسأل البيانات/.test(b.textContent)})[0];if(a)a.click()}};
   }
   // side navigation mirrors the platform's own tabs (hidden tabs stay hidden: permissions)
-  function tabsOf(p){return p==='tsrf'?[].slice.call(document.querySelectorAll('#plat-tsrf .ex-tab[data-tab]')).map(function(b){return{id:b.dataset.tab,b:b,on:b.getAttribute('aria-selected')==='true'}}):
+  function tabsOf(p){if(p==='simp')return[].slice.call(document.querySelectorAll('#plat-simp #simp-tabs button[data-p]')).map(function(b){return{id:b.dataset.p,b:b,on:b.classList.contains('on')}});return p==='tsrf'?[].slice.call(document.querySelectorAll('#plat-tsrf .ex-tab[data-tab]')).map(function(b){return{id:b.dataset.tab,b:b,on:b.getAttribute('aria-selected')==='true'}}):
     [].slice.call(document.querySelectorAll('#plat-reta #tabs button[data-p]')).map(function(b){return{id:b.dataset.p,b:b,on:b.classList.contains('on')}})}
   var lastSig='';
   function drawSide(){var p=cur();document.body.classList.toggle('v2-has-side',!!p);side.hidden=!p;if(!p){lastSig='';return}
@@ -6101,6 +6122,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   function navBtn(t){var b=el('button','nv'+(t.on?' on':''),svg(ICON[t.id]||'M4 12h16')+'<span class="lb">'+t.b.textContent.trim()+'</span>');b.type='button';b.title=t.b.textContent.trim();b.onclick=function(){t.b.click();setTimeout(function(){lastSig='';drawSide();scrollTo({top:0,behavior:'smooth'})},40)};return b}
   function asOf(){var c=document.getElementById('v2-asof'),p=cur(),txt='';if(!c)return;try{
       if(p==='tsrf'){var w=dash.data('weekly');if(w.status==='ok'){var L=w.data[w.data.length-1];txt='البيانات لحد '+fd(L.last_date)+' · '+L.week}}
+      else if(p==='simp'){var q=window.SIMP_MODEL&&SIMP_MODEL();if(q)txt='البيانات لحد '+fd(q.R.asof)}
       else{var s=dash.data('reta_snapshots');if(s.status==='ok'){var d=s.data.map(function(x){return String(x.date).slice(0,10)}).sort().pop();txt='البيانات لحد '+fd(d)}}}catch(e){}
     c.hidden=!txt;c.querySelector('span').textContent=txt;document.getElementById('v2-ask').hidden=p!=='tsrf'}
   var M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];function fd(s){var d=new Date(String(s).slice(0,10)+'T12:00:00');return d.getDate()+' '+M[d.getMonth()]}
@@ -6129,23 +6151,25 @@ function isLead(){try{var u=window.TL_USER,a=window.TL_ACCESS,g=a&&a.users&&a.us
 function pc(x){return x==null?'':(x>=0?'زيادة ':'نقص ')+Math.abs(x*100).toFixed(1)+'%'}
 function briefF(I){var s=[];if(I.reta){var k=I.reta.k;s.push('في الضرائب العقارية بلغ عدد الحسابات '+k[0][1]+' والإقرارات '+k[1][1]+'، وبلغ إجمالي المحصّل '+k[2][1]+' جنيه، وذلك حتى '+(I.reta.title.split('حتى ')[1]||'')+'.')}
   if(I.tsrf){var t=I.tsrf.k,w=I.tsrf.wk||{};s.push('وفي التصرفات العقارية بلغ منذ الإطلاق عدد المسجلين '+t[0][1]+'، وعمليات التصرف '+t[1][1]+'، ومدفوعات الضريبة '+t[2][1]+' جنيه'+(t[3]?' ومدفوعات الغرامات '+t[3][1]+' جنيه':'')+(w.disp!=null?'، منها '+Number(w.disp).toLocaleString('en-US')+' عملية خلال الأسبوع الأخير':'')+'.')}
+  if(I.simp){var q=I.simp.k;s.push('وفي التسهيلات الضريبية بلغ إجمالي نماذج التسجيل في نظام المحاسبة المبسط '+q[0][1]+' نموذجاً، تم قبول '+q[1][1]+' منها ورفض '+q[2][1]+'، ولا يزال '+q[3][1]+' نموذجاً قيد المراجعة.')}
   return s.join(' ')}
 function brief(I){var s=[];if(I.reta){var k=I.reta.k;s.push('في الضرائب العقارية عندنا '+k[0][1]+' حساب و'+k[1][1]+' إقرار، والمحصّل وصل '+k[2][1]+' جنيه، لحد '+(I.reta.title.split('حتى ')[1]||'')+'.')}
   if(I.tsrf){var t=I.tsrf.k,w=I.tsrf.wk||{};s.push('وفي التصرفات العقارية من الإطلاق: '+t[0][1]+' مسجل، و'+t[1][1]+' عملية تصرف، ومدفوعات ضريبة '+t[2][1]+' جنيه'+(t[3]?' وغرامات '+t[3][1]+' جنيه':'')+(w.disp!=null?'، منهم '+Number(w.disp).toLocaleString('en-US')+' عملية في آخر أسبوع':'')+'.')}
+  if(I.simp){var q=I.simp.k;s.push('وفي التسهيلات الضريبية: '+q[0][1]+' نموذج تسجيل في المحاسبة المبسطة، اتقبل منهم '+q[1][1]+' واترفض '+q[2][1]+'، و'+q[3][1]+' لسه تحت المراجعة.')}
   return s.join(' ')}
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
-function draw(){if(!document.body.classList.contains('v2'))return;var s=document.getElementById('tlx-strip');if(!s||!window.TLX_INFO)return;var I=window.TLX_INFO();if(!I.reta&&!I.tsrf)return;
+function draw(){if(!document.body.classList.contains('v2'))return;var s=document.getElementById('tlx-strip');if(!s||!window.TLX_INFO)return;var I=window.TLX_INFO();if(!I.reta&&!I.tsrf&&!I.simp)return;
   var c=document.getElementById('tlv2-lead');if(c&&c.parentNode===s&&s.firstChild===c)return;if(c)c.remove();
   c=el('div','tlx-pl');c.id='tlv2-lead';c.style.cssText='grid-column:1/-1;border-inline-start:4px solid var(--acc,#14306A)';
   var h=el('h4',null,isLead()?'نظرة القيادة · القيادة العليا – وزارة المالية':'ملخص اليوم');c.appendChild(h);
   var p=el('p',null,brief(I));p.style.cssText='margin:4px 0 10px;font-size:14.5px;line-height:1.9';c.appendChild(p);
-  var al=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[]);if(al.length){var a=el('div','tlx-al');al.forEach(function(t){a.appendChild(el('p',null,FA(t)))});c.appendChild(a)}
+  var al=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[],I.simp?I.simp.alerts:[]);if(al.length){var a=el('div','tlx-al');al.forEach(function(t){a.appendChild(el('p',null,FA(t)))});c.appendChild(a)}
   var b=el('button',null,'تقرير القيادة الأسبوعي (PDF)');b.style.cssText='margin-top:10px;height:40px;border-radius:10px;border:0;background:var(--acc,#14306A);color:#fff;font:700 14px Cairo,Tahoma,sans-serif;padding:0 18px;cursor:pointer';
   b.onclick=function(){b.disabled=true;b.textContent='بنجهّز التقرير…';pdf(I).then(function(){b.textContent='تقرير القيادة الأسبوعي (PDF)'}).catch(function(e){alert('معرفناش نجهّز التقرير: '+e.message);b.textContent='تقرير القيادة الأسبوعي (PDF)'}).then(function(){b.disabled=false})};
   c.appendChild(b);s.insertBefore(c,s.firstChild)}
 var FAf=function(t){return String(t).replace(/في آخر أسبوع/g,'خلال الأسبوع الأخير').replace(/خلال (\d+) أيام/g,'خلال $1 أيام').replace(/اللي فات/g,'السابق').replace(/اللي قبلها/g,'السابقة').replace(/نزلت/g,'انخفضت').replace(/لحد/g,'حتى').replace(/من (\d+) يوم/g,'منذ $1 يوماً').replace(/من (\d+) أيام/g,'منذ $1 أيام')};
 function pcF(x){return x==null?'':(x>=0?'ارتفاع بنسبة ':'انخفاض بنسبة ')+Math.abs(x*100).toFixed(1)+'%'}
-function sec(i,name,col){if(!i)return'';return'<div style="background:#fff;border-radius:14px;border:1px solid #E1E7F0;margin:0 0 18px;overflow:hidden"><div style="height:6px;background:'+col+'"></div><div style="padding:18px 22px"><div style="font-size:20px;font-weight:800;color:#14306A;margin-bottom:12px">'+FAf(i.title)+'</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">'+
+function sec(i,name,col){if(!i)return'';return'<div style="background:#fff;border-radius:14px;border:1px solid #E1E7F0;margin:0 0 18px;overflow:hidden"><div style="height:6px;background:'+col+'"></div><div style="padding:18px 22px"><div style="font-size:20px;font-weight:800;color:#14306A;margin-bottom:12px">'+FAf(i.title)+'</div><div style="display:grid;grid-template-columns:repeat('+i.k.length+',1fr);gap:12px">'+
   i.k.map(function(k){return'<div style="background:#F2F6FC;border-radius:10px;padding:12px"><div style="font-size:13px;color:#4A5875">'+FAf(k[0])+'</div><div style="font-size:24px;font-weight:800;color:#14306A">'+k[1]+'</div><div style="font-size:12px;font-weight:700;color:'+(k[2]!=null&&k[2]<0?'#C21B28':'#1E7B45')+'">'+(k[2]!=null?pcF(k[2])+' عن الأسبوع السابق':FAf(k[3]||''))+'</div></div>'}).join('')+'</div>'+
   (i.alerts.length?'<div style="margin-top:12px">'+i.alerts.map(function(t){return'<div style="background:#FFF1E6;color:#9A3412;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;margin-top:6px">'+FAf(t)+'</div>'}).join('')+'</div>':'')+'</div></div>'}
 function pdf(I){if(!window.htmlToImage||!window.jspdf)return Promise.reject(new Error('أدوات التصدير مش متاحة'));
@@ -6153,7 +6177,7 @@ function pdf(I){if(!window.htmlToImage||!window.jspdf)return Promise.reject(new 
   var n=document.createElement('div');n.dir='rtl';n.style.cssText='position:fixed;left:-10000px;top:0;width:'+W+'px;height:'+H+'px;background:#EEF3FA;font-family:Cairo,Tahoma,sans-serif;color:#141413;box-sizing:border-box';
   n.innerHTML='<div style="background:#14306A;color:#fff;padding:26px 34px"><div style="font-size:14px;color:#FFB3B8;font-weight:700">القيادة العليا · وزارة المالية</div><div style="font-size:30px;font-weight:800;margin-top:4px">تقرير القيادة الأسبوعي</div><div style="font-size:14px;opacity:.85">TAX Lens · صدر في '+ds+'</div></div>'+
    '<div style="padding:24px 34px"><div style="background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:18px;border:1px solid #E1E7F0"><div style="font-size:16px;font-weight:800;color:#14306A;margin-bottom:6px">الملخص</div><div style="font-size:15px;line-height:2">'+briefF(I)+'</div></div>'+
-   sec(I.reta,'reta','#1F4C9A')+sec(I.tsrf,'tsrf','#0D7C77')+'</div><div style="position:absolute;bottom:18px;left:34px;right:34px;font-size:11px;color:#4A5875;display:flex;justify-content:space-between"><span style="white-space:nowrap">eTax · TAX Lens</span><span style="white-space:nowrap">سري – للاستخدام الداخلي</span></div>';
+   sec(I.reta,'reta','#1F4C9A')+sec(I.tsrf,'tsrf','#0D7C77')+sec(I.simp,'simp','#5B3FA8')+'</div><div style="position:absolute;bottom:18px;left:34px;right:34px;font-size:11px;color:#4A5875;display:flex;justify-content:space-between"><span style="white-space:nowrap">eTax · TAX Lens</span><span style="white-space:nowrap">سري – للاستخدام الداخلي</span></div>';
   document.body.appendChild(n);var go=function(){return window.htmlToImage.toCanvas(n,{pixelRatio:2,width:W,height:H,backgroundColor:'#EEF3FA',style:{position:'static',left:'0',top:'0',transform:'none'}}).then(function(cv){var J=window.jspdf.jsPDF,doc=new J({unit:'px',format:[W,H],compress:true});doc.addImage(cv.toDataURL('image/jpeg',.92),'JPEG',0,0,W,H);
     var blob=doc.output('blob'),nm='تقرير_القيادة_'+d.toISOString().slice(0,10)+'.pdf',f=new File([blob],nm,{type:'application/pdf'});
     if(navigator.canShare&&navigator.canShare({files:[f]})&&/Mobi|iPhone|Android/i.test(navigator.userAgent)){return navigator.share({files:[f],title:'تقرير القيادة الأسبوعي'}).catch(function(){dl(blob,nm)})}dl(blob,nm)})};
@@ -6219,15 +6243,29 @@ function tsrf(q0){var W=rows('weekly');if(!W||!W.length)return'بيانات ال
   if(!has(q,['اسبوع','الاسبوع ده','هذا الاسبوع','اخر اسبوع']))return hit.map(function(m){var t=W.reduce(function(a,w){return a+(+w[m[2]]||0)},0);return'إجمالي '+m[1]+' من الإطلاق لحد '+dA(L.last_date)+': '+fC(t)+(m[3]||'')+'، منهم '+fC(+L[m[2]]||0)+(m[3]||'')+' في آخر أسبوع.'}).join('\n');
   return hit.map(function(m){var v=+L[m[2]]||0;return'عدد '+m[1]+' في '+L.week+' (لحد '+dA(L.last_date)+') '+fC(v)+(m[3]||'')+(P?'، '+pc(v,+P[m[2]])+' عن الأسبوع اللي فات':'')+'.'}).join('\n').replace(/عدد مدفوعات/g,'بلغت مدفوعات').replace('عدد المسجلين','عدد المسجلين')}
 /* ---------- الواجهة ---------- */
-var SUG={reta:['كم عدد الإقرارات؟','كم المحصّل خلال آخر 7 أيام؟','أعلى 5 محافظات','إقرارات القاهرة','توزيع الإقرارات حسب القناة','متى آخر تحديث؟'],
+var SUG={simp:['كام نموذج اتقدّم؟','كام نموذج اترفض؟','النماذج الأسبوع ده','أكبر الأنشطة','كام نموذج تحت المراجعة؟','النماذج بتاخد قد إيه؟','فوق حد الـ20 مليون','فردي ولا اعتباري؟'],reta:['كم عدد الإقرارات؟','كم المحصّل خلال آخر 7 أيام؟','أعلى 5 محافظات','إقرارات القاهرة','توزيع الإقرارات حسب القناة','متى آخر تحديث؟'],
   tsrf:['كم إجمالي المسجلين؟','كم عملية تصرف الأسبوع ده؟','عمليات التصرف في آخر 6 أسابيع','أعلى أسبوع في عمليات التصرف','نسبة التحصيل','إجمالي مدفوعات الضريبة','متى آخر تحديث؟']};
-function cur(){var r=document.getElementById('plat-reta'),t=document.getElementById('plat-tsrf');if(r&&!r.hidden&&r.offsetParent!==null)return'reta';if(t&&!t.hidden&&t.offsetParent!==null)return'tsrf';return null}
+/* ---------- التسهيلات الضريبية ---------- */
+function simp(q0){var D=window.SIMP_MODEL&&SIMP_MODEL();if(!D)return'بيانات التسهيلات الضريبية مش متاحة دلوقتي.';var q=N(q0),T=D.T,L=D.L,P=D.P,R=D.R,pp=function(a,b){return b?(a/b*100).toFixed(1)+'%':'—'},last=dA(R.asof);
+  if(has(q,['اخر تحديث','تاريخ','امتي','متي'])&&!has(q,['رفض','قبول','نموذج']))return'آخر بيانات للتسهيلات الضريبية لحد '+last+'.';
+  if(has(q,['20 مليون','عشرين','فوق الحد','الحد','حجم الاعمال الكبير']))return'فيه '+fN(R.over.n)+' نموذج حجم أعمال الممول فيه فوق حد الـ20 مليون جنيه، منهم '+fN(R.over.app)+' اتقبلوا (منهم '+fN(R.over.auto)+' موافقة آلية) و'+fN(R.over.pend)+' لسه تحت المراجعة.';
+  if(has(q,['نشاط','انشطه']))return'أكبر 5 أنشطة في نماذج التسهيلات: '+R.acts.filter(function(a){return!a.other}).slice(0,5).map(function(a,i){return(i+1)+'. '+a.a+' ('+fN(a.n)+')'}).join('، ')+'.';
+  if(has(q,['فردي','اعتباري','شركات','شركه','افراد']))return'الأفراد قدّموا '+fN(R.typ.ind.app+R.typ.ind.auto+R.typ.ind.rej+R.typ.ind.pend)+' نموذج، والشركات '+fN(R.typ.corp.app+R.typ.corp.auto+R.typ.corp.rej+R.typ.corp.pend)+' نموذج. نسبة الرفض عند الأفراد '+pp(R.typ.ind.rej,R.typ.ind.app+R.typ.ind.auto+R.typ.ind.rej)+' وعند الشركات '+pp(R.typ.corp.rej,R.typ.corp.app+R.typ.corp.auto+R.typ.corp.rej)+'.';
+  if(has(q,['سرعه','مده','وقت','ايام','بياخد','بتاخد']))return'النماذج اللي اتحسمت في 5 أيام أو أقل '+(D.in5*100).toFixed(1)+'%. وفي '+(function(m){return M[+m.m.slice(5,7)-1]})(R.speedM[R.speedM.length-2])+' متوسط الأيام (النص) كان '+R.speedM[R.speedM.length-2].med+' يوم.';
+  if(has(q,['مراجعه','معلق','انتظار','مستني','لسه']))return'فيه '+fN(T.pend)+' نموذج لسه تحت المراجعة، منهم '+fN(R.pend.slice(2).reduce(function(a,x){return a+x.n},0))+' بقالهم أكتر من أسبوعين.';
+  var wk=has(q,['اسبوع']);
+  if(has(q,['رفض','اترفض','مرفوض']))return wk?'في آخر أسبوع ('+dA(L.end)+') اترفض '+fN(L.rej)+' نموذج'+(P.rej!=null?' '+pc(L.rej,P.rej)+' عن الأسبوع اللي قبله':'')+'.':'إجمالي النماذج المرفوضة من الإطلاق لحد '+last+': '+fN(T.rej)+' نموذج، يعني '+pp(T.rej,T.n)+' من النماذج.';
+  if(has(q,['قبول','اتقبل','مقبول','موافق']))return wk?'في آخر أسبوع ('+dA(L.end)+') اتقبل '+fN(L.acc)+' نموذج.':'إجمالي النماذج المقبولة من الإطلاق لحد '+last+': '+fN(T.acc)+' نموذج ('+pp(T.acc,T.n)+')، منهم '+fN(T.auto)+' موافقة آلية.';
+  if(has(q,['شهر'])){var m=D.MO[D.MO.length-2];return'في '+M[+m.m.slice(5,7)-1]+' اتقدّم '+fN(m.n)+' نموذج، اتقبل منهم '+fN(m.acc)+' واترفض '+fN(m.rej)+'.'}
+  if(wk)return'في آخر أسبوع ('+dA(L.start)+' – '+dA(L.end)+') اتقدّم '+fN(L.n)+' نموذج'+(P.n?'، '+pc(L.n,P.n)+' عن الأسبوع اللي قبله':'')+'.';
+  return'إجمالي نماذج التسجيل في المحاسبة المبسطة من الإطلاق لحد '+last+': '+fN(T.n)+' نموذج. اتقبل '+fN(T.acc)+' واترفض '+fN(T.rej)+' و'+fN(T.pend)+' تحت المراجعة. وفي آخر أسبوع اتقدّم '+fN(L.n)+' نموذج.'}
+function cur(){var r=document.getElementById('plat-reta'),t=document.getElementById('plat-tsrf');if(r&&!r.hidden&&r.offsetParent!==null)return'reta';if(t&&!t.hidden&&t.offsetParent!==null)return'tsrf';var x=document.getElementById('plat-simp');if(x&&!x.hidden)return'simp';return null}
 function noF(f){return(window.TL_NOFEAT||[]).indexOf(f)>=0}
 var st=document.createElement('style');st.textContent='#tla-fab{position:fixed;bottom:22px;left:22px;z-index:120;width:56px;height:56px;border-radius:16px;border:0;background:#D6202E;color:#fff;box-shadow:0 8px 20px rgba(214,32,46,.35);cursor:pointer;display:flex;align-items:center;justify-content:center}#tla-p{position:fixed;bottom:90px;left:22px;z-index:121;width:min(420px,calc(100vw - 32px));max-height:min(620px,calc(100vh - 120px));display:flex;flex-direction:column;background:#fff;color:#141413;border-radius:16px;box-shadow:0 18px 50px rgba(10,20,45,.3);font-family:Cairo,Tahoma,sans-serif;direction:rtl;overflow:hidden}#tla-p header{background:#14306A;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}#tla-p header b{font-size:15px}#tla-p header button{background:none;border:0;color:#fff;font-size:20px;cursor:pointer}#tla-log{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:#F2F6FC}#tla-log .q{align-self:flex-start;background:#14306A;color:#fff;border-radius:12px 12px 12px 4px;padding:7px 11px;font-size:13.5px;max-width:85%}#tla-log .a{align-self:flex-end;background:#fff;border:1px solid #E1E7F0;border-radius:12px 12px 4px 12px;padding:9px 12px;font-size:14px;line-height:1.85;white-space:pre-line;max-width:92%}#tla-sg{display:flex;flex-wrap:wrap;gap:6px;padding:8px 14px 0}#tla-sg button{border:1px solid #E1E7F0;background:#fff;color:#14306A;border-radius:999px;padding:4px 10px;font:600 12px Cairo,Tahoma,sans-serif;cursor:pointer}#tla-f{display:flex;gap:6px;padding:10px 14px 14px}#tla-f input{flex:1;height:42px;border:1px solid #E1E7F0;border-radius:10px;padding:0 12px;font:500 14px Cairo,Tahoma,sans-serif}#tla-f button{height:42px;min-width:42px;border-radius:10px;border:0;background:#14306A;color:#fff;font:700 14px Cairo,Tahoma,sans-serif;cursor:pointer}#tla-f .mic.on{background:#D6202E;animation:tlap 1s infinite}@keyframes tlap{50%{opacity:.6}}#tla-n{font-size:11px;color:#4A5875;padding:0 14px 8px}html[data-theme=dark] #tla-p{background:#14254A;color:#EEF3FA}html[data-theme=dark] #tla-log{background:#0B1A3B}html[data-theme=dark] #tla-log .a,html[data-theme=dark] #tla-sg button,html[data-theme=dark] #tla-f input{background:#14254A;color:#EEF3FA;border-color:#22355E}';document.head.appendChild(st);
 var fab,pan,P0=null;
 function speak(t){try{if(!window.speechSynthesis||!pan.dataset.voice)return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='ar-EG';speechSynthesis.speak(u)}catch(e){}}
 function add(c,t){var d=document.createElement('div');d.className=c;d.textContent=t;var l=document.getElementById('tla-log');l.appendChild(d);l.scrollTop=l.scrollHeight}
-function ask(t){t=(t||'').trim();if(!t)return;var p=pan.dataset.p;add('q',t);var a;try{a=(p==='reta'?reta(t):tsrf(t)).replace(/WW(\d+)/g,'الأسبوع $1')}catch(e){a='مش فاهم السؤال 🙂 جرّب تكتبه بشكل أبسط أو اختار سؤال من المقترحات.'}add('a',a);speak(a);window.TL_LOG&&window.TL_LOG('ask',(p==='reta'?'الضرائب العقارية':'التصرفات العقارية')+' · '+t)}
+function ask(t){t=(t||'').trim();if(!t)return;var p=pan.dataset.p;add('q',t);var a;try{a=(p==='reta'?reta(t):p==='simp'?simp(t):tsrf(t)).replace(/WW(\d+)/g,'الأسبوع $1')}catch(e){a='مش فاهم السؤال 🙂 جرّب تكتبه بشكل أبسط أو اختار سؤال من المقترحات.'}add('a',a);speak(a);window.TL_LOG&&window.TL_LOG('ask',(p==='reta'?'الضرائب العقارية':p==='simp'?'التسهيلات الضريبية':'التصرفات العقارية')+' · '+t)}
 function build(){fab=document.createElement('button');fab.id='tla-fab';fab.title='اسأل عن بياناتك';fab.setAttribute('aria-label','اسأل عن بياناتك');fab.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9a4 4 0 008 0V7a4 4 0 00-8 0z"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>';document.body.appendChild(fab);
   pan=document.createElement('div');pan.id='tla-p';pan.hidden=true;pan.innerHTML='<header><b id="tla-t"></b><span><button id="tla-v" title="قراءة الإجابة بالصوت">🔈</button><button id="tla-x" aria-label="إغلاق">×</button></span></header><div id="tla-log"></div><div id="tla-sg"></div><div id="tla-f"><input id="tla-i" placeholder="اكتب سؤالك أو دوس على الميكروفون…"><button class="mic" id="tla-m" title="اسأل بالصوت">🎤</button><button id="tla-g">اسأل</button></div><div id="tla-n">الإجابات بتتحسب على جهازك من بيانات المنصة دي بس، ومش بتتبعت لأي حد.</div>';document.body.appendChild(pan);
   var I=document.getElementById('tla-i');fab.onclick=function(){pan.hidden=!pan.hidden;if(!pan.hidden){open();I.focus()}};document.getElementById('tla-x').onclick=function(){pan.hidden=true};
@@ -6235,10 +6273,10 @@ function build(){fab=document.createElement('button');fab.id='tla-fab';fab.title
   var v=document.getElementById('tla-v');v.onclick=function(){if(pan.dataset.voice){delete pan.dataset.voice;v.textContent='🔈';speechSynthesis&&speechSynthesis.cancel()}else{pan.dataset.voice=1;v.textContent='🔊'}};
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mb=document.getElementById('tla-m');if(!SR){mb.hidden=true}else{var rec=null;mb.onclick=function(){if(rec){rec.stop();return}rec=new SR();rec.lang='ar-EG';rec.interimResults=true;mb.classList.add('on');
     rec.onresult=function(e){var t='';for(var i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;I.value=t;if(e.results[e.results.length-1].isFinal){ask(t);I.value=''}};rec.onerror=function(e){if(e.error==='not-allowed')alert('اسمح للمتصفح يستخدم الميكروفون من الإعدادات.')};rec.onend=function(){mb.classList.remove('on');rec=null};rec.start()}}}
-function open(){var p=cur();if(!p)return;if(P0!==p){P0=p;pan.dataset.p=p;document.getElementById('tla-t').textContent='اسأل عن بياناتك · '+(p==='reta'?'الضرائب العقارية':'التصرفات العقارية');document.getElementById('tla-log').replaceChildren();add('a','أهلاً! اسألني عن أرقام '+(p==='reta'?'الضرائب العقارية':'التصرفات العقارية')+' بالكتابة أو بالصوت.');
+function open(){var p=cur();if(!p)return;if(P0!==p){P0=p;pan.dataset.p=p;document.getElementById('tla-t').textContent='اسأل عن بياناتك · '+(p==='reta'?'الضرائب العقارية':p==='simp'?'التسهيلات الضريبية':'التصرفات العقارية');document.getElementById('tla-log').replaceChildren();add('a','أهلاً! اسألني عن أرقام '+(p==='reta'?'الضرائب العقارية':p==='simp'?'التسهيلات الضريبية':'التصرفات العقارية')+' بالكتابة أو بالصوت.');
   var sg=document.getElementById('tla-sg');sg.replaceChildren();SUG[p].forEach(function(s){var b=document.createElement('button');b.textContent=s;b.onclick=function(){ask(s)};sg.appendChild(b)})}}
 function tick(){if(!document.body||!document.body.classList.contains('v2'))return;if(!fab)build();var p=cur(),ok=p&&!noF(p+'_ask');fab.hidden=!ok;if(!ok)pan.hidden=true;else if(!pan.hidden&&p!==P0)open()}
-setInterval(tick,800);var ww=function(f){return function(q){return f(q).replace(/WW(\d+)/g,'الأسبوع $1')}};window.TLA_ASK={reta:ww(reta),tsrf:ww(tsrf)};})();
+setInterval(tick,800);var ww=function(f){return function(q){return f(q).replace(/WW(\d+)/g,'الأسبوع $1')}};window.TLA_ASK={reta:ww(reta),tsrf:ww(tsrf),simp:ww(simp)};})();
 </script>
 <script>;(function(){/* Phase 8: موديلات التحليل العشرة — تُحسب محلياً لكل منصة وتُفعَّل من شاشة الإدارة */
 var M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -6416,13 +6454,14 @@ function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
 
 /* ---------- الإعدادات (من شاشة الإدارة، محفوظة مع البيانات) ---------- */
-var DEF={on:true,who:'all',plats:{reta:true,tsrf:true,lead:true},scenes:{},voice:'off',track:'B',sfx:true,sfxVol:0.55,el:{voice:'',voiceName:'',model:'eleven_multilingual_v2',stability:0.5,similarity:0.75,style:0.15,speed:1},autoVoice:true,
+var DEF={on:true,who:'all',plats:{reta:true,tsrf:true,simp:true,lead:true},scenes:{},voice:'off',track:'B',sfx:true,sfxVol:0.55,el:{voice:'',voiceName:'',model:'eleven_multilingual_v2',stability:0.5,similarity:0.75,style:0.15,speed:1},autoVoice:true,
   music:true,musicVol:0.85,subs:false,theme:'dark',pace:7,loop:false,loopPause:15,intro:'',outro:'',accent:''};
 function S(){var s=window.TL_STORY||{},o=JSON.parse(JSON.stringify(DEF));Object.keys(s).forEach(function(k){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&o[k]&&typeof o[k]==='object')Object.assign(o[k],s[k]);else o[k]=s[k]});return o}
 var SCENES={reta:[['intro','الافتتاحية'],['total','الرقم الكبير (المحصّل)'],['kpis','المؤشرات الأساسية'],['govs','أكبر المحافظات'],['trend','اتجاه الإقرارات'],['channels','القنوات (موبايل / موقع)'],['alerts','التنبيهات'],['forecast','التوقع لآخر الشهر'],['outro','الختام']],
   tsrf:[['intro','الافتتاحية'],['total','إجمالي المحصّل من الإطلاق'],['week','أرقام آخر أسبوع'],['trend','مسار عمليات التصرف'],['rate','نسبة التحصيل'],['forecast','التوقع'],['alerts','التنبيهات'],['outro','الختام']],
+  simp:[['intro','الافتتاحية'],['total','إجمالي النماذج'],['kpis','القبول والرفض'],['trend','النماذج أسبوع بأسبوع'],['types','فردي واعتباري'],['acts','أكبر الأنشطة'],['speed','سرعة الإجراء'],['over','حد الـ20 مليون'],['outro','الختام']],
   lead:[['intro','الافتتاحية'],['duo','المنظومات في لقطة واحدة'],['reta','فصل الضرائب العقارية (كل مشاهدها)'],['tsrf','فصل التصرفات العقارية (كل مشاهدها)'],['alerts','التنبيهات'],['outro','الختام']]};
-var PN={reta:'الضرائب العقارية',tsrf:'التصرفات العقارية',lead:'القيادة العليا'};
+var PN={reta:'الضرائب العقارية',tsrf:'التصرفات العقارية',simp:'التسهيلات الضريبية',lead:'القيادة العليا'};
 window.TL_STORY_DEF={scenes:SCENES,names:PN,defaults:DEF};
 
 /* ---------- بناء المشاهد من البيانات ---------- */
@@ -6439,6 +6478,16 @@ function build(p){var s=S(),out=[];var on=function(id){return!(s.scenes[p]&&s.sc
     var al=((I.reta&&I.reta.alerts)||[]).filter(function(a){return!/^⏱/.test(a)});if(al.length)add({id:'alerts',kind:'alerts',items:al,say:al.length?('خلّي بالك: '+al.map(strip).join('. ')):'مفيش تنبيهات، والأمور ماشية تمام.'});
     var fc=mod('reta','eom');if(fc){var hc=L.slice(-21),ci=[];for(var q=Math.max(1,L.length-7);q<L.length;q++)ci.push((coll(L[q])-coll(L[q-1]))/Math.max(1,Math.round((D0(L[q].date)-D0(L[q-1].date))/864e5)));var rate=ci.reduce(function(a,v){return a+v},0)/Math.max(1,ci.length),bd=D0(b.date),eom=new Date(bd.getFullYear(),bd.getMonth()+1,0),rem=Math.max(1,Math.round((eom-bd)/864e5));add({id:'forecast',kind:'text',title:'التوقع لآخر الشهر',text:fc,say:fc,proj:{hist:hc.map(coll),rem:rem,rate:rate,end:coll(b)+rate*rem,label:'آخر '+M[bd.getMonth()]}})}
     add({id:'outro',kind:'outro',items:[(G[0]?G[0].g+' في الصدارة':''),'المحصّل '+fC(coll(b))+' جنيه','الإقرارات '+fC(d.total)].filter(Boolean),say:s.outro||'دي كانت حكاية الضرائب العقارية. شكراً ليكم.'})}
+  else if(p==='simp'){var D=window.SIMP_MODEL&&SIMP_MODEL();if(!D)return null;var T=D.T,L=D.L,R=D.R,A=R.acts.filter(function(a){return!a.other}),ti=R.typ.ind,tc=R.typ.corp,ni=ti.app+ti.auto+ti.rej+ti.pend,nc=tc.app+tc.auto+tc.rej+tc.pend;
+    add({id:'intro',kind:'intro',title:'التسهيلات الضريبية',sub:'نماذج المحاسبة المبسطة · لحد '+dA(R.asof),say:s.intro||''});
+    add({id:'total',kind:'big',label:'نماذج التسجيل في المحاسبة المبسطة من الإطلاق',value:T.n,unit:'نموذج',note:'+'+fC(L.n)+' نموذج في آخر أسبوع',say:''});
+    add({id:'kpis',kind:'kpis',title:'النتيجة لحد دلوقتي',items:[['اتقبلت',T.acc,null,null,(T.acc/T.n*100).toFixed(1)+'% من النماذج'],['اترفضت',T.rej,null,null,(T.rej/T.n*100).toFixed(1)+'% من النماذج'],['تحت المراجعة',T.pend,null,null,'لسه مستنية قرار']],say:''});
+    add({id:'trend',kind:'columns',title:'النماذج أسبوع بأسبوع',items:D.W.slice(-12).map(function(w){return['الأسبوع '+w.no,w.n]}),say:''});
+    add({id:'types',kind:'split',title:'مين بيسجّل؟',items:[['أفراد',ni/T.n*100,'#7FA7E6'],['شركات',nc/T.n*100,'#FF8A92']],say:''});
+    add({id:'acts',kind:'bars',head:'الأنشطة',title:'أكبر 5 أنشطة في التسجيل',all:A.map(function(a){return[a.a,a.n]}),items:A.slice(0,5).map(function(a){return[a.a,a.n]}),say:''});
+    add({id:'speed',kind:'big',label:'اتحسمت في 5 أيام أو أقل',value:Math.round(D.in5*100),unit:'%',note:'من النماذج اللي اتاخد فيها قرار',say:''});
+    if(R.over.n)add({id:'over',kind:'big',label:'ممولين حجم أعمالهم فوق حد الـ20 مليون',value:R.over.n,unit:'ممول',note:fC(R.over.app)+' منهم اتقبلوا · محتاجين مراجعة',say:''});
+    add({id:'outro',kind:'outro',items:[fC(T.n)+' نموذج',(T.acc/T.n*100).toFixed(0)+'% اتقبلوا',A[0]?A[0].a+' في الصدارة':''].filter(Boolean),say:s.outro||''})}
   else if(p==='tsrf'){var W=rows('weekly');if(!W||!W.length)return null;var Lw=W[W.length-1],P=W[W.length-2]||{},tot=W.reduce(function(a,w){return a+(+w.tax_paid||0)},0),ch=function(k){return P[k]?((Lw[k]/P[k]-1)*100):null};
     add({id:'intro',kind:'intro',title:'التصرفات العقارية',sub:Lw.week+' · لحد '+dA(Lw.last_date),say:s.intro||('أهلاً بيكم في حكاية التصرفات العقارية، لحد '+dA(Lw.last_date)+'.')});
     add({id:'total',kind:'big',label:'إجمالي مدفوعات الضريبة من الإطلاق',value:tot,unit:'جنيه',note:'+ غرامات '+fC(W.reduce(function(a,w){return a+(+w.penalty_paid||0)},0))+' جنيه · منهم '+fC(Lw.tax_paid)+' ضريبة في '+Lw.week,say:'من أول ما المنظومة اشتغلت، اتدفع '+fC(tot)+' جنيه ضريبة.'});
@@ -6617,8 +6666,8 @@ function tick(){if(!P)return;if(!P.paused){var t=now(),i=0,acc=0;while(i<P.scene
     if(i>=P.scenes.length){if(P.loop){var me=P;P.paused=true;if(P.mu)P.mu.pause();setTimeout(function(){if(P===me){P.paused=false;start(0)}},S().loopPause*1000)}else{if(!P.ending){P.ending=1;var me=P,m=P.mu;if(m){var v=m.volume,f=setInterval(function(){v=Math.max(0,v-m.volume/45);m.volume=v;if(v<=0.01)clearInterval(f)},70)}setTimeout(function(){if(P===me)close()},3400)}P.raf=requestAnimationFrame(tick);return}}
     else if(i!==P.i)show(i)}P.raf=requestAnimationFrame(tick)}
 function show(i){var sc=P.scenes[i],stage=P.root.querySelector('.stg'),old=stage.querySelector('.sc');P.i=i;if(old){old.classList.add('out');var me=P;setTimeout(function(){if(P===me&&P.i===i)render(sc,stage,i)},380)}else render(sc,stage,i);if(i>0&&sc.kind!=='outro')sfx('whoosh',.45);
-  var lt=P.root.querySelector('.lt');lt.classList.remove('on');var names={intro:'',total:'المحصّل',kpis:'المؤشرات',govs:'المحافظات',trend:'الاتجاه',channels:'القنوات',alerts:'التنبيهات',forecast:'التوقع',outro:'',week:'الموقف',rate:'نسبة التحصيل',duo:'كل المنصات'};
-  var nid=sc.id.replace(/^(reta|tsrf)_/,'');if(names[nid]){lt.querySelector('b').textContent=names[nid];lt.querySelector('span').textContent=PN[sc.plat||P.p];setTimeout(function(){lt.classList.add('on')},700)}
+  var lt=P.root.querySelector('.lt');lt.classList.remove('on');var names={intro:'',total:'المحصّل',kpis:'المؤشرات',govs:'المحافظات',trend:'الاتجاه',channels:'القنوات',alerts:'التنبيهات',forecast:'التوقع',outro:'',week:'الموقف',rate:'نسبة التحصيل',duo:'كل المنصات',types:'الممولين',acts:'الأنشطة',speed:'السرعة',over:'المراجعة'};
+  var nid=sc.id.replace(/^(reta|tsrf|simp)_/,'');if((sc.plat||P.p)==='simp'){names.total='النماذج';names.kpis='النتيجة'}if(names[nid]){lt.querySelector('b').textContent=names[nid];lt.querySelector('span').textContent=PN[sc.plat||P.p];setTimeout(function(){lt.classList.add('on')},700)}
   var s=S(),sb=P.root.querySelector('.sb');sb.hidden=!s.subs||!sc.say;sb.querySelector('span').textContent=sc.say||'';
   if(P.au){P.au.pause();P.au=null}var url=P.audio[sc.id];if(!P.muted&&url&&s.voice==='el'){var au=new Audio(url);P.au=au;if(P.mu)P.mu.volume=s.musicVol*0.35;au.onended=function(){if(P&&P.mu)P.mu.volume=s.musicVol};setTimeout(function(){if(P&&P.au===au)au.play().catch(function(){})},500)}
   else if(!P.muted&&s.voice==='browser'&&window.speechSynthesis&&sc.say){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(sc.say);u.lang='ar-EG';var v=arVoice();if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}}
@@ -6636,14 +6685,14 @@ function allowed(p){var s=S();if(!s.on||!s.plats[p])return false;var u=window.TL
 window.TL_STORY_ALLOWED=allowed;
 function btn(txt,p){var b=el('button','tls-b',txt);b.type='button';b.onclick=function(){play(p)};b.style.cssText='height:38px;border-radius:9px;border:0;background:#D6202E;color:#fff;font:700 13px Cairo,Tahoma,sans-serif;padding:0 14px;cursor:pointer';return b}
 function wire(){if(!document.body.classList.contains('v2'))return;
-  ['plat-tsrf','plat-reta'].forEach(function(id){var r=document.getElementById(id);if(!r)return;var p=id.slice(5);
+  ['plat-tsrf','plat-reta','plat-simp'].forEach(function(id){var r=document.getElementById(id);if(!r)return;var p=id.slice(5);
     r.querySelectorAll('button').forEach(function(x){if(/وضع العرض|غرفة العمليات/.test(x.textContent)&&!x.dataset.tlsHid){x.dataset.tlsHid=1;x.style.display='none'}});
     var have=r.querySelector('.tls-b');if(!allowed(p)){if(have)have.remove();return}if(have)return;var host=r.querySelector('.ex-actions')||r.querySelector('.hb');if(!host)return;host.insertBefore(btn('▶ الحكاية',p),host.firstChild)});
-  ['reta','tsrf'].forEach(function(p){var c=document.getElementById('card-'+p);if(!c)return;var cb=c.querySelector('.tls-cb');if(!allowed(p)){if(cb)cb.remove();return}if(cb)return;cb=el('span','tls-cb','▶ الحكاية');cb.setAttribute('role','button');cb.tabIndex=0;cb.title='لمحة سريعة عن الداشبورد';
+  ['reta','tsrf','simp'].forEach(function(p){var c=document.getElementById('card-'+p);if(!c)return;var cb=c.querySelector('.tls-cb');if(!allowed(p)){if(cb)cb.remove();return}if(cb)return;cb=el('span','tls-cb','▶ الحكاية');cb.setAttribute('role','button');cb.tabIndex=0;cb.title='لمحة سريعة عن الداشبورد';
     cb.style.cssText='position:absolute;bottom:12px;left:12px;z-index:2;background:#D6202E;color:#fff;border-radius:999px;padding:4px 12px;font:700 12.5px Cairo,Tahoma,sans-serif;cursor:pointer;box-shadow:0 4px 12px rgba(214,32,46,.35)';
     var go=function(e){e.preventDefault();e.stopPropagation();play(p)};cb.addEventListener('click',go);cb.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')go(e)});if(getComputedStyle(c).position==='static')c.style.position='relative';c.appendChild(cb)});
   var lead=document.getElementById('tlv2-lead');if(lead){var hb=lead.querySelector('.tls-b');var ok=allowed('lead');if(ok&&!hb){var b2=btn('▶ حكاية القيادة','lead');b2.style.marginInlineStart='8px';var pdf=lead.querySelector('button');if(pdf)pdf.after(b2);else lead.appendChild(b2)}else if(!ok&&hb)hb.remove()}
-  var m=/[#&]story=(reta|tsrf|lead)/.exec(location.hash);if(m&&!wire.done&&window.TLX_INFO){var I=window.TLX_INFO();if((m[1]==='lead'&&(I.reta||I.tsrf))||I[m[1]]){wire.done=1;if(allowed(m[1]))play(m[1],{loop:/[#&]loop=1/.test(location.hash)?true:undefined})}}}
+  var m=/[#&]story=(reta|tsrf|simp|lead)/.exec(location.hash);if(m&&!wire.done&&window.TLX_INFO){var I=window.TLX_INFO();if((m[1]==='lead'&&(I.reta||I.tsrf))||I[m[1]]){wire.done=1;if(allowed(m[1]))play(m[1],{loop:/[#&]loop=1/.test(location.hash)?true:undefined})}}}
 setInterval(wire,1200);
 })();
 </script>
@@ -6784,6 +6833,175 @@ function build(){var root=document.querySelector('#plat-reta .reta-root')||docum
   var pane=document.getElementById('p13');if(!pane){var ref=document.getElementById('p10');pane=el('section','pane');pane.id='p13';(ref&&ref.parentNode?ref.parentNode:root).appendChild(pane)}
   if(!pane.classList.contains('on'))return;render(pane)}
 setInterval(function(){if(document.body.classList.contains('v2'))try{build()}catch(e){console.warn('retaflow',e)}},1000);
+})();
+</script>
+<script>;(function(){/* «التسهيلات الضريبية»: نماذج التسجيل في نظام المحاسبة المبسط. أرقام مجمّعة فقط، من غير أي رقم تسجيل أو اسم أو رقم نموذج. */
+var M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+function D0(s){return new Date(String(s).slice(0,10)+'T12:00:00')}function iso(d){return d.toISOString().slice(0,10)}
+function dA(s){var d=D0(s);return d.getDate()+' '+M[d.getMonth()]}function dY(s){var d=D0(s);return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear()}
+function mL(m){var p=String(m).split('-');return M[+p[1]-1]+' '+p[0].slice(2)}
+function fN(v){return Math.round(+v||0).toLocaleString('en-US')}
+function fC(v){var a=Math.abs(+v||0);return a>=1e6?(a/1e6).toFixed(2)+' مليون':a>=1e4?(a/1e3).toFixed(1)+' ألف':fN(a)}
+function pc(a,b){return b?a/b*100:0}function p1(v){return(+v).toFixed(1)+'%'}
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+function dark(){return document.documentElement.getAttribute('data-theme')==='dark'}
+var C={navy:'#14306A',red:'#D6202E',green:'#2E7D5B',gold:'#C9A227',grey:'#8A94A6',teal:'#0E7490',soft:'#C9D6EE'};
+function col(k){if(!dark())return C[k];return{navy:'#7FA7E6',red:'#FF6B76',green:'#5CC79A',gold:'#E5C25A',grey:'#9AA6BD',teal:'#4FC3D9',soft:'#33507F'}[k]}
+
+/* ---------- البيانات ---------- */
+function raw(){var d=window.dash&&dash.data('simp');return d&&d.status==='ok'&&d.data&&d.data.daily?d.data:null}
+var CACHE=null,CK='';
+function model(){var R=raw();if(!R)return null;var k=R.asof+'|'+R.daily.length;if(CK===k)return CACHE;
+  var by={};R.daily.forEach(function(r){by[r.d]=r});
+  var end=D0(R.asof),first=D0(R.first),W=[];
+  for(var e=new Date(end),i=0;e>=first;e=new Date(e.getTime()-7*864e5),i++){var o={end:iso(e),start:iso(new Date(e.getTime()-6*864e5)),n:0,app:0,auto:0,rej:0,pend:0,ind:0,corp:0};
+    for(var j=0;j<7;j++){var r=by[iso(new Date(e.getTime()-j*864e5))];if(r){['n','app','auto','rej','pend','ind','corp'].forEach(function(f){o[f]+=r[f]||0})}}W.unshift(o)}
+  W.forEach(function(w,i){w.no=i+1;w.label='الأسبوع '+(i+1);w.acc=w.app+w.auto;w.dec=w.acc+w.rej});
+  var Mo={};R.daily.forEach(function(r){var m=r.d.slice(0,7),o=Mo[m]||(Mo[m]={m:m,n:0,app:0,auto:0,rej:0,pend:0,ind:0,corp:0});['n','app','auto','rej','pend','ind','corp'].forEach(function(f){o[f]+=r[f]||0})});
+  var MO=Object.keys(Mo).sort().map(function(m){var o=Mo[m];o.acc=o.app+o.auto;o.dec=o.acc+o.rej;return o});
+  var T=R.tot;T.acc=T.app+T.auto;T.dec=T.acc+T.rej;
+  var sp=R.speed,decN=sp.reduce(function(a,x){return a+x.n},0),in5=(sp[0].n+sp[1].n+sp[2].n)/Math.max(1,decN);
+  CACHE={R:R,W:W,MO:MO,T:T,L:W[W.length-1],P:W[W.length-2]||{},in5:in5,decN:decN};CK=k;return CACHE}
+window.SIMP_MODEL=model;
+
+/* ---------- الرسوم ---------- */
+var CH={};
+function chart(id,box,cfg){if(!window.Chart)return;var cv=box.querySelector('canvas');if(!cv){cv=el('canvas');box.appendChild(cv)}if(CH[id]){try{CH[id].destroy()}catch(e){}}
+  cfg.options=Object.assign({responsive:true,maintainAspectRatio:false,animation:{duration:700},plugins:{legend:{position:'bottom',labels:{font:{family:'Cairo'},boxWidth:12}},tooltip:{rtl:true,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'}}}},cfg.options||{});
+  CH[id]=new Chart(cv,cfg)}
+function ticks(f){return{ticks:{callback:function(v){return f(v)},font:{family:'Cairo'}},beginAtZero:true}}
+function kfmt(v){return v>=1e3?(v/1e3)+'K':v}
+
+/* ---------- الشاشات ---------- */
+var PANES=[['s0','عرض القيادة'],['s1','مسار المستخدم'],['s2','التحليل الأسبوعي'],['s3','التحليل الشهري'],['s4','سرعة الإجراء'],['s5','الأنشطة'],['s6','شكل الممولين'],['s7','حد الـ20 مليون']];
+var CUR='s0';
+function kpi(lbl,big,sub,cls){var c=el('div','sp-k'+(cls?' '+cls:''));c.append(el('div','l',lbl),el('div','b',big));if(sub)c.appendChild(el('div','s',sub));return c}
+function card(title,sub){var c=el('div','sp-card');if(title)c.appendChild(el('h3',null,title));if(sub)c.appendChild(el('p','sp-sub',sub));return c}
+function box(h){var b=el('div','sp-ch');b.style.height=(h||300)+'px';return b}
+function say(html){return el('div','sp-say',html)}
+
+function s0(P,D){var T=D.T,L=D.L,Pw=D.P;
+  var hero=el('div','sp-hero');hero.append(el('div','l','إجمالي نماذج التسجيل في المحاسبة المبسطة من الإطلاق'),el('div','b',fN(T.n)),el('div','s','من '+dY(D.R.first)+' لحد '+dY(D.R.asof)+' · منهم <b>'+fN(L.n)+'</b> في آخر أسبوع'));P.appendChild(hero);
+  var k=el('div','sp-ks');
+  k.append(kpi('اتقبلت',fN(T.acc),p1(pc(T.acc,T.n))+' من النماذج · منهم '+fN(T.auto)+' موافقة آلية','g'),
+    kpi('اترفضت',fN(T.rej),p1(pc(T.rej,T.n))+' من النماذج','r'),
+    kpi('لسه تحت المراجعة',fN(T.pend),fN(D.R.pend.slice(2).reduce(function(a,x){return a+x.n},0))+' منهم عدّى عليهم أكتر من أسبوعين'),
+    kpi('اتحسمت في 5 أيام أو أقل',p1(D.in5*100),'من النماذج اللي اتاخد فيها قرار'));P.appendChild(k);
+  var c=card('النماذج أسبوع بأسبوع','آخر 26 أسبوع · مقسومة حسب النتيجة');var b=box(300);c.appendChild(b);P.appendChild(c);
+  var W=D.W.slice(-26);chart('s0w',b,{type:'bar',data:{labels:W.map(function(w){return w.no}),datasets:[{label:'اتقبلت',data:W.map(function(w){return w.acc}),backgroundColor:col('navy'),stack:'s'},{label:'اترفضت',data:W.map(function(w){return w.rej}),backgroundColor:col('red'),stack:'s'},{label:'تحت المراجعة',data:W.map(function(w){return w.pend}),backgroundColor:col('gold'),stack:'s'}]},
+    options:{scales:{x:{stacked:true,title:{display:true,text:'الأسبوع',font:{family:'Cairo'}}},y:Object.assign({stacked:true},ticks(kfmt))},plugins:{tooltip:{callbacks:{title:function(i){var w=W[i[0].dataIndex];return'الأسبوع '+w.no+' · '+dA(w.start)+' – '+dA(w.end)}}}}}});
+  var ch=Pw.n?pc(L.n-Pw.n,Pw.n):0,top=D.R.acts.filter(function(a){return!a.other})[0];
+  P.appendChild(say('<b>الخلاصة:</b> في آخر أسبوع ('+dA(L.start)+' – '+dA(L.end)+') اتقدّم <b>'+fN(L.n)+'</b> نموذج، '+(ch>=0?'بزيادة':'بنقص')+' <b>'+p1(Math.abs(ch))+'</b> عن الأسبوع اللي قبله. '+
+    'من الإطلاق اتقبل <b>'+p1(pc(T.acc,T.n))+'</b> من النماذج واترفض <b>'+p1(pc(T.rej,T.n))+'</b>. '+(top?'أكتر نشاط بيسجّل هو <b>'+top.a+'</b> ('+fN(top.n)+' نموذج). ':'')+
+    'وفيه <b>'+fN(D.R.over.n)+'</b> ممول اتقبلوا أو مستنيين وحجم أعمالهم فوق حد الـ20 مليون، ودول محتاجين مراجعة.'))}
+
+function s1(P,D){var T=D.T,mode=P.dataset.m||'all';
+  var hd=el('div','sp-hd2'),sw=el('div','sp-sw');[['all','الكل'],['ind','فردي'],['corp','اعتباري']].forEach(function(m){var b=el('button',mode===m[0]?'on':'',m[1]);b.type='button';b.onclick=function(){P.dataset.m=m[0];draw()};sw.appendChild(b)});hd.append(el('p','sp-sub','من تقديم النموذج لحد القبول'),sw);P.appendChild(hd);
+  var X=mode==='all'?{n:T.n,dec:T.dec,acc:T.acc,auto:T.auto,rej:T.rej,pend:T.pend}:(function(t){var a=t.app+t.auto;return{n:a+t.rej+t.pend,dec:a+t.rej,acc:a,auto:t.auto,rej:t.rej,pend:t.pend}})(D.R.typ[mode]);
+  var st=[['قدّموا النموذج',X.n,null],['اتاخد فيها قرار',X.dec,'فاضل '+fN(X.pend)+' تحت المراجعة'],['اتقبلت',X.acc,'منهم '+fN(X.auto)+' موافقة آلية بعد 5 أيام']];
+  var c=card();var worst=pc(st[1][1],st[0][1])<pc(st[2][1],st[1][1])?1:2;
+  st.forEach(function(s,i){if(i){var cv=el('div','sp-conv','<span>↓</span> '+p1(pc(s[1],st[i-1][1]))+' من المرحلة اللي قبلها'+(i===worst?' · <em>هنا أكبر وقعة</em>':''));c.appendChild(cv)}
+    var r=el('div','sp-fr'+(i===worst?' worst':''));var lb=el('div','sp-fl');lb.append(el('b',null,s[0]),el('strong',null,fN(s[1])),el('small',null,s[2]||p1(pc(s[1],st[0][1]))+' من اللي قدّموا'));
+    var tr=el('div','sp-ft'),bar=el('div','sp-fb');bar.style.width=Math.max(2,pc(s[1],st[0][1]))+'%';bar.style.background=i===2?col('green'):i===1?col('navy'):col('teal');tr.appendChild(bar);r.append(lb,tr);c.appendChild(r)});
+  c.appendChild(say('من كل 100 نموذج اتقدّم'+(mode==='all'?'':mode==='ind'?' من الأفراد':' من الشركات')+'، <b>'+Math.round(pc(X.acc,X.n))+'</b> اتقبلوا و<b>'+Math.round(pc(X.rej,X.n))+'</b> اترفضوا. ونسبة القبول من اللي اتاخد فيهم قرار <b>'+p1(pc(X.acc,X.dec))+'</b>.'));
+  P.appendChild(c);
+  var t=D.R.typ,ri=pc(t.ind.rej,t.ind.app+t.ind.auto+t.ind.rej),rc=pc(t.corp.rej,t.corp.app+t.corp.auto+t.corp.rej);
+  P.appendChild(say('<b>مقارنة:</b> نسبة الرفض عند الأفراد <b>'+p1(ri)+'</b> وعند الشركات <b>'+p1(rc)+'</b> من النماذج اللي اتحسمت.'))}
+
+function wtable(rows){var t=el('table','sp-t');t.innerHTML='<thead><tr><th>الأسبوع</th><th>الفترة</th><th>اتقدّم</th><th>اتقبل</th><th>اترفض</th><th>تحت المراجعة</th><th>نسبة الرفض</th></tr></thead>';var b=el('tbody');
+  rows.forEach(function(w){var r=el('tr');r.innerHTML='<td>'+w.no+'</td><td>'+dA(w.start)+' – '+dA(w.end)+'</td><td>'+fN(w.n)+'</td><td>'+fN(w.acc)+'</td><td>'+fN(w.rej)+'</td><td>'+fN(w.pend)+'</td><td>'+p1(pc(w.rej,w.dec))+'</td>';b.appendChild(r)});t.appendChild(b);return t}
+function s2(P,D){var W=D.W;var c=card('كل الأسابيع من الإطلاق','الخط الأحمر = نسبة الرفض (المحور الأيمن)');var b=box(320);c.appendChild(b);P.appendChild(c);
+  chart('s2',b,{type:'bar',data:{labels:W.map(function(w){return w.no}),datasets:[{type:'line',label:'نسبة الرفض',data:W.map(function(w){return w.dec?+(pc(w.rej,w.dec)).toFixed(1):null}),borderColor:col('red'),backgroundColor:col('red'),yAxisID:'y1',pointRadius:0,tension:.3,borderWidth:2},{label:'النماذج',data:W.map(function(w){return w.n}),backgroundColor:W.map(function(w,i){return i===W.length-1?col('red'):col('navy')}),yAxisID:'y'}]},
+    options:{scales:{y:ticks(kfmt),y1:{position:'right',grid:{display:false},ticks:{callback:function(v){return v+'%'}},beginAtZero:true}},plugins:{tooltip:{callbacks:{title:function(i){var w=W[i[0].dataIndex];return'الأسبوع '+w.no+' · '+dA(w.start)+' – '+dA(w.end)}}}}}});
+  var best=W.slice().sort(function(a,b){return b.n-a.n})[0],av4=W.slice(-5,-1).reduce(function(a,w){return a+w.n},0)/4;
+  P.appendChild(say('أعلى أسبوع كان <b>الأسبوع '+best.no+'</b> ('+dA(best.start)+' – '+dA(best.end)+') بـ <b>'+fN(best.n)+'</b> نموذج. آخر أسبوع جه <b>'+(D.L.n>=av4?'أعلى':'أقل')+'</b> من متوسط الـ4 أسابيع اللي قبله ('+fN(av4)+') بـ <b>'+p1(Math.abs(pc(D.L.n-av4,av4)))+'</b>.'));
+  var c2=card('آخر 12 أسبوع');c2.appendChild(wtable(W.slice(-12).reverse()));P.appendChild(c2)}
+
+function s3(P,D){var MO=D.MO;var c=card('النماذج شهر بشهر','مقسومة حسب النتيجة');var b=box(320);c.appendChild(b);P.appendChild(c);
+  chart('s3',b,{type:'bar',data:{labels:MO.map(function(m){return mL(m.m)}),datasets:[{label:'اتقبلت',data:MO.map(function(m){return m.acc}),backgroundColor:col('navy'),stack:'s'},{label:'اترفضت',data:MO.map(function(m){return m.rej}),backgroundColor:col('red'),stack:'s'},{label:'تحت المراجعة',data:MO.map(function(m){return m.pend}),backgroundColor:col('gold'),stack:'s'}]},options:{scales:{x:{stacked:true},y:Object.assign({stacked:true},ticks(kfmt))}}});
+  var full=MO.slice(0,-1),best=full.slice().sort(function(a,b){return b.n-a.n})[0],last=full[full.length-1],prev=full[full.length-2]||{};
+  P.appendChild(say('أعلى شهر كان <b>'+mL(best.m)+'</b> بـ <b>'+fN(best.n)+'</b> نموذج. آخر شهر كامل (<b>'+mL(last.m)+'</b>) جه فيه <b>'+fN(last.n)+'</b> نموذج'+(prev.n?'، '+(last.n>=prev.n?'بزيادة':'بنقص')+' <b>'+p1(Math.abs(pc(last.n-prev.n,prev.n)))+'</b> عن الشهر اللي قبله':'')+'. الشهر الحالي لسه ماخلصش.'));
+  var t=el('table','sp-t');t.innerHTML='<thead><tr><th>الشهر</th><th>اتقدّم</th><th>اتقبل</th><th>اترفض</th><th>تحت المراجعة</th><th>نسبة الرفض</th><th>فردي</th><th>اعتباري</th></tr></thead>';var tb=el('tbody');MO.slice().reverse().forEach(function(m){var r=el('tr');r.innerHTML='<td>'+mL(m.m)+'</td><td>'+fN(m.n)+'</td><td>'+fN(m.acc)+'</td><td>'+fN(m.rej)+'</td><td>'+fN(m.pend)+'</td><td>'+p1(pc(m.rej,m.dec))+'</td><td>'+fN(m.ind)+'</td><td>'+fN(m.corp)+'</td>';tb.appendChild(r)});t.appendChild(tb);var c2=card('الأرقام بالشهر');c2.appendChild(t);P.appendChild(c2)}
+
+function s4(P,D){var R=D.R,sp=R.speed;
+  var k=el('div','sp-ks'),last=R.speedM[R.speedM.length-2]||R.speedM[R.speedM.length-1];
+  k.append(kpi('اتحسمت في 5 أيام أو أقل',p1(D.in5*100),'من كل النماذج اللي اتاخد فيها قرار'),kpi('متوسط الأيام (النص) · '+mL(last.m),last.med+' يوم','و75% بيخلصوا في '+last.p75+' يوم'),kpi('أخدت أكتر من شهر',fN(sp[sp.length-1].n),p1(pc(sp[sp.length-1].n,D.decN))+' من النماذج','r'));P.appendChild(k);
+  var c=card('النماذج أخدت قد إيه لحد القرار؟');var b=box(280);c.appendChild(b);P.appendChild(c);
+  chart('s4a',b,{type:'bar',data:{labels:sp.map(function(x){return x.b}),datasets:[{label:'اتقبلت',data:sp.map(function(x){return x.app}),backgroundColor:col('navy'),stack:'s'},{label:'اترفضت',data:sp.map(function(x){return x.rej}),backgroundColor:col('red'),stack:'s'}]},options:{scales:{x:{stacked:true},y:Object.assign({stacked:true},ticks(kfmt))}}});
+  var SM=R.speedM.filter(function(x){return x.n>=50});var c2=card('السرعة شهر بشهر','الخط = متوسط الأيام (النص) · الأعمدة = نسبة اللي اتحسموا في 5 أيام');var b2=box(280);c2.appendChild(b2);P.appendChild(c2);
+  chart('s4b',b2,{type:'bar',data:{labels:SM.map(function(x){return mL(x.m)}),datasets:[{type:'line',label:'متوسط الأيام',data:SM.map(function(x){return x.med}),borderColor:col('red'),backgroundColor:col('red'),yAxisID:'y1',tension:.3,pointRadius:2},{label:'اتحسمت في 5 أيام',data:SM.map(function(x){return+(x.in5*100).toFixed(1)}),backgroundColor:col('teal'),yAxisID:'y'}]},options:{scales:{y:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%'}}},y1:{position:'right',grid:{display:false},beginAtZero:true,ticks:{callback:function(v){return v+' يوم'}}}}}});
+  var c3=card('النماذج اللي لسه تحت المراجعة · بقالها قد إيه؟');var b3=box(220);c3.appendChild(b3);P.appendChild(c3);
+  chart('s4c',b3,{type:'bar',data:{labels:R.pend.map(function(x){return x.b}),datasets:[{label:'نماذج',data:R.pend.map(function(x){return x.n}),backgroundColor:R.pend.map(function(x,i){return i>=2?col('red'):col('gold')})}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+  var old=R.pend.slice(2).reduce(function(a,x){return a+x.n},0);
+  P.appendChild(say('فيه <b>'+fN(D.T.pend)+'</b> نموذج لسه تحت المراجعة، منهم <b>'+fN(old)+'</b> بقالهم أكتر من أسبوعين، و<b>'+fN(R.pend[R.pend.length-1].n)+'</b> بقالهم أكتر من 3 شهور. دول أولى حاجة تتراجع.'))}
+
+function s5(P,D){var A=D.R.acts.filter(function(a){return!a.other}),mode=P.dataset.m||'n';
+  var hd=el('div','sp-hd2'),sw=el('div','sp-sw');[['n','الأكثر تسجيلاً'],['rej','الأعلى في الرفض']].forEach(function(m){var b=el('button',mode===m[0]?'on':'',m[1]);b.type='button';b.onclick=function(){P.dataset.m=m[0];draw()};sw.appendChild(b)});hd.append(el('p','sp-sub',mode==='rej'?'أنشطة فيها 100 نموذج أو أكتر، مترتبة بنسبة الرفض':'أكبر 15 نشاط في عدد النماذج'),sw);P.appendChild(hd);
+  var L=mode==='rej'?A.filter(function(a){return a.n>=100}).sort(function(a,b){return b.rej/b.n-a.rej/a.n}).slice(0,15):A.slice(0,15);
+  var c=card();var b=box(Math.max(320,L.length*30));c.appendChild(b);P.appendChild(c);
+  chart('s5',b,{type:'bar',data:{labels:L.map(function(a){return a.a.length>38?a.a.slice(0,37)+'…':a.a}),datasets:mode==='rej'?[{label:'نسبة الرفض',data:L.map(function(a){return+pc(a.rej,a.n).toFixed(1)}),backgroundColor:col('red')}]:[{label:'اتقبلت',data:L.map(function(a){return a.app}),backgroundColor:col('navy'),stack:'s'},{label:'اترفضت',data:L.map(function(a){return a.rej}),backgroundColor:col('red'),stack:'s'},{label:'تحت المراجعة',data:L.map(function(a){return a.pend}),backgroundColor:col('gold'),stack:'s'}]},
+    options:{indexAxis:'y',scales:{x:Object.assign({stacked:mode!=='rej'},mode==='rej'?{ticks:{callback:function(v){return v+'%'}},beginAtZero:true}:ticks(kfmt)),y:{stacked:mode!=='rej',ticks:{font:{family:'Cairo',size:11}}}}}});
+  var tot=D.T.n,top5=A.slice(0,5).reduce(function(a,x){return a+x.n},0),avg=pc(D.T.rej,D.T.n),hi=A.filter(function(a){return a.n>=100}).sort(function(a,b){return b.rej/b.n-a.rej/a.n})[0];
+  P.appendChild(say('أكبر 5 أنشطة عاملين <b>'+p1(pc(top5,tot))+'</b> من كل النماذج. متوسط الرفض العام <b>'+p1(avg)+'</b>'+(hi?'، وأعلى نشاط في الرفض (من الأنشطة الكبيرة) هو <b>'+hi.a+'</b> بنسبة <b>'+p1(pc(hi.rej,hi.n))+'</b>':'')+'.<br><span class="sp-note">الأنشطة اللي فيها أقل من 5 نماذج متجمعة في «أنشطة أخرى» عشان محدش يتعرف.</span>'));
+  var t=el('table','sp-t');t.innerHTML='<thead><tr><th>النشاط</th><th>النماذج</th><th>اتقبل</th><th>اترفض</th><th>تحت المراجعة</th><th>نسبة الرفض</th></tr></thead>';var tb=el('tbody');D.R.acts.forEach(function(a){var r=el('tr');r.innerHTML='<td>'+a.a+'</td><td>'+fN(a.n)+'</td><td>'+fN(a.app)+'</td><td>'+fN(a.rej)+'</td><td>'+fN(a.pend)+'</td><td>'+p1(pc(a.rej,a.n))+'</td>';tb.appendChild(r)});t.appendChild(tb);var c2=card('كل الأنشطة');c2.appendChild(t);P.appendChild(c2)}
+
+function s6(P,D){var R=D.R,t=R.typ,TB=R.turn.filter(function(x){return x.k!=='na'}),na=R.turn.filter(function(x){return x.k==='na'})[0];
+  var g=el('div','sp-g2');
+  var c1=card('فردي ولا اعتباري؟');var b1=box(240);c1.appendChild(b1);g.appendChild(c1);
+  var tn=function(x){return x.app+x.auto+x.rej+x.pend};
+  chart('s6a',b1,{type:'bar',data:{labels:['فردي','اعتباري'],datasets:[{label:'اتقبلت',data:[t.ind.app+t.ind.auto,t.corp.app+t.corp.auto],backgroundColor:col('navy'),stack:'s'},{label:'اترفضت',data:[t.ind.rej,t.corp.rej],backgroundColor:col('red'),stack:'s'},{label:'تحت المراجعة',data:[t.ind.pend,t.corp.pend],backgroundColor:col('gold'),stack:'s'}]},options:{scales:{x:{stacked:true},y:Object.assign({stacked:true},ticks(kfmt))}}});
+  c1.appendChild(say('الأفراد <b>'+p1(pc(tn(t.ind),D.T.n))+'</b> من النماذج، والشركات <b>'+p1(pc(tn(t.corp),D.T.n))+'</b>.'));
+  var c2=card('شرايح حجم الأعمال (إقرار 2025)','النماذج المقبولة وتحت المراجعة بس · من غير أي قيمة لممول بعينه');var b2=box(240);c2.appendChild(b2);g.appendChild(c2);
+  chart('s6b',b2,{type:'bar',data:{labels:TB.map(function(x){return x.b}),datasets:[{label:'فردي',data:TB.map(function(x){return x.ind}),backgroundColor:col('navy'),stack:'s'},{label:'اعتباري',data:TB.map(function(x){return x.corp}),backgroundColor:col('teal'),stack:'s'}]},options:{scales:{x:{stacked:true},y:Object.assign({stacked:true},ticks(kfmt))}}});
+  var u1=TB.filter(function(x){return x.k==='zero'||x.k==='b1'}).reduce(function(a,x){return a+x.n},0),all=TB.reduce(function(a,x){return a+x.n},0);
+  c2.appendChild(say('<b>'+p1(pc(u1,all))+'</b> من الممولين حجم أعمالهم مليون جنيه أو أقل (منهم '+fN(TB[0].n)+' صفر). و'+fN(na.n)+' نموذج مافيهوش حجم أعمال.'));
+  P.appendChild(g);
+  var B=R.basis.filter(function(x){return x.b!=='مش متاح'}),bt=B.reduce(function(a,x){return a+x.n},0);var c3=card('حجم الإيراد اتحدد على أساس إيه؟');var b3=box(220);c3.appendChild(b3);P.appendChild(c3);
+  var sh={'بيانات اخر إقرار ضريبي مقدم ولم تتم المحاسبة ضريبيًا حتي تاريخه':'آخر إقرار (لسه ماتحاسبش)','حجم المبيعات وفقا لمنظومة الفاتورة / الايصال الالكتروني':'الفاتورة / الإيصال الإلكتروني','بيانات آخر ربط ضريبي نهائي في تاريخ العمل بهذا القانون':'آخر ربط نهائي','بيانات الإقرار المقدم علمًا بأن المنشأة مسجلة بعد تاريخ العمل بهذا القانون':'إقرار منشأة جديدة بعد القانون'};
+  chart('s6c',b3,{type:'bar',data:{labels:B.map(function(x){return sh[x.b]||x.b}),datasets:[{label:'نماذج',data:B.map(function(x){return x.n}),backgroundColor:[col('navy'),col('teal'),col('gold'),col('grey')]}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+  var ei=B.filter(function(x){return/الفاتورة/.test(x.b)})[0];c3.appendChild(say((ei?'<b>'+p1(pc(ei.n,bt))+'</b> من النماذج اللي فيها أساس محدد اعتمدت على بيانات الفاتورة والإيصال الإلكتروني. ':'')+'و'+fN((R.basis.filter(function(x){return x.b==='مش متاح'})[0]||{}).n)+' نموذج مافيهمش الأساس ده.'))}
+
+function s7(P,D){var O=D.R.over,lim=D.R.limit;
+  var k=el('div','sp-ks');k.append(kpi('حجم أعمالهم فوق 20 مليون',fN(O.n),'من النماذج المقبولة وتحت المراجعة','r'),kpi('منهم اتقبلوا',fN(O.app),'منهم '+fN(O.auto)+' موافقة آلية','r'),kpi('منهم تحت المراجعة',fN(O.pend),'لسه ممكن يتراجعوا قبل القرار'),kpi('شركات / أفراد',fN(O.corp)+' / '+fN(O.ind),''));P.appendChild(k);
+  P.appendChild(say('<b>ليه الشاشة دي مهمة؟</b> حد حجم الأعمال للنظام المبسط '+(lim/1e6)+' مليون جنيه. فيه <b>'+fN(O.n)+'</b> ممول حجم أعمالهم في إقرار 2025 أكبر من الحد، و<b>'+fN(O.app)+'</b> منهم اتقبلوا. ممكن يكون ليها تفسير (زي إن حجم الأعمال اتحدد على أساس تاني)، بس محتاجين مراجعة. الأرقام هنا مجمّعة، والتفاصيل بالممول موجودة في الملف الأصلي عند الفريق المختص بس.'));
+  var g=el('div','sp-g2');var c=card('بيتقدّموا إمتى؟');var b=box(240);c.appendChild(b);g.appendChild(c);
+  chart('s7a',b,{type:'bar',data:{labels:O.m.map(function(x){return mL(x.m)}),datasets:[{label:'نماذج فوق الحد',data:O.m.map(function(x){return x.n}),backgroundColor:col('red')}]},options:{plugins:{legend:{display:false}}}});
+  var c2=card('أكتر الأنشطة');var b2=box(240);c2.appendChild(b2);g.appendChild(c2);
+  chart('s7b',b2,{type:'bar',data:{labels:O.acts.map(function(a){return a.a.length>30?a.a.slice(0,29)+'…':a.a}),datasets:[{label:'نماذج',data:O.acts.map(function(a){return a.n}),backgroundColor:col('navy')}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{y:{ticks:{font:{family:'Cairo',size:11}}}}}});
+  P.appendChild(g)}
+
+var FN={s0:s0,s1:s1,s2:s2,s3:s3,s4:s4,s5:s5,s6:s6,s7:s7};
+function draw(){var root=document.getElementById('plat-simp');if(!root||root.hidden)return;var D=model();var body=root.querySelector('.sp-body');if(!body)return;
+  if(!D){body.innerHTML='<div class="sp-card">جاري تحميل البيانات…</div>';return}
+  var hd=root.querySelector('.sp-asof');if(hd)hd.textContent='من '+dY(D.R.first)+' لحد '+dY(D.R.asof)+' · '+fN(D.T.n)+' نموذج';
+  root.querySelectorAll('#simp-tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.p===CUR)});
+  var P=body.querySelector('.spane#'+CUR);body.querySelectorAll('.spane').forEach(function(x){x.classList.toggle('on',x.id===CUR)});
+  P.replaceChildren();var h=el('div','sp-ph');h.appendChild(el('h2',null,PANES.filter(function(x){return x[0]===CUR})[0][1]));P.appendChild(h);
+  try{FN[CUR](P,D)}catch(e){console.error('simp',e);P.appendChild(el('div','sp-card','حصلت مشكلة في عرض الشاشة دي.'))}}
+window.SIMP_DRAW=draw;
+function mount(){var root=document.getElementById('plat-simp');if(!root||root.dataset.m)return;root.dataset.m=1;
+  root.innerHTML='<div class="sp-wrap"><div class="sp-head"><div><h1>لوحة متابعة التسهيلات الضريبية</h1><p class="sp-asof">—</p></div><div class="sp-acts ex-actions"></div></div><nav id="simp-tabs" class="sp-tabs"></nav><div class="sp-body"></div><p class="sp-foot">المصدر: نماذج التسجيل في نظام المحاسبة المبسط (منظومة SAP) · أرقام مجمّعة فقط</p></div>';
+  var tabs=root.querySelector('#simp-tabs'),body=root.querySelector('.sp-body');
+  PANES.forEach(function(p){var b=el('button',null,p[1]);b.type='button';b.dataset.p=p[0];b.onclick=function(){CUR=p[0];draw();scrollTo({top:0})};tabs.appendChild(b);var s=el('section','spane');s.id=p[0];body.appendChild(s)})}
+var css=el('style');css.textContent=
+'#plat-simp{--sp-card:#fff;--sp-line:#E1E7F0;--sp-ink:#1A202C;--sp-mute:#4A5875;background:#EEF3FA;min-height:100vh;color:var(--sp-ink);font-family:Cairo,Tahoma,sans-serif}'+
+'#plat-simp .sp-wrap{max-width:1180px;margin:0 auto;padding:22px 18px 40px}#plat-simp .sp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;border-bottom:3px solid #D6202E;padding-bottom:12px;margin-bottom:14px}#plat-simp h1{margin:0;font-size:26px;color:#14306A}#plat-simp .sp-asof{margin:4px 0 0;color:var(--sp-mute);font-size:14px}'+
+'#plat-simp .sp-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}#plat-simp .sp-tabs button{all:unset;cursor:pointer;padding:7px 14px;border-radius:999px;background:var(--sp-card);border:1px solid var(--sp-line);font-weight:700;font-size:13px;color:#14306A}#plat-simp .sp-tabs button.on{background:#14306A;color:#fff;border-color:#14306A}'+
+'body.v2 #plat-simp .sp-tabs{display:none}#plat-simp .spane{display:none}#plat-simp .spane.on{display:block}#plat-simp .sp-ph h2{margin:0 0 12px;font-size:22px;color:#14306A}'+
+'#plat-simp .sp-card{background:var(--sp-card);border:1px solid var(--sp-line);border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(20,48,106,.06)}#plat-simp .sp-card h3{margin:0 0 4px;font-size:17px;color:#14306A}#plat-simp .sp-sub{margin:0 0 10px;color:var(--sp-mute);font-size:13px}#plat-simp .sp-ch{position:relative;width:100%}'+
+'#plat-simp .sp-hero{background:linear-gradient(135deg,#14306A,#1F4C9A);color:#fff;border-radius:18px;padding:22px;text-align:center;margin-bottom:14px}#plat-simp .sp-hero .l{font-weight:700;color:#FFB3B9}#plat-simp .sp-hero .b{font-size:clamp(40px,6vw,64px);font-weight:800;line-height:1.2}#plat-simp .sp-hero .s{opacity:.9}'+
+'#plat-simp .sp-ks{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:14px}#plat-simp .sp-k{background:var(--sp-card);border:1px solid var(--sp-line);border-radius:14px;padding:14px 16px;border-inline-start:4px solid #14306A}#plat-simp .sp-k.g{border-inline-start-color:#2E7D5B}#plat-simp .sp-k.r{border-inline-start-color:#D6202E}#plat-simp .sp-k .l{color:var(--sp-mute);font-size:13px;font-weight:700}#plat-simp .sp-k .b{font-size:28px;font-weight:800;color:#14306A}#plat-simp .sp-k .s{font-size:12.5px;color:var(--sp-mute)}'+
+'#plat-simp .sp-say{background:var(--sp-card);border:1px dashed var(--sp-line);border-radius:12px;padding:12px 16px;margin:0 0 14px;line-height:2;font-size:15px}#plat-simp .sp-card .sp-say{border:0;border-top:1px dashed var(--sp-line);border-radius:0;padding:10px 0 0;margin:10px 0 0}#plat-simp .sp-say b{color:#14306A}#plat-simp .sp-note{font-size:12.5px;color:var(--sp-mute)}'+
+'#plat-simp .sp-t{width:100%;border-collapse:collapse;font-size:13.5px}#plat-simp .sp-t th,#plat-simp .sp-t td{padding:7px 8px;border-bottom:1px solid var(--sp-line);text-align:right}#plat-simp .sp-t th{background:#F4F7FB;color:#14306A;position:sticky;top:0}#plat-simp .sp-card:has(.sp-t){max-height:520px;overflow:auto}'+
+'#plat-simp .sp-hd2{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}#plat-simp .sp-sw{display:flex;background:#fff;border:1px solid var(--sp-line);border-radius:999px;padding:4px}#plat-simp .sp-sw button{all:unset;cursor:pointer;padding:5px 14px;border-radius:999px;font-weight:700;font-size:13px;color:#14306A}#plat-simp .sp-sw button.on{background:#14306A;color:#fff}'+
+'#plat-simp .sp-fr{display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px;align-items:center}#plat-simp .sp-fl b{display:block;color:var(--sp-mute);font-size:15px}#plat-simp .sp-fl strong{display:block;font-size:28px;color:#14306A}#plat-simp .sp-fl small{color:var(--sp-mute);font-size:12.5px}#plat-simp .sp-ft{background:#EEF3FA;border-radius:10px;height:46px;overflow:hidden}#plat-simp .sp-fb{height:100%;border-radius:10px;transition:width .8s}#plat-simp .sp-fr.worst .sp-ft{box-shadow:0 0 0 2px #D6202E inset}#plat-simp .sp-conv{padding-inline-start:248px;margin:8px 0;font-size:13px;font-weight:700;color:var(--sp-mute)}#plat-simp .sp-conv em{font-style:normal;color:#D6202E}'+
+'#plat-simp .sp-g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}#plat-simp .sp-foot{color:var(--sp-mute);font-size:12px;margin-top:18px}'+
+'@media(max-width:800px){#plat-simp .sp-g2{grid-template-columns:1fr}#plat-simp .sp-fr{grid-template-columns:1fr;gap:6px}#plat-simp .sp-conv{padding-inline-start:0}#plat-simp .sp-ft{height:30px}#plat-simp .sp-wrap{padding:14px 12px 30px}}'+
+'html[data-theme=dark] #plat-simp{--sp-card:#14254A;--sp-line:#22355E;--sp-ink:#EEF3FA;--sp-mute:#B5C3DD;background:#0B1730}html[data-theme=dark] #plat-simp h1,html[data-theme=dark] #plat-simp .sp-ph h2,html[data-theme=dark] #plat-simp .sp-card h3,html[data-theme=dark] #plat-simp .sp-k .b,html[data-theme=dark] #plat-simp .sp-say b,html[data-theme=dark] #plat-simp .sp-fl strong{color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-t th{background:#0E1A36;color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-ft{background:#0E1A36}html[data-theme=dark] #plat-simp .sp-sw{background:#0E1A36}html[data-theme=dark] #plat-simp .sp-sw button{color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-sw button.on{background:#9FBBEA;color:#0E1A36}';
+document.head.appendChild(css);
+var lastVis=false,lastTheme='';
+setInterval(function(){var r=document.getElementById('plat-simp');if(!r)return;mount();var v=!r.hidden,t=document.documentElement.getAttribute('data-theme');if(v&&(!lastVis||t!==lastTheme||(raw()&&!r.querySelector('.spane.on canvas, .spane.on .sp-hero, .spane.on .sp-fr, .spane.on .sp-t'))))draw();lastVis=v;lastTheme=t},500);
+if(window.dash&&dash.onData)dash.onData(function(){CK='';var r=document.getElementById('plat-simp');if(r&&!r.hidden)draw()});
 })();
 </script>
 </body>
