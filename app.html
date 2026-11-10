@@ -6069,9 +6069,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   var NAME={reta:'الضرائب العقارية',tsrf:'التصرفات العقارية',simp:'التسهيلات الضريبية'};
   var GROUPS={tsrf:[['نظرة عامة',['leaders','summary']],['التحليل',['weekly','monthly','compare','reasons','readings','story']],['الأدوات',['sim','collection','detail']]],
     reta:[['نظرة عامة',['p0','p1','p10']],['التحليل',['p2','p13','p7','p4','p3','p5','p12']],['الأدوات',['p8','p9','p6','p11']]],
-    simp:[['نظرة عامة',['s0','s1']],['التحليل',['s2','s3','s4','s5','s6']],['المراجعة',['s7']]]};
+    simp:[['نظرة عامة',['s0','s1']],['التحليل',['s2','s3','s4','s5','s6','s9','s12']],['المراجعة والمخاطر',['s7','s8','s10']],['الأدوات',['s11','s13']]]};
   var ICON={leaders:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',summary:'M4 6h16M4 12h16M4 18h10',weekly:'M3 17l6-6 4 4 8-8',monthly:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',compare:'M8 3v18M16 3v18',reasons:'M12 3a9 9 0 109 9h-9z',readings:'M5 4h14v16H5zM9 9h6M9 13h6',story:'M4 19V5l8 4 8-4v14',sim:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3',collection:'M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',detail:'M3 4h18v16H3zM3 10h18M9 4v16',
-    p13:'M3 4h18l-7 8v6l-4 2v-8z',s0:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',s1:'M3 4h18l-7 8v6l-4 2v-8z',s2:'M3 17l6-6 4 4 8-8',s3:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',s4:'M12 7v5l3 3M12 3a9 9 0 110 18 9 9 0 010-18',s5:'M4 6h16M4 12h10M4 18h6',s6:'M12 8a4 4 0 100 8 4 4 0 000-8zM4 21a8 8 0 0116 0',s7:'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0',p0:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',p1:'M4 6h16M4 12h16M4 18h10',p10:'M8 3v18M16 3v18',p2:'M3 21h18M5 21V9l7-5 7 5v12',p7:'M12 21s-7-6.5-7-12a7 7 0 0114 0c0 5.5-7 12-7 12z',p4:'M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',p3:'M12 7v5l3 3M12 3a9 9 0 110 18 9 9 0 010-18',p5:'M3 17l6-6 4 4 8-8',p8:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3',p9:'M12 3a9 9 0 110 18 9 9 0 010-18M12 8a4 4 0 110 8 4 4 0 010-8',p6:'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0',p11:'M12 3v12M7 8l5-5 5 5M4 21h16',p12:'M4 19V5l8 4 8-4v14'};
+    p13:'M3 4h18l-7 8v6l-4 2v-8z',s0:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',s1:'M3 4h18l-7 8v6l-4 2v-8z',s2:'M3 17l6-6 4 4 8-8',s3:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',s4:'M12 7v5l3 3M12 3a9 9 0 110 18 9 9 0 010-18',s5:'M4 6h16M4 12h10M4 18h6',s6:'M12 8a4 4 0 100 8 4 4 0 000-8zM4 21a8 8 0 0116 0',s8:'M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z',s9:'M4 6h16M4 12h10M4 18h6',s10:'M3 3v18h18M7 14l4-4 3 3 5-6',s11:'M8 3v18M16 3v18',s12:'M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',s13:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3',s7:'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0',p0:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',p1:'M4 6h16M4 12h16M4 18h10',p10:'M8 3v18M16 3v18',p2:'M3 21h18M5 21V9l7-5 7 5v12',p7:'M12 21s-7-6.5-7-12a7 7 0 0114 0c0 5.5-7 12-7 12z',p4:'M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',p3:'M12 7v5l3 3M12 3a9 9 0 110 18 9 9 0 010-18',p5:'M3 17l6-6 4 4 8-8',p8:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3',p9:'M12 3a9 9 0 110 18 9 9 0 010-18M12 8a4 4 0 110 8 4 4 0 010-8',p6:'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0',p11:'M12 3v12M7 8l5-5 5 5M4 21h16',p12:'M4 19V5l8 4 8-4v14'};
   function svg(d,s){return'<svg width="'+(s||18)+'" height="'+(s||18)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+d+'"/></svg>'}
   function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
   function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}}
@@ -6771,6 +6771,43 @@ function build(){var root=document.querySelector('#plat-reta .reta-root')||docum
 setInterval(function(){if(document.body.classList.contains('v2'))try{build()}catch(e){console.warn('wkstory',e)}},1000);
 })();
 </script>
+<script>;(function(){/* نفس رسم «مسار المستخدم» بتاع التصرفات، كدالة عامة: TL_FLOW(box,[{name,short,value}]) */
+var NAVY='#14306A',RED='#D6202E';
+function fN(v){return Math.round(+v||0).toLocaleString('en-US')}
+window.TL_FLOW=function(box,Fn,opt){opt=opt||{};if(!box||!window.d3||!Fn||Fn.length<2)return;var W0=box.clientWidth||box.parentNode.clientWidth;if(!W0)return;
+  var sig=Fn.map(function(r){return r.value}).join('|')+'@'+W0+(document.documentElement.getAttribute('data-theme')||'');if(box.dataset.sig===sig)return;box.dataset.sig=sig;box.replaceChildren();
+  var dk=document.documentElement.getAttribute('data-theme')==='dark',nv=dk?'#7FA7E6':NAVY,ink=dk?'#EEF3FA':'#1A202C',halo=dk?'#14254A':'#fff';
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var narrow=W0<520,W=W0,H=narrow?230:290,top=46,col=narrow?12:16,maxH=H-top-(narrow?56:70),n=Fn.length,v0=Fn[0].value||1;
+  Fn.forEach(function(r,i){r.of_prev=i?(Fn[i-1].value?r.value/Fn[i-1].value:0):null});
+  var xs=Fn.map(function(r,i){return W-8-col-i*((W-16-col)/(n-1))}),hs=Fn.map(function(r){return Math.max(3,(r.value/v0)*maxH)});
+  var id='tlf'+Math.random().toString(36).slice(2,7);
+  var svg=d3.select(box).append('svg').attr('viewBox','0 0 '+W+' '+H).attr('width','100%').style('display','block').style('direction','ltr').style('font-family','Cairo,Tahoma,sans-serif');
+  var lg=svg.append('defs').append('linearGradient').attr('id',id).attr('x1',0).attr('x2',0).attr('y1',0).attr('y2',1);lg.append('stop').attr('offset',0).attr('stop-color',RED).attr('stop-opacity',.55);lg.append('stop').attr('offset',1).attr('stop-color',RED).attr('stop-opacity',.04);
+  var gR=svg.append('g'),gP=svg.append('g'),gN=svg.append('g'),gT=svg.append('g'),worst=null;
+  Fn.forEach(function(r){if(r.of_prev!=null&&(!worst||r.of_prev<worst.of_prev))worst=r});
+  var T=function(cls,x,y,anc,txt,fill){var t=gT.append('text').attr('x',x).attr('y',y).attr('text-anchor',anc).text(txt);
+    if(cls==='name')t.attr('font-size',narrow?11:15).attr('font-weight',700).attr('fill',ink);
+    if(cls==='val')t.attr('font-size',narrow?12.5:17).attr('font-weight',700).attr('fill',nv);
+    if(cls==='pct')t.attr('font-size',narrow?12:16).attr('font-weight',700).attr('fill',fill).style('paint-order','stroke').attr('stroke',halo).attr('stroke-width',4);
+    if(cls==='loss')t.attr('font-size',narrow?10:13).attr('font-weight',700).attr('fill',RED);return t};
+  for(var i=0;i<n-1;i++){(function(i){var xa=xs[i],xb=xs[i+1]+col,ha=hs[i],hb=Math.min(hs[i+1],ha),mid=(xa+xb)/2;
+    gR.append('path').attr('d','M'+xa+','+top+' C'+mid+','+top+' '+mid+','+top+' '+xb+','+top+' L'+xb+','+(top+hb)+' C'+mid+','+(top+hb)+' '+mid+','+(top+hb)+' '+xa+','+(top+hb)+' Z').attr('fill',Fn[i+1]===worst?RED:nv).attr('opacity',.16);
+    if(ha-hb>1){var ly=H-8,lx=xa-Math.min(70,(xa-xb)*.45);
+      gR.append('path').attr('d','M'+xa+','+(top+hb)+' C'+(xa-30)+','+(top+hb)+' '+lx+','+(top+hb+10)+' '+lx+','+ly+' L'+(lx+(ha-hb)*.5)+','+ly+' C'+(lx+(ha-hb)*.5)+','+(top+ha)+' '+(xa-10)+','+(top+ha)+' '+xa+','+(top+ha)+' Z').attr('fill','url(#'+id+')');
+      T('loss',lx+4,ly-6,'start',(opt.lossWord||'خرج')+' '+fN(Fn[i].value-Fn[i+1].value));
+      if(!reduce){var lp='M'+(xa-2)+','+(top+(ha+hb)/2)+' C'+(xa-28)+','+(top+(ha+hb)/2)+' '+(lx+8)+','+(top+hb+20)+' '+(lx+8)+','+ly;
+        for(var k=0;k<2;k++)gP.append('circle').attr('r',narrow?2:2.6).attr('fill',RED).attr('opacity',.8).append('animateMotion').attr('dur','2.6s').attr('begin',(k*1.3+i*.3)+'s').attr('repeatCount','indefinite').attr('path',lp)}}
+    if(!reduce){var cy=top+hb/2,p='M'+xa+','+cy+' C'+mid+','+cy+' '+mid+','+cy+' '+xb+','+cy,count=Math.max(2,Math.round(hb/22));
+      for(var k2=0;k2<count;k2++){var off=(k2/count-.5)*hb*.75;gP.append('circle').attr('r',narrow?2.2:3).attr('fill','#fff').attr('stroke',nv).attr('stroke-width',1).attr('transform','translate(0,'+off+')').append('animateMotion').attr('dur','2.2s').attr('begin',((k2*.53+i*.2)%2.2)+'s').attr('repeatCount','indefinite').attr('path',p)}}
+    T('pct',mid,top+hb/2+5,'middle',Math.round(Fn[i+1].of_prev*100)+'%',Fn[i+1]===worst?RED:nv)})(i)}
+  Fn.forEach(function(r,i){gN.append('rect').attr('x',xs[i]).attr('y',top).attr('width',col).attr('height',hs[i]).attr('rx',3).attr('fill',r===worst?RED:nv);
+    var ax=i===0?xs[i]+col:i===n-1?xs[i]:xs[i]+col/2,anc=i===0?'end':i===n-1?'start':'middle';
+    T('name',ax,16,anc,narrow&&r.short?r.short:r.name);T('val',ax,36,anc,fN(r.value))});
+  if(!reduce){gR.style('opacity',0).transition().duration(900).delay(200).style('opacity',1);gN.selectAll('rect').attr('height',0).transition().duration(800).attr('height',function(d,i){return hs[i]})}
+  return worst};
+})();
+</script>
 <script>;(function(){/* «مسار المستخدم» للضرائب العقارية: من فتح الحساب لحد السداد */
 var M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 function D0(s){return new Date(String(s).slice(0,10)+'T12:00:00')}function dA(s){var d=D0(s);return d.getDate()+' '+M[d.getMonth()]}
@@ -6792,20 +6829,15 @@ function data(){var S=snaps();if(!S||!S.length)return null;var L=S[S.length-1];
     cur=cur.map(function(x,i){var b=base[i],o={k:x.k,n:x.n,v:Math.max(0,x.v-b.v)};if(x.ch){o.ch={};Object.keys(x.ch).forEach(function(c){o.ch[c]=Math.max(0,x.ch[c]-b.ch[c])})}if(x.amt!=null)o.amt=Math.max(0,x.amt-b.amt);return o})}
   return{L:L,from:from,st:cur,onacc:L.onacc||{},units:+L.units||0}}
 var CH=[['web','الويب','#14306A'],['android','أندرويد','#2E7D5B'],['ios','آيفون','#8A94A6']];
-function render(pane){var D=data();var sig=MODE+'|'+(D?D.L.date:'')+'|'+pane.clientWidth;if(sig===SIG&&pane.querySelector('.rf'))return;SIG=sig;pane.replaceChildren();
+function render(pane){var D=data();var sig=MODE+'|'+(D?D.L.date:'')+'|'+pane.clientWidth+'|'+document.documentElement.getAttribute('data-theme');if(sig===SIG&&pane.querySelector('.rf'))return;SIG=sig;pane.replaceChildren();
   var hd=el('div','rf-hd'),t=el('div');t.append(el('h2',null,'مسار المستخدم'),el('p',null,D?('الضرائب العقارية · '+(MODE==='week'&&D.from?('من '+dA(D.from)+' لحد '+dA(D.L.date)):('من الإطلاق لحد '+dA(D.L.date)))):'—'));
   var sw=el('div','rf-sw');[['all','من الإطلاق'],['week','آخر أسبوع']].forEach(function(m){var b=el('button',MODE===m[0]?'on':'',m[1]);b.type='button';b.onclick=function(){MODE=m[0];SIG='';render(pane)};sw.appendChild(b)});hd.append(t,sw);pane.appendChild(hd);
   if(!D){pane.appendChild(el('p','rf-empty','مفيش بيانات كفاية للفترة دي.'));return}
-  var st=D.st,v0=st[0].v||1,worst=1;for(var i=2;i<st.length;i++){if(pc(st[i].v,st[i-1].v)<pc(st[worst].v,st[worst-1].v))worst=i}
-  var box=el('div','rf');
-  st.forEach(function(x,i){var row=el('div','rf-row'+(i&&i===worst?' worst':''));
-    var lab=el('div','rf-lab');lab.append(el('b',null,x.n),el('strong',null,fN(x.v)));if(x.amt!=null)lab.appendChild(el('small',null,'بقيمة '+fC(x.amt)+' جنيه'));else lab.appendChild(el('small',null,pc(x.v,v0).toFixed(1)+'% من اللي فتحوا حساب'));
-    var tr=el('div','rf-track'),bar=el('div','rf-bar');bar.style.width=Math.max(2,pc(x.v,v0))+'%';
-    if(x.ch){var tot=0;CH.forEach(function(c){tot+=x.ch[c[0]]||0});CH.forEach(function(c){var s=el('span');s.style.width=pc(x.ch[c[0]]||0,tot)+'%';s.style.background=c[2];s.title=c[1]+': '+fN(x.ch[c[0]])+' ('+pc(x.ch[c[0]],tot).toFixed(0)+'%)';bar.appendChild(s)})}else bar.classList.add('solid');
-    tr.appendChild(bar);row.append(lab,tr);
-    if(i){var c=el('div','rf-conv');c.innerHTML='<span>↓</span> '+pc(x.v,st[i-1].v).toFixed(1)+'% من المرحلة اللي قبلها'+(i===worst?' · <em>هنا أكبر وقعة</em>':'');box.appendChild(c)}
-    box.appendChild(row)});
-  var lg=el('div','rf-lg');CH.forEach(function(c){var s=el('span');var i=el('i');i.style.background=c[2];s.append(i,document.createTextNode(c[1]));lg.appendChild(s)});box.appendChild(lg);
+  var st=D.st;var box=el('div','rf');
+  box.appendChild(el('p','rf-help','عرض كل عمود = حجم المرحلة، والنسبة على الجسر = اللي وصلوا للمرحلة اللي بعدها. الأحمر النازل = اللي خرجوا من المسار، والجسر الأحمر = أكبر نسبة فقد.'));
+  var fv=el('div','rf-flow');box.appendChild(fv);pane.appendChild(box);
+  requestAnimationFrame(function(){window.TL_FLOW&&TL_FLOW(fv,st.map(function(x){return{name:x.n,short:x.n,value:x.v}}))});
+  var ch=st[1].ch;if(ch){var dt=(ch.web+ch.android+ch.ios)||1,cl=el('div','rf-ch');cl.innerHTML='<b>الإقرارات حسب القناة:</b> '+CH.map(function(c){return'<span><i style="background:'+c[2]+'"></i>'+c[1]+' '+pc(ch[c[0]],dt).toFixed(0)+'%</span>'}).join('');box.appendChild(cl)}
   var a=st[0],d=st[1],p=st[2],gap=Math.max(0,a.v-d.v);
   var say=el('div','rf-say');
   var mob=d.ch?pc((d.ch.android||0)+(d.ch.ios||0),d.v):0;
@@ -6814,7 +6846,7 @@ function render(pane){var D=data();var sig=MODE+'|'+(D?D.L.date:'')+'|'+pane.cli
     'و<b>'+Math.round(mob)+'%</b> من الإقرارات جت من الموبايل.'+
     (MODE==='all'&&D.onacc.count?' وغير كده فيه <b>'+fN(D.onacc.count)+'</b> عملية سداد تحت الحساب بقيمة <b>'+fC(D.onacc.amount)+'</b> جنيه.':'')+
     '<br><span class="rf-note">ملحوظة: السداد بيتعد بعدد العمليات مش بعدد الأشخاص، لأن الشخص الواحد ممكن يسدد أكتر من مرة.</span>';
-  box.appendChild(say);pane.appendChild(box)}
+  box.appendChild(say)}
 var css=el('style');css.textContent=
 '#p13 .rf-hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 14px}#p13 .rf-hd h2{margin:0;font-size:22px}#p13 .rf-hd p{margin:4px 0 0;color:var(--mute,#4A5875);font-size:14px}'+
 '#p13 .rf-sw{display:flex;background:#EEF3FA;border-radius:999px;padding:4px}#p13 .rf-sw button{all:unset;cursor:pointer;padding:6px 16px;border-radius:999px;font:700 13px Cairo,Tahoma,sans-serif;color:#14306A}#p13 .rf-sw button.on{background:#14306A;color:#fff}'+
@@ -6824,6 +6856,7 @@ var css=el('style');css.textContent=
 '#p13 .rf-conv{margin:8px 0 8px 0;padding-inline-start:238px;font-size:13px;color:var(--mute,#4A5875);font-weight:700}#p13 .rf-conv span{color:#14306A}#p13 .rf-conv em{font-style:normal;color:#D6202E}'+
 '#p13 .rf-row.worst .rf-track{box-shadow:0 0 0 2px #D6202E inset}'+
 '#p13 .rf-lg{display:flex;gap:16px;justify-content:flex-start;margin:16px 0 0;font-size:12.5px;color:var(--mute,#4A5875)}#p13 .rf-lg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}'+
+'#p13 .rf-help{margin:0 0 6px;font-size:13px;color:var(--mute,#4A5875)}#p13 .rf-flow{width:100%}#p13 .rf-ch{margin-top:10px;font-size:13px;color:var(--mute,#4A5875);display:flex;gap:14px;flex-wrap:wrap}#p13 .rf-ch i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-inline-end:5px;vertical-align:-1px}'+
 '#p13 .rf-say{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line,#E1E7F0);font-size:15.5px;line-height:2}#p13 .rf-say b{color:#14306A}#p13 .rf-note{font-size:12.5px;color:var(--mute,#4A5875)}#p13 .rf-empty{color:var(--mute,#4A5875)}'+
 '@media(max-width:700px){#p13 .rf{padding:16px}#p13 .rf-row{grid-template-columns:1fr;gap:6px}#p13 .rf-conv{padding-inline-start:0}#p13 .rf-lab strong{font-size:22px}#p13 .rf-track{height:30px}}'+
 'html[data-theme=dark] #p13 .rf{background:#14254A;border-color:#22355E;color:#EEF3FA}html[data-theme=dark] #p13 .rf-lab strong,html[data-theme=dark] #p13 .rf-say b,html[data-theme=dark] #p13 .rf-conv span{color:#9FBBEA}html[data-theme=dark] #p13 .rf-track,html[data-theme=dark] #p13 .rf-sw{background:#0E1A36}html[data-theme=dark] #p13 .rf-sw button{color:#9FBBEA}html[data-theme=dark] #p13 .rf-sw button.on{background:#9FBBEA;color:#0E1A36}';
@@ -6873,7 +6906,7 @@ function ticks(f){return{ticks:{callback:function(v){return f(v)},font:{family:'
 function kfmt(v){return v>=1e3?(v/1e3)+'K':v}
 
 /* ---------- الشاشات ---------- */
-var PANES=[['s0','عرض القيادة'],['s1','مسار المستخدم'],['s2','التحليل الأسبوعي'],['s3','التحليل الشهري'],['s4','سرعة الإجراء'],['s5','الأنشطة'],['s6','شكل الممولين'],['s7','حد الـ20 مليون']];
+var PANES=[['s0','عرض القيادة'],['s1','مسار المستخدم'],['s2','التحليل الأسبوعي'],['s3','التحليل الشهري'],['s4','سرعة الإجراء'],['s5','الأنشطة'],['s6','شكل الممولين'],['s7','حد الـ20 مليون'],['s8','مؤشرات المخاطر'],['s9','الأنشطة بالعمق'],['s10','حمل المراجعة والتوقع'],['s11','مقارنة الفترات'],['s12','أساس الإيراد'],['s13','ماذا لو؟']];
 var CUR='s0';
 function kpi(lbl,big,sub,cls){var c=el('div','sp-k'+(cls?' '+cls:''));c.append(el('div','l',lbl),el('div','b',big));if(sub)c.appendChild(el('div','s',sub));return c}
 function card(title,sub){var c=el('div','sp-card');if(title)c.appendChild(el('h3',null,title));if(sub)c.appendChild(el('p','sp-sub',sub));return c}
@@ -6898,22 +6931,14 @@ function s0(P,D){var T=D.T,L=D.L,Pw=D.P;
 function s1(P,D){var mode=P.dataset.m||'all',T=D.T,t=D.R.typ,L=D.L;
   var hd=el('div','rf-hd'),tt=el('div');tt.appendChild(el('p',null,'التسهيلات الضريبية · '+(mode==='week'?('من '+dA(L.start)+' لحد '+dA(L.end)):('من الإطلاق لحد '+dA(D.R.asof)))));
   var sw=el('div','rf-sw');[['all','من الإطلاق'],['week','آخر أسبوع']].forEach(function(m){var b=el('button',mode===m[0]?'on':'',m[1]);b.type='button';b.onclick=function(){P.dataset.m=m[0];draw()};sw.appendChild(b)});hd.append(tt,sw);P.appendChild(hd);
-  var ti=function(x){return x.app+x.auto+x.rej+x.pend},td=function(x){return x.app+x.auto+x.rej},ta=function(x){return x.app+x.auto};
-  var st=mode==='week'?[{n:'قدّموا النموذج',v:L.n,ch:{ind:L.ind,corp:L.corp}},{n:'اتاخد فيها قرار',v:L.dec},{n:'اتقبلت',v:L.acc,last:1}]
-    :[{n:'قدّموا النموذج',v:T.n,ch:{ind:ti(t.ind),corp:ti(t.corp)}},{n:'اتاخد فيها قرار',v:T.dec,ch:{ind:td(t.ind),corp:td(t.corp)}},{n:'اتقبلت',v:T.acc,last:1}];
-  var v0=st[0].v||1,worst=1;for(var i=2;i<st.length;i++){if(pc(st[i].v,st[i-1].v)<pc(st[worst].v,st[worst-1].v))worst=i}
-  var CHS=[['ind','أفراد','#14306A'],['corp','شركات','#2E7D5B']];var box=el('div','rf');
-  st.forEach(function(x,i){var row=el('div','rf-row'+(i&&i===worst?' worst':''));var lab=el('div','rf-lab');lab.append(el('b',null,x.n),el('strong',null,fN(x.v)),el('small',null,i===2&&mode==='all'?'منهم '+fN(T.auto)+' موافقة آلية':p1(pc(x.v,v0))+' من اللي قدّموا'));
-    var tr=el('div','rf-track'),bar=el('div','rf-bar');bar.style.width=Math.max(2,pc(x.v,v0))+'%';
-    if(x.ch){var tot=x.ch.ind+x.ch.corp;CHS.forEach(function(c){var sp=el('span');sp.style.width=pc(x.ch[c[0]],tot)+'%';sp.style.background=c[2];sp.title=c[1]+': '+fN(x.ch[c[0]])+' ('+pc(x.ch[c[0]],tot).toFixed(0)+'%)';bar.appendChild(sp)})}else bar.classList.add(x.last?'solid':'navy');
-    tr.appendChild(bar);row.append(lab,tr);
-    if(i){var c=el('div','rf-conv','<span>↓</span> '+p1(pc(x.v,st[i-1].v))+' من المرحلة اللي قبلها'+(i===worst?' · <em>هنا أكبر وقعة</em>':''));box.appendChild(c)}box.appendChild(row)});
-  var lg=el('div','rf-lg');CHS.forEach(function(c){var s=el('span'),ii=el('i');ii.style.background=c[2];s.append(ii,document.createTextNode(c[1]));lg.appendChild(s)});box.appendChild(lg);
-  var s0=st[0].v,s1v=st[1].v,s2=st[2].v,ri=pc(t.ind.rej,td(t.ind)),rc=pc(t.corp.rej,td(t.corp));
-  box.appendChild(el('div','rf-say',(mode==='week'?'<b>في آخر أسبوع:</b> ':'<b>الخلاصة:</b> ')+'من كل 100 نموذج اتقدّم، <b>'+Math.round(pc(s2,s0))+'</b> اتقبلوا'+(s0-s1v>0?'، و<b>'+fN(s0-s1v)+'</b> نموذج لسه مستني قرار':'')+'. ونسبة القبول من اللي اتحسموا <b>'+p1(pc(s2,s1v))+'</b>. '+
-    (mode==='all'?'نسبة الرفض عند الأفراد <b>'+p1(ri)+'</b> وعند الشركات <b>'+p1(rc)+'</b>.':'')+
-    (mode==='week'?'<br><span class="rf-note">ملحوظة: نماذج آخر أسبوع كتير منها لسه تحت المراجعة، فنسبة القبول هتعلى لما يتاخد فيها قرار.</span>':'')));
-  P.appendChild(box)}
+  var td=function(x){return x.app+x.auto+x.rej};
+  var st=mode==='week'?[{name:'قدّموا النموذج',short:'قدّموا',value:L.n},{name:'اتاخد فيها قرار',short:'اتحسمت',value:L.dec},{name:'اتقبلت',short:'اتقبلت',value:L.acc}]
+    :[{name:'قدّموا النموذج',short:'قدّموا',value:T.n},{name:'اتاخد فيها قرار',short:'اتحسمت',value:T.dec},{name:'اتقبلت',short:'اتقبلت',value:T.acc}];
+  var box=el('div','rf');box.appendChild(el('p','rf-help','عرض كل عمود = حجم المرحلة، والنسبة على الجسر = اللي وصلوا للمرحلة اللي بعدها. الأحمر النازل = اللي خرجوا من المسار، والجسر الأحمر = أكبر نسبة فقد.'));
+  var fv=el('div','rf-flow');box.appendChild(fv);P.appendChild(box);requestAnimationFrame(function(){window.TL_FLOW&&TL_FLOW(fv,st,{lossWord:'خرج'})});
+  var s0=st[0].value,s1v=st[1].value,s2=st[2].value,ri=pc(t.ind.rej,td(t.ind)),rc=pc(t.corp.rej,td(t.corp));
+  box.appendChild(el('div','rf-say',(mode==='week'?'<b>في آخر أسبوع:</b> ':'<b>الخلاصة:</b> ')+'من كل 100 نموذج اتقدّم، <b>'+Math.round(pc(s2,s0))+'</b> اتقبلوا'+(s0-s1v>0?'، و<b>'+fN(s0-s1v)+'</b> نموذج لسه مستني قرار':'')+' (ده اللي خرج من أول جسر). واللي خرج من التاني هما المرفوضين: <b>'+fN(s1v-s2)+'</b>. '+
+    (mode==='all'?'نسبة الرفض عند الأفراد <b>'+p1(ri)+'</b> وعند الشركات <b>'+p1(rc)+'</b>. ومنهم <b>'+fN(T.auto)+'</b> اتقبلوا بموافقة آلية.':'<br><span class="rf-note">ملحوظة: نماذج آخر أسبوع كتير منها لسه تحت المراجعة، فنسبة القبول هتعلى لما يتاخد فيها قرار.</span>')))}
 
 function wtable(rows){var t=el('table','sp-t');t.innerHTML='<thead><tr><th>الأسبوع</th><th>الفترة</th><th>اتقدّم</th><th>اتقبل</th><th>اترفض</th><th>تحت المراجعة</th><th>نسبة الرفض</th></tr></thead>';var b=el('tbody');
   rows.forEach(function(w){var r=el('tr');r.innerHTML='<td>'+w.no+'</td><td>'+dA(w.start)+' – '+dA(w.end)+'</td><td>'+fN(w.n)+'</td><td>'+fN(w.acc)+'</td><td>'+fN(w.rej)+'</td><td>'+fN(w.pend)+'</td><td>'+p1(pc(w.rej,w.dec))+'</td>';b.appendChild(r)});t.appendChild(b);return t}
@@ -6977,7 +7002,78 @@ function s7(P,D){var O=D.R.over,lim=D.R.limit;
   chart('s7b',b2,{type:'bar',data:{labels:O.acts.map(function(a){return a.a.length>30?a.a.slice(0,29)+'…':a.a}),datasets:[{label:'نماذج',data:O.acts.map(function(a){return a.n}),backgroundColor:col('navy')}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{y:{ticks:{font:{family:'Cairo',size:11}}}}}});
   P.appendChild(g)}
 
-var FN={s0:s0,s1:s1,s2:s2,s3:s3,s4:s4,s5:s5,s6:s6,s7:s7};
+
+function hbar(id,P,title,sub,labels,ds,o){var c=card(title,sub);var b=box(Math.max(220,labels.length*28+60));c.appendChild(b);P.appendChild(c);chart(id,b,{type:'bar',data:{labels:labels.map(function(x){return x.length>36?x.slice(0,35)+'…':x}),datasets:ds},options:Object.assign({indexAxis:'y',scales:{x:Object.assign({stacked:!!(o&&o.stacked)},o&&o.pct?{max:o.max||undefined,ticks:{callback:function(v){return v+'%'}},beginAtZero:true}:ticks(kfmt)),y:{stacked:!!(o&&o.stacked),ticks:{font:{family:'Cairo',size:11}}}}},o&&o.opt||{})});return c}
+function s8(P,D){var R=D.R,O=R.over,Z=R.zero,A=R.autoA,Q=R.repeat;
+  var k=el('div','sp-ks');k.append(kpi('اتقبلوا وحجم أعمالهم فوق 20 مليون',fN(O.app),'تجاوز صريح لحد النظام','r'),kpi('حجم الأعمال صفر',fN(Z.n),fN(Z.app)+' منهم اتقبلوا','r'),kpi('موافقة آلية من غير مراجعة',fN(A.n),'بعد مرور 5 أيام'),kpi('ممولين قدّموا أكتر من نموذج',fN(Q.multi),'من '+fN(Q.uniq)+' ممول'));P.appendChild(k);
+  var X=R.actX.filter(function(a){return a.ok>=200&&a.over!=null}).map(function(a){return{a:a.a,p:pc(a.over,a.ok),n:a.over}}).sort(function(x,y){return y.p-x.p}).slice(0,12);
+  hbar('s8a',P,'① الأنشطة الأعلى في تجاوز حد الـ20 مليون','نسبة الممولين فوق الحد من المقبولين وتحت المراجعة في كل نشاط (أنشطة فيها 200 نموذج أو أكتر)',X.map(function(x){return x.a}),[{label:'فوق الحد %',data:X.map(function(x){return+x.p.toFixed(1)}),backgroundColor:col('red')}],{pct:1,opt:{plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'% ('+fN(X[c.dataIndex].n)+' ممول)'}}}}}});
+  P.appendChild(say('متوسط التجاوز على مستوى كل الأنشطة <b>'+p1(pc(O.n,R.turn.reduce(function(a,x){return a+(x.k==='na'?0:x.n)},0)))+'</b>'+(X[0]?'، وأعلى نشاط <b>'+X[0].a+'</b> بنسبة <b>'+p1(X[0].p)+'</b>':'')+'. الأنشطة دي أولى في المراجعة.'));
+  var g=el('div','sp-g2');P.appendChild(g);var G=function(){return g};
+  var c1=card('② حجم الأعمال صفر واتقبل','مين هما وجم منين؟');var b1=box(240);c1.appendChild(b1);g.appendChild(c1);
+  chart('s8b',b1,{type:'bar',data:{labels:Z.acts.map(function(a){return a.a.length>28?a.a.slice(0,27)+'…':a.a}),datasets:[{label:'نماذج',data:Z.acts.map(function(a){return a.n}),backgroundColor:col('gold')}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{y:{ticks:{font:{family:'Cairo',size:11}}}}}});
+  c1.appendChild(say('<b>'+fN(Z.n)+'</b> نموذج حجم أعمالهم صفر: '+fN(Z.ind)+' أفراد و'+fN(Z.corp)+' شركات، و<b>'+fN(Z.auto)+'</b> منهم اتقبلوا آلياً. ممكن يكونوا منشآت متوقفة أو بيانات ناقصة، ومحتاجين تأكيد.'));
+  var c2=card('③ الموافقة الآلية','النماذج اللي اتقبلت بعد 5 أيام من غير مراجعة · حسب حجم الأعمال');var b2=box(240);c2.appendChild(b2);g.appendChild(c2);
+  var AB=A.bands;chart('s8c',b2,{type:'bar',data:{labels:AB.map(function(x){return x.b}),datasets:[{label:'نماذج',data:AB.map(function(x){return x.n}),backgroundColor:AB.map(function(x){return x.k==='na'||x.k==='zero'||x.k==='over'?col('red'):col('navy')})}]},options:{plugins:{legend:{display:false}}}});
+  var risky=AB.filter(function(x){return x.k==='na'||x.k==='zero'||x.k==='over'}).reduce(function(a,x){return a+x.n},0);
+  c2.appendChild(say('<b>'+fN(risky)+'</b> من الـ'+fN(A.n)+' موافقة آلية (<b>'+p1(pc(risky,A.n))+'</b>) كانت لنماذج من غير حجم أعمال، أو حجم أعمالها صفر، أو فوق الحد. دي أخطر حتة لأن محدش راجعها.'));
+  var c3=card('④ ممولين قدّموا أكتر من نموذج');var b3=box(200);c3.appendChild(b3);P.appendChild(c3);
+  chart('s8d',b3,{type:'bar',data:{labels:['نموذج واحد','نموذجين','3 أو أكتر'],datasets:[{label:'ممولين',data:[Q.uniq-Q.multi,Q.k2,Q.k3+Q.k4],backgroundColor:[col('navy'),col('gold'),col('red')]}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+  c3.appendChild(say('<b>'+fN(Q.forms)+'</b> نموذج اتقدّموا من <b>'+fN(Q.uniq)+'</b> ممول. فيه <b>'+fN(Q.multi)+'</b> ممول قدّموا نموذجين ('+fN(Q.multiInd)+' منهم أفراد)، غالباً تعديل أو إعادة تقديم. و'+fN(Q.rejThenOk)+' ممول بس اترفض وبعدين اتقبل. يعني نسب القبول والرفض محسوبة على النماذج، والممولين الفعليين أقل شوية.'))}
+function s9(P,D){var A=D.R.actX;
+  var S=A.filter(function(a){return a.med!=null}).sort(function(x,y){return y.med-x.med}).slice(0,15);
+  hbar('s9a',P,'⑤ الأنشطة الأبطأ في المراجعة','متوسط الأيام (النص) من التقديم للقرار · أنشطة فيها 30 قرار أو أكتر',S.map(function(a){return a.a}),[{label:'متوسط الأيام',data:S.map(function(a){return a.med}),backgroundColor:col('teal')}],{opt:{plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var a=S[c.dataIndex];return c.raw+' يوم · '+p1((a.in5||0)*100)+' اتحسموا في 5 أيام'}}}}}});
+  var allMed=D.R.speedM.length?null:null;P.appendChild(say('أبطأ نشاط <b>'+S[0].a+'</b> بمتوسط <b>'+S[0].med+'</b> يوم، وأسرع نشاط بياخد <b>'+A.filter(function(a){return a.med!=null}).sort(function(x,y){return x.med-y.med})[0].med+'</b> يوم. الفرق ده ممكن يكون بسبب تعقيد النشاط أو توزيع المراجعين.'));
+  var K=[['zero','صفر'],['b1','أقل من مليون'],['b5','1–5 م'],['b10','5–10 م'],['b20','10–20 م'],['over','فوق 20 م']],CL=[col('grey'),'#9FBBEA','#5B85C9',col('navy'),col('gold'),col('red')];
+  var top=A.slice(0,12);var tot=function(a){return K.reduce(function(s,k){return s+(a[k[0]]||0)},0)||1};
+  hbar('s9b',P,'⑩ هيكل حجم الأعمال جوه كل نشاط','نسبة كل شريحة من الممولين اللي حجم أعمالهم معروف · أكبر 12 نشاط',top.map(function(a){return a.a}),K.map(function(k,i){return{label:k[1],data:top.map(function(a){return+pc(a[k[0]]||0,tot(a)).toFixed(1)}),backgroundColor:CL[i]}}),{stacked:1,pct:1,max:100});
+  var sm=top.map(function(a){return{a:a.a,p:pc((a.zero||0)+(a.b1||0),tot(a))}}).sort(function(x,y){return y.p-x.p});
+  P.appendChild(say('النظام المبسط بيخدم أكتر الممولين الصغيرين: في <b>'+sm[0].a+'</b> مثلاً <b>'+p1(sm[0].p)+'</b> حجم أعمالهم مليون أو أقل، وفي <b>'+sm[sm.length-1].a+'</b> النسبة <b>'+p1(sm[sm.length-1].p)+'</b> بس.'))}
+function s10(P,D){var R=D.R,LD=R.load;
+  var c=card('⑥ حمل المراجعة على مدار الأسبوع','التقديمات قصاد القرارات حسب يوم الأسبوع (من الإطلاق)');var b=box(240);c.appendChild(b);P.appendChild(c);
+  chart('s10a',b,{type:'bar',data:{labels:LD.wd.map(function(x){return x.d}),datasets:[{label:'التقديمات',data:LD.wd.map(function(x){return x.sub}),backgroundColor:col('gold')},{label:'القرارات',data:LD.wd.map(function(x){return x.n}),backgroundColor:col('navy')}]},options:{scales:{y:ticks(kfmt)}}});
+  var we=LD.wd.filter(function(x){return x.d==='الجمعة'||x.d==='السبت'}).reduce(function(a,x){return a+x.sub},0);
+  c.appendChild(say('الممولين بيقدّموا حتى في الإجازة (<b>'+fN(we)+'</b> نموذج يوم الجمعة والسبت)، والقرارات تقريباً كلها في أيام العمل. يعني الشغل بيتراكم أول الأسبوع.'));
+  var DY=LD.days,c2=card('آخر 90 يوم: التقديمات والقرارات يوم بيوم','لو خط التقديمات فوق خط القرارات لفترة، النماذج المعلّقة بتزيد');var b2=box(260);c2.appendChild(b2);P.appendChild(c2);
+  var ma=function(f){return DY.map(function(x,i){var s=DY.slice(Math.max(0,i-6),i+1);return+(s.reduce(function(a,y){return a+y[f]},0)/s.length).toFixed(1)})};
+  chart('s10b',b2,{type:'line',data:{labels:DY.map(function(x){return dA(x.d)}),datasets:[{label:'التقديمات (متوسط 7 أيام)',data:ma('sub'),borderColor:col('gold'),backgroundColor:col('gold'),pointRadius:0,tension:.3},{label:'القرارات (متوسط 7 أيام)',data:ma('dec'),borderColor:col('navy'),backgroundColor:col('navy'),pointRadius:0,tension:.3}]},options:{scales:{x:{ticks:{maxTicksLimit:8,autoSkip:true}},y:{beginAtZero:true}}}});
+  var s30=DY.slice(-30),gap=s30.reduce(function(a,x){return a+x.sub-x.dec},0);
+  c2.appendChild(say('في آخر 30 يوم اتقدّم <b>'+fN(s30.reduce(function(a,x){return a+x.sub},0))+'</b> نموذج واتاخد <b>'+fN(s30.reduce(function(a,x){return a+x.dec},0))+'</b> قرار، يعني المعلّق '+(gap>0?'زاد':'قلّ')+' بحوالي <b>'+fN(Math.abs(gap))+'</b>.'));
+  // ⑦ التوقع لآخر الشهر
+  var end=D0(R.asof),y=end.getFullYear(),m=end.getMonth(),mk=R.asof.slice(0,7),mtd=(D.MO.filter(function(x){return x.m===mk})[0]||{n:0}).n,eom=new Date(y,m+1,0),rem=Math.max(0,Math.round((eom-end)/864e5));
+  var l28=R.daily.filter(function(r){return(end-D0(r.d))/864e5<28}).reduce(function(a,r){return a+r.n},0)/28,proj=Math.round(mtd+l28*rem),prev=D.MO.filter(function(x){return x.m<mk}).slice(-1)[0]||{n:0};
+  var k=el('div','sp-ks');k.append(kpi('⑦ المتوقع لآخر '+M[m],fN(proj)+' نموذج','لحد دلوقتي '+fN(mtd)+' · فاضل '+rem+' يوم'),kpi('المعدل اليومي (آخر 4 أسابيع)',fN(l28),'نموذج في اليوم'),kpi('مقارنة بـ'+M[(m+11)%12],(proj>=prev.n?'+':'')+p1(pc(proj-prev.n,prev.n)),fN(prev.n)+' نموذج الشهر اللي فات',proj>=prev.n?'g':'r'));P.appendChild(k);
+  P.appendChild(say('التوقع مبني على متوسط التقديمات اليومية في آخر 4 أسابيع، وده تقدير مش رقم نهائي.'))}
+function s11(P,D){var R=D.R,first=R.first,last=R.asof,pd=function(s){return iso(D0(s))};
+  var st=P._st||(P._st={a0:iso(new Date(D0(last)-55*864e5)),a1:iso(new Date(D0(last)-28*864e5)),b0:iso(new Date(D0(last)-27*864e5)),b1:last});
+  var f=el('div','sp-card sp-cmp');f.innerHTML='<div class="sp-cmpf"><b>الفترة الأولى</b><label>من <input type="date" data-k="a0"></label><label>لحد <input type="date" data-k="a1"></label></div><div class="sp-cmpf"><b>الفترة التانية</b><label>من <input type="date" data-k="b0"></label><label>لحد <input type="date" data-k="b1"></label></div>';
+  f.querySelectorAll('input').forEach(function(i){i.min=first;i.max=last;i.value=st[i.dataset.k];i.onchange=function(){st[i.dataset.k]=i.value;draw()}});P.appendChild(f);
+  var agg=function(a,b){var o={n:0,app:0,auto:0,rej:0,pend:0,ind:0,corp:0,days:0};R.daily.forEach(function(r){if(r.d>=a&&r.d<=b){['n','app','auto','rej','pend','ind','corp'].forEach(function(k){o[k]+=r[k]||0})}});o.days=Math.max(1,Math.round((D0(b)-D0(a))/864e5)+1);o.acc=o.app+o.auto;o.dec=o.acc+o.rej;return o};
+  var A=agg(st.a0,st.a1),B=agg(st.b0,st.b1);
+  var rows=[['النماذج',A.n,B.n],['في اليوم (متوسط)',A.n/A.days,B.n/B.days],['اتقبلت',A.acc,B.acc],['اترفضت',A.rej,B.rej],['تحت المراجعة',A.pend,B.pend],['نسبة الرفض %',pc(A.rej,A.dec),pc(B.rej,B.dec),1],['أفراد',A.ind,B.ind],['شركات',A.corp,B.corp]];
+  var t=el('table','sp-t');t.innerHTML='<thead><tr><th>المؤشر</th><th>'+dA(st.a0)+' – '+dA(st.a1)+'</th><th>'+dA(st.b0)+' – '+dA(st.b1)+'</th><th>التغيّر</th></tr></thead>';var tb=el('tbody');
+  rows.forEach(function(r){var tr=el('tr'),ch=r[3]?(r[2]-r[1]):pc(r[2]-r[1],r[1]),up=ch>=0;tr.innerHTML='<td>'+r[0]+'</td><td>'+(r[3]?p1(r[1]):fN(r[1]))+'</td><td>'+(r[3]?p1(r[2]):fN(r[2]))+'</td><td style="color:'+((r[0].indexOf('رفض')>=0||r[0].indexOf('مراجعة')>=0)?(up?'#C21B28':'#1E7B45'):(up?'#1E7B45':'#C21B28'))+';font-weight:700">'+(up?'▲ ':'▼ ')+(r[3]?Math.abs(ch).toFixed(1)+' نقطة':p1(Math.abs(ch)))+'</td>';tb.appendChild(tr)});t.appendChild(tb);
+  var c=card('⑧ مقارنة الفترات','اختار أي فترتين وشوف الفرق · الافتراضي: آخر 4 أسابيع قصاد الـ4 اللي قبلهم');c.appendChild(t);P.appendChild(c);
+  P.appendChild(say('الفترة التانية فيها <b>'+fN(B.n)+'</b> نموذج قصاد <b>'+fN(A.n)+'</b> في الأولى ('+(B.n>=A.n?'زيادة':'نقص')+' <b>'+p1(Math.abs(pc(B.n-A.n,A.n)))+'</b>). خد بالك إن الفترة الأحدث فيها نماذج لسه ماتحسمتش.'))}
+function s12(P,D){var BX=D.R.basisX.filter(function(x){return x.b!=='مش متاح'}),na=D.R.basisX.filter(function(x){return x.b==='مش متاح'})[0];
+  var sh={'بيانات اخر إقرار ضريبي مقدم ولم تتم المحاسبة ضريبيًا حتي تاريخه':'آخر إقرار (لسه ماتحاسبش)','حجم المبيعات وفقا لمنظومة الفاتورة / الايصال الالكتروني':'الفاتورة / الإيصال الإلكتروني','بيانات آخر ربط ضريبي نهائي في تاريخ العمل بهذا القانون':'آخر ربط نهائي','بيانات الإقرار المقدم علمًا بأن المنشأة مسجلة بعد تاريخ العمل بهذا القانون':'منشأة جديدة بعد القانون'};
+  var L=BX.map(function(x){return sh[x.b]||x.b}),all=BX.concat(na?[na]:[]);
+  var c=card('⑨ أساس تحديد الإيراد: مين أدق؟','لكل أساس: نسبة اللي فوق الحد، ونسبة الصفر، ونسبة اللي لسه تحت المراجعة');var b=box(260);c.appendChild(b);P.appendChild(c);
+  chart('s12a',b,{type:'bar',data:{labels:L,datasets:[{label:'فوق 20 مليون %',data:BX.map(function(x){return+pc(x.over,x.n).toFixed(2)}),backgroundColor:col('red')},{label:'حجم أعمال صفر %',data:BX.map(function(x){return+pc(x.zero,x.n).toFixed(2)}),backgroundColor:col('gold')},{label:'تحت المراجعة %',data:BX.map(function(x){return+pc(x.pend,x.n).toFixed(2)}),backgroundColor:col('teal')}]},options:{scales:{y:{beginAtZero:true,ticks:{callback:function(v){return v+'%'}}}}}});
+  var t=el('table','sp-t');t.innerHTML='<thead><tr><th>الأساس</th><th>النماذج</th><th>مليون أو أقل</th><th>صفر</th><th>فوق الحد</th><th>تحت المراجعة</th><th>متوسط أيام القبول</th></tr></thead>';var tb=el('tbody');
+  all.forEach(function(x){var r=el('tr');r.innerHTML='<td>'+(sh[x.b]||x.b)+'</td><td>'+fN(x.n)+'</td><td>'+p1(pc(x.small,x.n))+'</td><td>'+p1(pc(x.zero,x.n))+'</td><td>'+p1(pc(x.over,x.n))+'</td><td>'+p1(pc(x.pend,x.n))+'</td><td>'+(x.med!=null?x.med+' يوم':'—')+'</td>';tb.appendChild(r)});t.appendChild(tb);c.appendChild(t);
+  var ei=BX.filter(function(x){return/الفاتورة/.test(x.b)})[0],dl=BX.filter(function(x){return/ولم تتم/.test(x.b)})[0];
+  P.appendChild(say((ei&&dl?'النماذج اللي إيرادها اتحدد من <b>الفاتورة والإيصال الإلكتروني</b> فيها <b>'+p1(pc(ei.over,ei.n))+'</b> فوق الحد و<b>'+p1(pc(ei.zero,ei.n))+'</b> صفر، قصاد <b>'+p1(pc(dl.over,dl.n))+'</b> و<b>'+p1(pc(dl.zero,dl.n))+'</b> للي اتحدد من آخر إقرار. ':'')+
+    '<br><span class="sp-note">ملحوظة: النماذج المرفوضة مافيهاش أساس إيراد في البيانات، فمانقدرش نقارن نسبة الرفض حسب الأساس. لو الفريق يقدر يضيفه في الملف هنكمّل التحليل ده.</span>'))}
+function s13(P,D){var H=D.R.hist,lim=+(P.dataset.v||20),base=20,above=function(x){return H.reduce(function(a,h){return a+(h.plus?(x<=60?h.n:0):(h.m>=x?h.n:0))},0)},aboveI=function(x){return H.reduce(function(a,h){return a+(h.plus?(x<=60?h.ind:0):(h.m>=x?h.ind:0))},0)},tot=H.reduce(function(a,h){return a+h.n},0);
+  var c=card('⑪ ماذا لو اتغيّر حد حجم الأعمال؟','حرّك المؤشر وشوف كام ممول من المسجلين حالياً هيكون فوق الحد الجديد');
+  var row=el('div','sp-wf');row.innerHTML='<label>الحد الجديد: <b>'+lim+' مليون جنيه</b></label><input type="range" min="5" max="60" step="1" value="'+lim+'">';row.querySelector('input').oninput=function(){P.dataset.v=this.value;draw()};c.appendChild(row);
+  var k=el('div','sp-ks');var a=above(lim),a0=above(base);k.append(kpi('هيبقوا فوق الحد',fN(a),p1(pc(a,tot))+' من المسجلين اللي حجم أعمالهم معروف',a>a0?'r':''),kpi('الفرق عن حد الـ20 مليون',(a-a0>0?'+':'')+fN(a-a0),a-a0>0?'ممولين هيخرجوا من النظام':a-a0<0?'ممولين هيرجعوا جوه الحد':'نفس الوضع الحالي',a-a0>0?'r':'g'),kpi('منهم أفراد',fN(aboveI(lim)),'والباقي شركات'));c.appendChild(k);
+  var b=box(260);c.appendChild(b);P.appendChild(c);
+  var lab=H.map(function(h){return h.plus?'+60':String(h.m+1)});
+  chart('s13',b,{type:'bar',data:{labels:lab,datasets:[{label:'ممولين',data:H.map(function(h){return h.n}),backgroundColor:H.map(function(h){return(h.plus||h.m>=lim)?col('red'):col('navy')})}]},options:{animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:function(i){var h=H[i[0].dataIndex];return h.plus?'فوق 60 مليون':'من '+h.m+' لـ '+(h.m+1)+' مليون'}}}},scales:{x:{title:{display:true,text:'حجم الأعمال (مليون جنيه)',font:{family:'Cairo'}},ticks:{maxTicksLimit:13}},y:Object.assign({type:'logarithmic'},{ticks:{callback:function(v){return[1,10,100,1000,10000].indexOf(v)>=0?kfmt(v):''}}})}}});
+  P.appendChild(say('الأعمدة الحمرا = اللي هيبقوا فوق الحد الجديد. المحور الرأسي لوغاريتمي عشان الممولين الكبار يبانوا جنب الصغيرين.<br><span class="sp-note">التحليل ده على اللي سجّلوا فعلاً بس. لو الحد اتزوّد، ممولين جداد أكبر هيقدروا يدخلوا، ودول مش موجودين في البيانات دي.</span>'))}
+var FN={s0:s0,s1:s1,s2:s2,s3:s3,s4:s4,s5:s5,s6:s6,s7:s7,s8:s8,s9:s9,s10:s10,s11:s11,s12:s12,s13:s13};
 function draw(){var root=document.getElementById('plat-simp');if(!root||root.hidden)return;var D=model();var body=root.querySelector('.sp-body');if(!body)return;
   if(!D){body.innerHTML='<div class="sp-card">جاري تحميل البيانات…</div>';return}
   var hd=root.querySelector('.sp-asof');if(hd)hd.textContent='من '+dY(D.R.first)+' لحد '+dY(D.R.asof)+' · '+fN(D.T.n)+' نموذج';
@@ -7009,15 +7105,17 @@ var css=el('style');css.textContent=
 '#s1 .rf-track{background:#EEF3FA;border-radius:10px;height:46px;overflow:hidden}#s1 .rf-bar{height:100%;display:flex;border-radius:10px;overflow:hidden;transition:width .8s cubic-bezier(.2,.8,.2,1)}#s1 .rf-bar span{height:100%}#s1 .rf-bar.solid{background:#D6202E}#s1 .rf-bar.navy{background:#14306A}'+
 '#s1 .rf-conv{margin:8px 0;padding-inline-start:238px;font-size:13px;color:var(--sp-mute);font-weight:700}#s1 .rf-conv span{color:#14306A}#s1 .rf-conv em{font-style:normal;color:#D6202E}#s1 .rf-row.worst .rf-track{box-shadow:0 0 0 2px #D6202E inset}'+
 '#s1 .rf-lg{display:flex;gap:16px;margin:16px 0 0;font-size:12.5px;color:var(--sp-mute)}#s1 .rf-lg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}'+
+'#s1 .rf-help{margin:0 0 6px;font-size:13px;color:var(--sp-mute)}#s1 .rf-flow{width:100%}'+
 '#s1 .rf-say{margin-top:16px;padding-top:14px;border-top:1px dashed var(--sp-line);font-size:15.5px;line-height:2}#s1 .rf-say b{color:#14306A}#s1 .rf-note{font-size:12.5px;color:var(--sp-mute)}'+
 '@media(max-width:700px){#s1 .rf{padding:16px}#s1 .rf-row{grid-template-columns:1fr;gap:6px}#s1 .rf-conv{padding-inline-start:0}#s1 .rf-lab strong{font-size:22px}#s1 .rf-track{height:30px}}'+
 'html[data-theme=dark] #s1 .rf-lab strong,html[data-theme=dark] #s1 .rf-say b,html[data-theme=dark] #s1 .rf-conv span{color:#9FBBEA}html[data-theme=dark] #s1 .rf-track,html[data-theme=dark] #s1 .rf-sw{background:#0E1A36}html[data-theme=dark] #s1 .rf-sw button{color:#9FBBEA}html[data-theme=dark] #s1 .rf-sw button.on{background:#9FBBEA;color:#0E1A36}html[data-theme=dark] #s1 .rf-bar.navy{background:#7FA7E6}'+
+'#plat-simp .sp-cmp{display:flex;gap:24px;flex-wrap:wrap}#plat-simp .sp-cmpf{display:flex;gap:10px;align-items:center;flex-wrap:wrap}#plat-simp .sp-cmpf input{font:inherit;padding:5px 8px;border:1px solid var(--sp-line);border-radius:8px;background:var(--sp-card);color:var(--sp-ink)}#plat-simp .sp-wf{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}#plat-simp .sp-wf input{flex:1;min-width:200px;accent-color:#D6202E}'+
 '#plat-simp .sp-g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}#plat-simp .sp-foot{color:var(--sp-mute);font-size:12px;margin-top:18px}'+
 '@media(max-width:800px){#plat-simp .sp-g2{grid-template-columns:1fr}#plat-simp .sp-fr{grid-template-columns:1fr;gap:6px}#plat-simp .sp-conv{padding-inline-start:0}#plat-simp .sp-ft{height:30px}#plat-simp .sp-wrap{padding:14px 12px 30px}}'+
 'html[data-theme=dark] #plat-simp{--sp-card:#14254A;--sp-line:#22355E;--sp-ink:#EEF3FA;--sp-mute:#B5C3DD;background:#0B1730}html[data-theme=dark] #plat-simp h1,html[data-theme=dark] #plat-simp .sp-ph h2,html[data-theme=dark] #plat-simp .sp-card h3,html[data-theme=dark] #plat-simp .sp-k .b,html[data-theme=dark] #plat-simp .sp-say b,html[data-theme=dark] #plat-simp .sp-fl strong{color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-t th{background:#0E1A36;color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-ft{background:#0E1A36}html[data-theme=dark] #plat-simp .sp-sw{background:#0E1A36}html[data-theme=dark] #plat-simp .sp-sw button{color:#9FBBEA}html[data-theme=dark] #plat-simp .sp-sw button.on{background:#9FBBEA;color:#0E1A36}';
 document.head.appendChild(css);
 var lastVis=false,lastTheme='';
-setInterval(function(){var r=document.getElementById('plat-simp');if(!r)return;mount();var v=!r.hidden,t=document.documentElement.getAttribute('data-theme');if(v&&(!lastVis||t!==lastTheme||(raw()&&!r.querySelector('.spane.on canvas, .spane.on .sp-hero, .spane.on .sp-fr, .spane.on .sp-t'))))draw();lastVis=v;lastTheme=t},500);
+setInterval(function(){var r=document.getElementById('plat-simp');if(!r)return;mount();var v=!r.hidden,t=document.documentElement.getAttribute('data-theme');if(v&&(!lastVis||t!==lastTheme||(raw()&&!r.querySelector('.spane.on canvas, .spane.on .sp-hero, .spane.on .rf, .spane.on .sp-t, .spane.on .sp-ks'))))draw();lastVis=v;lastTheme=t},500);
 if(window.dash&&dash.onData)dash.onData(function(){CK='';var r=document.getElementById('plat-simp');if(r&&!r.hidden)draw()});
 })();
 </script>
