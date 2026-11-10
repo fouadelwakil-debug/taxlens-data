@@ -293,11 +293,11 @@
 
 /* Interface version switch: v1 (current) and v2 (new) read the same data. Admin chooses per user or for everyone. */
 window.TL_UI_VERSION='v2';
-if(window.TL_UI_VERSION==='v2')window.addEventListener('tl-unlocked',function(){var b=document.createElement('div');b.textContent='الواجهة الجديدة · تجريبية';b.style.cssText='position:fixed;bottom:10px;left:10px;z-index:90;background:#D6202E;color:#fff;font:700 12px Cairo,Tahoma,sans-serif;padding:4px 10px;border-radius:999px;opacity:.85;pointer-events:none';document.body.appendChild(b)});
+if(false)window.addEventListener('tl-unlocked',function(){var b=document.createElement('div');b.textContent='الواجهة الجديدة · تجريبية';b.style.cssText='position:fixed;bottom:10px;left:10px;z-index:90;background:#D6202E;color:#fff;font:700 12px Cairo,Tahoma,sans-serif;padding:4px 10px;border-radius:999px;opacity:.85;pointer-events:none';document.body.appendChild(b)});
 (function(){
   var FILES={v1:'app.html',v2:'app-v2.html'},cred=null,o=window.TL_UNLOCK;
   window.TL_UNLOCK=function(u,p){cred={u:u,p:p};return o(u,p)};
-  function want(){return window.TL_UIPREF||window.TL_UIALL||'v1'}
+  function want(){return 'v2'}
   function load(file){var m=/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//.exec(window.TL_REMOTE||'');if(!m)return fetch(new URL(file,window.TL_REMOTE).href+'?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.text()});
     var api='https://api.github.com/repos/'+m[1]+'/'+m[2]+'/contents/'+file+'?ref='+m[3]+'&t='+Date.now(),raw='https://raw.githubusercontent.com/'+m[1]+'/'+m[2]+'/'+m[3]+'/'+file+'?t='+Date.now();
     return fetch(api,{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'}}).then(function(r){if(!r.ok)throw 0;return r.text()}).catch(function(){return fetch(raw,{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.text()})})}
@@ -438,6 +438,32 @@ html[data-theme=dark] body.v2 .tlx-pl b{color:#FFFFFF!important}
 html[data-theme=dark] body.v2 .tlx-pl h4{color:#EEF3FA!important}
 /* phones: smaller floating buttons so they cover less of the content */
 @media(max-width:700px){#tla-fab,#tlm-fab{width:44px!important;height:44px!important;border-radius:13px!important;left:12px!important}#tla-fab{bottom:88px!important}#tlm-fab{bottom:140px!important}#tlx2-tools{left:12px!important;bottom:192px!important}#tlx2-tools button{width:38px!important;height:38px!important}#tla-fab svg,#tlm-fab svg{width:20px;height:20px}}
+/* ---- Home fits the screen (desktop/laptop) ---- */
+body.v2.tl-fit .tl-home .tl-top,body.v2.tl-fit .tl-home .tl-eyebrow,body.v2.tl-fit .tl-home .tl-hint{display:none!important}
+body.v2.tl-fit .tl-home .tl-hero{padding:12px 16px 12px!important;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;column-gap:16px;row-gap:4px}
+body.v2.tl-fit .tl-home .tl-hero h1{font-size:clamp(30px,3.4vw,44px)!important;margin:0!important;flex-basis:100%}
+body.v2.tl-fit .tl-home .tl-hero p{font-size:clamp(14px,1.3vw,17px)!important;margin:0!important}
+body.v2.tl-fit .tl-home .tl-hero p:has(button){margin:0!important}
+body.v2.tl-fit .tl-home .tl-hero button{padding-block:4px!important;font-size:13px!important}
+body.v2.tl-fit .tl-home .tl-main{max-width:1360px;padding-bottom:12px!important}
+body.v2.tl-fit .tl-home .tlx-strip{margin:0 0 12px!important;display:grid!important;grid-template-columns:3fr 4fr;gap:12px}
+body.v2.tl-fit .tl-home #tlv2-lead{grid-column:1/-1}
+body.v2.tl-fit .tl-home .tlx-strip{max-width:none!important;width:100%!important}
+body.v2.tl-fit .tl-home .tlx-pl{margin:0!important;padding-block:10px!important;max-width:none!important}
+body.v2.tl-fit .tl-home .tlx-k{display:grid!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px}
+body.v2.tl-fit .tl-home .tlx-k>div{min-width:0}
+body.v2.tl-fit .tl-home .tlx-pl h4{margin-bottom:4px!important}
+body.v2.tl-fit .tl-home #tlv2-lead p{margin:2px 0 6px!important;line-height:1.7}
+body.v2.tl-fit .tl-home .tl-grid{gap:12px}
+body.v2.tl-fit .tl-home .tl-card{min-height:0!important;padding:12px 18px!important;gap:2px!important}
+body.v2.tl-fit .tl-home .tl-card .tl-desc{-webkit-line-clamp:1;display:-webkit-box!important;-webkit-box-orient:vertical;overflow:hidden;min-height:0!important}
+body.v2.tl-fit .tl-home .tl-card .tl-mark{width:36px!important;height:36px!important;font-size:17px!important}
+body.v2.tl-fit .tl-home .tl-card .tl-name{font-size:20px!important}
+body.v2.tl-fit .tl-home .tl-card .tl-clogo{height:40px!important;top:10px!important}
+body.v2.tl-fit .tl-home .tl-card .tl-en{display:none!important}
+body.v2.tl-fit .tl-home .tl-foot{min-height:30px!important;padding-bottom:6px!important}
+body.v2.tl-fit .tl-home{min-height:calc(100vh - var(--v2-top,64px))!important}
+body.v2.tl-fit .tl-home .tlx-k>div>*:last-child{white-space:nowrap;font-size:12px!important}
 </style>
 </head>
 <body>
@@ -887,7 +913,7 @@ body{background:#FFFFFF}.reta-root .card{box-shadow:0 1px 3px rgba(20,48,106,.06
       <p class="ex-take" id="takeaway">
         في آخر أسبوع سجّلت المنظومة <b data-source="kpi" data-field="last" data-where="metric=disposals">—</b> عملية تصرف
         (<span class="ex-dir-disp"></span> <b data-source="kpi" data-field="change" data-where="metric=disposals" data-fmt="signed">—</b> عن الأسبوع السابق)،
-        وحُصِّل <b data-source="kpi" data-field="last" data-where="metric=tax_paid">—</b> ج.م ضريبة بنسبة تحصيل <b data-source="kpi" data-field="last" data-where="metric=collection_rate">—</b>.
+        وحُصِّل <b data-source="kpi" data-field="last" data-where="metric=tax_paid">—</b> ج.م ضريبة بنسبة تحصيل <b data-source="kpi" data-field="last" data-where="metric=collection_rate">—</b>، و<b data-source="kpi" data-field="last" data-where="metric=penalty_paid">—</b> ج.م غرامات.
         إجمالي المحصَّل منذ الإطلاق <b data-source="totals" data-field="total_collected">—</b> ج.م من مطالبات <b data-source="totals" data-field="total_claimed">—</b> ج.م.
       </p>
     </div>
@@ -914,6 +940,7 @@ body{background:#FFFFFF}.reta-root .card{box-shadow:0 1px 3px rgba(20,48,106,.06
     <div class="ex-card ex-counter" id="counter-card">
       <div class="ex-counter-lbl">إجمالي المتحصلات منذ الإطلاق (ضريبة + غرامات)</div>
       <div class="ex-counter-num"><span class="ex-odo" id="counter-odo" aria-label="إجمالي المتحصلات"></span><span class="ex-odo-unit">جنيه</span></div>
+      <div class="ex-counter-rate" style="margin-bottom:4px">منها مدفوعات الضريبة <b data-source="totals" data-field="tax_paid">—</b> ج.م، ومدفوعات الغرامات <b data-source="totals" data-field="penalty_paid">—</b> ج.م.</div>
       <div class="ex-counter-rate">بمعدل آخر 4 أسابيع تحصّل المنظومة نحو <b class="ex-rate-h">—</b> ج.م كل ساعة، أي <b class="ex-rate-d">—</b> ج.م يومياً.</div>
     </div>
     <div class="ex-lead" id="lead-kpis">
@@ -923,8 +950,8 @@ body{background:#FFFFFF}.reta-root .card{box-shadow:0 1px 3px rgba(20,48,106,.06
     </div>
     <div class="ex-grid">
       <div class="ex-card ex-span" id="lead-chart">
-        <h3>مدفوعات الضريبة أسبوعياً ونسبة التحصيل</h3>
-        <div class="ex-legend"><span><i style="background:var(--ex-navy)"></i>مدفوعات الضريبة</span><span><i style="background:var(--ex-red)"></i>آخر أسبوع</span><span><i style="background:var(--ex-gold)"></i>نسبة التحصيل (المحور الأيمن)</span></div>
+        <h3>المدفوعات أسبوعياً (ضريبة وغرامات) ونسبة التحصيل</h3>
+        <div class="ex-legend"><span><i style="background:var(--ex-navy)"></i>مدفوعات الضريبة</span><span><i style="background:var(--ex-red)"></i>مدفوعات الغرامات</span><span><i style="background:var(--ex-gold)"></i>نسبة التحصيل (المحور الأيمن)</span></div>
         <div class="ex-chart dash-skeleton" id="l-chart" data-source="weekly" style="min-height:260px"></div>
       </div>
     </div>
@@ -2147,8 +2174,8 @@ dash.calc('quality', {
       fill('.ex-range-note', range ? `معروض: ${rows.length} أسبوع من ${all.length}` : `كل الأسابيع (${all.length})`);
 
       if (tab === 'leaders') barChart(root.querySelector('#l-chart'), all, {
-        x: wl, tipHead: head, fmt: money, h: 260,
-        series: [{ key: 'tax_paid', label: 'مدفوعات الضريبة', color: (r, i, last) => (i === last ? c.red : c.navy) }],
+        x: wl, tipHead: head, fmt: money, h: 260, stacked: true,
+        series: [{ key: 'tax_paid', label: 'مدفوعات الضريبة', color: c.navy }, { key: 'penalty_paid', label: 'مدفوعات الغرامات', color: c.red }],
         line: { key: 'collection_rate', label: 'نسبة التحصيل', color: c.gold },
       });
       if (tab === 'summary') {
@@ -2993,7 +3020,7 @@ dash.calc('quality', {
     S.push({ eyebrow: 'مصلحة الضرائب المصرية · إيتاكس', title: 'منظومة ضريبة التصرفات العقارية', big: 'ملخص الأسبوع', sub: F.weekLabel });
     S.push({ eyebrow: 'إجمالي المتحصلات منذ الإطلاق', count: F.t.total_collected, unit: 'جنيه', sub: `بمعدل آخر 4 أسابيع: نحو ${money(F.perDay)} ج.م يومياً` });
     S.push({ eyebrow: 'عمليات التصرف في آخر أسبوع', count: kd.last, sub: `${chg(kd.change)} عن الأسبوع السابق · إجمالي ${int(F.t.disposals)} عملية منذ الإطلاق`, spark: 'disposals' });
-    S.push({ eyebrow: 'مدفوعات الضريبة في آخر أسبوع', big: money(kpay.last) + ' ج.م', sub: `${chg(kpay.change)} عن الأسبوع السابق`, spark: 'tax_paid' });
+    S.push({ eyebrow: 'مدفوعات الضريبة في آخر أسبوع', big: money(kpay.last) + ' ج.م', sub: `${chg(kpay.change)} عن الأسبوع السابق · وغرامات ${money(F.kp('penalty_paid').last || 0)} ج.م`, spark: 'tax_paid' });
     S.push({ eyebrow: 'نسبة تحصيل الضريبة', big: pct(kc.last), sub: `في آخر أسبوع (${chg(kc.change, true)}) · الإجمالي ${pct(F.t.collection_rate)} · آخر 4 أسابيع ${pct(F.t.recent_collection)}` });
     if (F.t.outlier_count) S.push({ eyebrow: 'أسابيع استثنائية في المطالبات', big: pct(F.t.collection_rate_ex), sub: `نسبة التحصيل لو استبعدنا ${F.t.outlier_weeks} — مطالباتها ${money(F.t.outlier_claims)} ج.م حُصِّل منها ${pct(F.t.outlier_collection)} فقط`, warn: true });
     const pd0 = F.pr('disposals'), pp = F.pr('tax_paid');
@@ -3101,6 +3128,7 @@ dash.calc('quality', {
     const tiles = [
       ['عمليات التصرف (آخر أسبوع)', int(kd.last), chg(kd.change), kd.change >= 0],
       ['مدفوعات الضريبة (آخر أسبوع)', money(kp.last) + ' ج.م', chg(kp.change), kp.change >= 0],
+      ['مدفوعات الغرامات (آخر أسبوع)', money(F.kp('penalty_paid').last || 0) + ' ج.م', chg(F.kp('penalty_paid').change), F.kp('penalty_paid').change >= 0],
       ['نسبة التحصيل (آخر أسبوع)', pct(kc.last), chg(kc.change, true), kc.change >= 0],
       ['إجمالي المتحصلات منذ الإطلاق', money(F.t.total_collected) + ' ج.م', 'نسبة التحصيل الإجمالية ' + pct(F.t.collection_rate), null],
     ];
@@ -3177,7 +3205,7 @@ dash.calc('quality', {
     return [
       `بدأت المنظومة في ${dLabel(F.t.first_date)}، ووصل عدد المسجلين إلى <b>${int(F.t.registered)}</b> مستخدم. أعلى أسبوع تسجيل كان <b>${F.t.peak_reg_week}</b> بـ ${int(F.t.peak_reg)} مسجلاً، وآخر أسبوع سجّل <b>${int(kr.last)}</b>.`,
       `النشاط الفعلي يواصل النمو: <b>${int(F.t.disposals)}</b> عملية تصرف منذ الإطلاق، وآخر أسبوع وحده <b>${int(kd.last)}</b> عملية (${chg(kd.change)} عن الأسبوع السابق).`,
-      `حُصِّل <b>${money(F.t.tax_paid)}</b> ج.م ضريبة بنسبة <b>${pct(F.t.collection_rate)}</b> من المطالبات. الخط الأزرق يوضح نسبة التحصيل أسبوعياً، وفي آخر أسبوع بلغت <b>${pct(kc.last)}</b>.`,
+      `حُصِّل <b>${money(F.t.tax_paid)}</b> ج.م ضريبة بنسبة <b>${pct(F.t.collection_rate)}</b> من المطالبات، وكمان <b>${money(F.t.penalty_paid)}</b> ج.م غرامات. الخط الأزرق يوضح نسبة التحصيل أسبوعياً، وفي آخر أسبوع بلغت <b>${pct(kc.last)}</b>.`,
       F.t.outlier_count ? `الأعمدة الحمراء هي الأسابيع الاستثنائية <b>${F.t.outlier_weeks}</b>: مطالباتها ${money(F.t.outlier_claims)} ج.م وحُصِّل منها <b>${pct(F.t.outlier_collection)}</b> فقط. لو استُبعدت ترتفع نسبة التحصيل الإجمالية إلى <b>${pct(F.t.collection_rate_ex)}</b>.`
         : `المطالبات الأسبوعية مستقرة دون أسابيع استثنائية، وإجماليها ${money(F.t.tax_claims)} ج.م.`,
       `آخر أسبوع (${F.weekLabel}) جاء ${td.vs_avg4 >= 0 ? 'أعلى' : 'أقل'} من متوسط الأسابيع الأربعة السابقة بـ <b>${pct(Math.abs(td.vs_avg4 || 0))}</b> (الخط المتقطع). ` + (pd0.month ? `وبهذا المعدل يُغلق ${mLabel(pd0.month)} على نحو <b>${int(Math.round(pd0.projected))}</b> عملية و<b>${money(pp.projected)}</b> ج.م مدفوعات.` : ''),
@@ -4634,14 +4662,14 @@ if(document.querySelector('#p7.on'))setTimeout(fit,50);
    '<div class="card"><h2>المجموعات</h2><p class="sub">المجموعة بتحدد المنصات الافتراضية للمستخدم الجديد، وتقدر تغيّر منصات أي مستخدم لوحده من "تعديل".</p><div data-r="groups"></div><div class="g" style="margin-top:10px"><label>اسم المجموعة<input data-r="gn"></label><label>الكود (إنجليزي)<input data-r="gc" class="ltr"></label><div data-r="gp"></div><button class="btn" data-a="gadd">إضافة مجموعة</button></div></div>'+
    '<div class="card" data-r="ntcard"><h2>إشعار المستخدمين بالتحديث</h2><p class="sub">اختار المنصة واكتب الرسالة، وابعتها واتساب لكل واحد بضغطة، أو إيميل للكل مرة واحدة. بتوصل بس للي عندهم صلاحية المنصة.</p><div class="g"><label>المنصة<select data-r="nt_p"></select></label></div><label style="display:block;margin-top:10px">الرسالة<textarea data-r="nt_t" rows="4" style="display:block;width:100%;box-sizing:border-box;margin-top:4px;font:inherit;padding:10px;border:1px solid var(--l);border-radius:10px;resize:vertical"></textarea></label><div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><button class="btn p" type="button" data-a="nt_bell">📢 انشر كإشعار جوه الداشبورد</button><button class="btn p" type="button" data-a="nt_mail">✉ ابعت إيميل للكل</button><span class="sub" data-r="nt_msg" style="margin:0"></span></div><div style="overflow:auto"><table><thead><tr><th>المستخدم</th><th>الموبايل</th><th>الإيميل</th><th>واتساب</th></tr></thead><tbody data-r="nt_rows"></tbody></table></div></div>'+
    '<div class="card" data-r="logcard"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0;flex:1">متابعة نشاط المستخدمين</h2><span class="sub" data-r="logupd" style="margin:0"></span><button class="btn" data-a="logref" type="button">تحديث ↻</button></div><div data-r="tiles" class="tl-tiles"></div><h3 class="tl-h3">حالة المستخدمين</h3><div style="overflow:auto"><table><thead><tr><th>المستخدم</th><th>الحالة</th><th>آخر ظهور</th><th>آخر مكان</th><th>الجهاز</th><th>حركات النهارده</th><th></th></tr></thead><tbody data-r="presrows"></tbody></table></div><h3 class="tl-h3">سجل الحركات</h3><div class="g"><label>المستخدم<select data-r="lf_u"><option value="">الكل</option></select></label><label>الفترة<select data-r="lf_d"><option value="1">آخر 24 ساعة</option><option value="7" selected>آخر 7 أيام</option><option value="30">آخر 30 يوم</option></select></label><label>نوع الحركة<select data-r="lf_e"><option value="">الكل</option></select></label><label>&nbsp;<button class="btn p" data-a="logq" type="button">عرض</button></label></div><div data-r="logmsg" class="sub"></div><div style="overflow:auto;max-height:420px"><table><thead><tr><th>الوقت</th><th>المستخدم</th><th>الحركة</th><th>التفاصيل</th><th>المكان</th><th>الجهاز</th></tr></thead><tbody data-r="logrows"></tbody></table></div><details style="margin-top:12px"><summary class="sub" style="cursor:pointer">إعدادات السجل</summary><div class="g" style="margin-top:8px"><label>رابط السجل (Google Apps Script)<input data-r="logu" class="ltr" placeholder="https://script.google.com/macros/s/.../exec"></label><label>مفتاح القراءة<input data-r="logk" type="password" class="ltr"></label></div><p class="sub">الرابط بيتنشر لكل المستخدمين مع "نشر التغييرات". مفتاح القراءة بيتحفظ متشفر مع حسابات الأدمن بعد النشر، فمش هتحتاج تكتبه على أجهزة تانية.</p></div></div>'+
-   '<div class="card"><h2>الواجهة الافتراضية لكل المستخدمين</h2><p class="sub">المستخدم اللي اخترتله واجهة معينة من "تعديل" بيفضل عليها. الاتنين بيقروا نفس البيانات، والتغيير بيتطبق خلال دقايق.</p><div class="g"><label>الواجهة<select data-r="uiall"><option value="v1">الواجهة الحالية</option><option value="v2">الواجهة الجديدة</option></select></label></div></div>'+
+   '<div class="card" hidden><h2>الواجهة الافتراضية لكل المستخدمين</h2><p class="sub">المستخدم اللي اخترتله واجهة معينة من "تعديل" بيفضل عليها. الاتنين بيقروا نفس البيانات، والتغيير بيتطبق خلال دقايق.</p><div class="g"><label>الواجهة<select data-r="uiall"><option value="v1">الواجهة الحالية</option><option value="v2">الواجهة الجديدة</option></select></label></div></div>'+
    '<div class="card" data-r="histcard"><h2>سجل تحديثات البيانات والرجوع</h2><p class="sub">لو اتنشر ملف بيانات غلط، تقدر ترجّع أي منصة لنسخة سابقة.</p><button class="btn p" type="button" data-a="hist">عرض النسخ السابقة</button><div class="sub" data-r="histmsg" style="margin-top:8px"></div><div style="overflow:auto"><table><thead><tr><th>التاريخ</th><th>التحديث</th><th>رجوع</th></tr></thead><tbody data-r="hist"></tbody></table></div></div>'+
    '<div class="card"><h2>مفتاح GitHub</h2><p class="sub">مطلوب للنشر. Fine-grained token بصلاحية Contents: Read and write على taxlens-data. بيتحفظ متشفر مع حسابات الأدمن، فبعد أول نشر مش هتحتاج تكتبه على أي جهاز تاني.</p><input data-r="tok" type="password" class="ltr" placeholder="github_pat_..."></div>'+
    '<div class="bar"><span data-r="pending" class="sub" style="margin:0">مفيش تعديلات</span><div class="acts"><button class="btn" data-a="undo">إلغاء كل التعديلات</button><button class="btn p" data-a="pub">نشر التغييرات</button></div></div></div>';
   document.querySelector('#dash-root').appendChild(sec);
   var R=function(n){return sec.querySelector('[data-r="'+n+'"]')};
   R('tok').value=lsGet('tl_gh_token')||window.TL_GH_TOKEN||'';R('logk').value=(lsGet('tl_log_key')||window.TL_LOGKEY||'');R('logk').addEventListener('change',function(){lsSet('tl_log_key',this.value.trim());loadLog();syncRecipients()});
-  R('logu').value=window.TL_LOG_URL||'';R('uiall').value=window.TL_UIALL||'v1';R('uiall').addEventListener('change',function(){state.groupsChanged=(this.value!==(window.TL_UIALL||'v1'));render()});R('logu').addEventListener('input',function(){state.groupsChanged=(this.value.trim()!==(window.TL_LOG_URL||''));render()});
+  R('logu').value=window.TL_LOG_URL||'';R('uiall').value='v2';R('uiall').addEventListener('change',function(){state.groupsChanged=(this.value!==('v2'));render()});R('logu').addEventListener('input',function(){state.groupsChanged=(this.value.trim()!==(window.TL_LOG_URL||''));render()});
   var EVN={login:'دخول',logout:'خروج',idle_logout:'خروج تلقائي (عدم نشاط)',forced_logout:'خروج بأمر الإدارة',open_platform:'فتح منصة',report_open:'فتح تقرير',report_download:'تحميل تقرير',report_share:'مشاركة تقرير',data_update:'تحديث بيانات',users_published:'نشر تعديلات المستخدمين',notify_whatsapp:'إشعار واتساب',notify_email:'إشعار إيميل'};
   (function(){var s=R('lf_e');Object.keys(EVN).forEach(function(k){s.appendChild(new Option(EVN[k],k))})})();
   var PRES={};
@@ -4881,7 +4909,7 @@ var box=el('div','tlst-grid');c.appendChild(box);
       var t;t=td('اسم الدخول','ltr');t.textContent=u;tr.appendChild(t);
       t=td('الاسم');t.textContent=r.name;tr.appendChild(t);
       t=td('المجموعة');t.textContent=GROUPS[r.group]?GROUPS[r.group].name:'—';tr.appendChild(t);
-      t=td('المنصات');t.textContent=platLabel(r.platforms)+(r.admin?' · إدارة':'')+(r.ui==='v2'?' · الواجهة الجديدة':r.ui==='v1'?' · الواجهة الحالية':'')+(r.scr||(r.nof&&r.nof.length)?' · شاشات محددة':'');tr.appendChild(t);t=td('التقارير');[['reports','عرض وتحميل التقارير'],['upload','رفع وتحديث البيانات']].forEach(function(k){var l=el('label','chk');l.style.whiteSpace='nowrap';var x=el('input');x.type='checkbox';x.checked=!!r[k[0]];x.disabled=EDIT!=null;x.addEventListener('change',function(){if(k[0]==='upload'&&x.checked&&!(r.platforms||[]).length){x.checked=false;alert('تحديث البيانات محتاج منصة واحدة على الأقل');return}r[k[0]]=x.checked;render()});l.append(x,document.createTextNode(' '+k[1]));t.appendChild(l);t.appendChild(el('br'))});tr.appendChild(t);
+      t=td('المنصات');t.textContent=platLabel(r.platforms)+(r.admin?' · إدارة':'')+''+(r.scr||(r.nof&&r.nof.length)?' · شاشات محددة':'');tr.appendChild(t);t=td('التقارير');[['reports','عرض وتحميل التقارير'],['upload','رفع وتحديث البيانات']].forEach(function(k){var l=el('label','chk');l.style.whiteSpace='nowrap';var x=el('input');x.type='checkbox';x.checked=!!r[k[0]];x.disabled=EDIT!=null;x.addEventListener('change',function(){if(k[0]==='upload'&&x.checked&&!(r.platforms||[]).length){x.checked=false;alert('تحديث البيانات محتاج منصة واحدة على الأقل');return}r[k[0]]=x.checked;render()});l.append(x,document.createTextNode(' '+k[1]));t.appendChild(l);t.appendChild(el('br'))});tr.appendChild(t);
       t=td('كلمة السر الحالية');t.appendChild(el('span','pw',r.pw||'—'));tr.appendChild(t);
       t=td('آخر ظهور');t.appendChild(seen(u));tr.appendChild(t);t=td('الحالة');var ch=changed(u);t.appendChild(el('span','pill '+(ch?'chg':r.disabled?'off':'on'),ch?'بانتظار النشر':r.disabled?'موقوف':'فعّال'));tr.appendChild(t);
       t=td('','full');var eb=el('button','btn','تعديل');eb.dataset.a='edit';eb.disabled=EDIT!=null;t.appendChild(eb);var ab=el('button','btn','النشاط');ab.dataset.a='act';t.appendChild(ab);if(u!==window.TL_USER&&!r.disabled){var kb=el('button','btn d',r.kick?'هيخرج بعد النشر':'إخراج الآن');kb.dataset.a='kick';kb.disabled=!!r.kick||EDIT!=null;t.appendChild(kb)}t.style.whiteSpace='nowrap';tr.appendChild(t);
@@ -4918,7 +4946,7 @@ var box=el('div','tlst-grid');c.appendChild(box);
       if(!ps.length&&!q('admin').checked)return say('اختار منصة واحدة على الأقل');
       if(u===window.TL_USER&&(!q('admin').checked||q('dis').checked))return say('ما ينفعش تشيل الإدارة أو توقف حسابك إنت');
       var w=WORK[u];if(q('upload').checked&&!ps.length)return say('تحديث البيانات محتاج منصة واحدة على الأقل');
-      var o={_orig:w._orig||u,name:nm,group:gg,platforms:ps,admin:q('admin').checked,upload:q('upload').checked,reports:q('reports').checked,disabled:q('dis').checked,pw:np||w.pw,phone:q('phone').value.trim(),email:q('email').value.trim()};if((GROUPS[gg]||{}).platforms&&GROUPS[gg].platforms.indexOf('*')>=0&&!GROUPS[gg].admin){o.platforms=PLATS.map(function(P){return P.id});o.admin=false;o.upload=false;o.reports=true}o.ui=q('ui').value;if(!o.ui)delete o.ui;if(!o.phone)delete o.phone;if(!o.email)delete o.email;
+      var o={_orig:w._orig||u,name:nm,group:gg,platforms:ps,admin:q('admin').checked,upload:q('upload').checked,reports:q('reports').checked,disabled:q('dis').checked,pw:np||w.pw,phone:q('phone').value.trim(),email:q('email').value.trim()};if((GROUPS[gg]||{}).platforms&&GROUPS[gg].platforms.indexOf('*')>=0&&!GROUPS[gg].admin){o.platforms=PLATS.map(function(P){return P.id});o.admin=false;o.upload=false;o.reports=true}o.ui='';if(!o.ui)delete o.ui;if(!o.phone)delete o.phone;if(!o.email)delete o.email;
       var scr={},anyLim=false;Object.keys(SCR).forEach(function(p){if(ps.indexOf(p)<0)return;var on=[].filter.call(tr.querySelectorAll('[data-e="scr"][data-p="'+p+'"]'),function(x){return x.checked}).map(function(x){return x.value});if(!on.length)anyLim='none:'+p;else if(on.length<SCR[p].length){scr[p]=on;anyLim=anyLim||true}});
       if(typeof anyLim==='string')return say('لازم تسيب شاشة واحدة على الأقل في كل منصة مختارة');if(anyLim)o.scr=scr;
       var nof=[].filter.call(tr.querySelectorAll('[data-e="feat"]'),function(x){return !x.checked}).map(function(x){return x.value});if(nof.length)o.nof=nof;
@@ -4956,7 +4984,7 @@ var box=el('div','tlst-grid');c.appendChild(box);
     var btn=sec.querySelector('[data-a="pub"]');btn.disabled=true;say('جارٍ النشر…',true);
     var fileSha,V,users={},dir={};
     gh('GET',null,tok).then(function(j){fileSha=j.sha;return ghRaw(tok,j.sha)})
-    .then(function(v){V=v;V.logUrl=(R('logu').value||'').trim();V.uiAll=R('uiall').value||'v1';return Promise.all(Object.keys(WORK).map(function(u){var o=DIR[WORK[u]._orig||u],ch=changed(u),w=strip(WORK[u]);delete w.kick;w.rev=((o&&o.rev)||0)+(ch?1:0);dir[u]=w;if(w.disabled)return null;
+    .then(function(v){V=v;V.logUrl=(R('logu').value||'').trim();V.uiAll='v2';return Promise.all(Object.keys(WORK).map(function(u){var o=DIR[WORK[u]._orig||u],ch=changed(u),w=strip(WORK[u]);delete w.kick;w.rev=((o&&o.rev)||0)+(ch?1:0);dir[u]=w;if(w.disabled)return null;
         return Promise.all([uhash(u),entryFor(w.pw,w)]).then(function(x){x[1].rev=w.rev;users[x[0]]=x[1]})}))})
     .then(function(){V.access={groups:GROUPS,users:users};var iv=crypto.getRandomValues(new Uint8Array(12));
       return S.importKey('raw',ub(window.TL_ADMINKEY),'AES-GCM',false,['encrypt']).then(function(k){return S.encrypt({name:'AES-GCM',iv:iv},k,enc(JSON.stringify(dir)))})
@@ -5884,7 +5912,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       var cr=prev.reduce(function(a,w){return a+(w.collection_rate||0)},0)/prev.length;if(lw.collection_rate!=null&&cr&&lw.collection_rate<cr-0.1)al.push('⚠ نسبة تحصيل الضريبة في '+lw.week+' '+Math.round(lw.collection_rate*100)+'% مقابل متوسط '+Math.round(cr*100)+'%')}}
     var age=(Date.now()-D0(last))/864e5;if(age>10)al.push('⏱ آخر بيانات للتصرفات من '+Math.round(age)+' يوم');
     var ch=function(k){return P[k]?(L[k]/P[k]-1):null};
-    var sm=function(k){return W.reduce(function(a,w){return a+(+w[k]||0)},0)};return{last:last,old:age>10,alerts:al,title:'التصرفات العقارية · من الإطلاق لحد '+dA(last),k:[['إجمالي المسجلين',fN(sm('registered')),null,'+'+fN(L.registered)+' في آخر أسبوع'],['إجمالي عمليات التصرف',fN(sm('disposals')),null,'+'+fN(L.disposals)+' في آخر أسبوع'],['إجمالي مدفوعات الضريبة (ج.م)',fC(sm('tax_paid')),null,'+'+fC(L.tax_paid)+' في آخر أسبوع']],wk:{week:L.week,reg:L.registered,disp:L.disposals,tax:L.tax_paid,ch:{reg:ch('registered'),disp:ch('disposals'),tax:ch('tax_paid')}}}}
+    var sm=function(k){return W.reduce(function(a,w){return a+(+w[k]||0)},0)};return{last:last,old:age>10,alerts:al,title:'التصرفات العقارية · من الإطلاق لحد '+dA(last),k:[['إجمالي المسجلين',fN(sm('registered')),null,'+'+fN(L.registered)+' في آخر أسبوع'],['إجمالي عمليات التصرف',fN(sm('disposals')),null,'+'+fN(L.disposals)+' في آخر أسبوع'],['إجمالي مدفوعات الضريبة (ج.م)',fC(sm('tax_paid')),null,'+'+fC(L.tax_paid)+' في آخر أسبوع'],['إجمالي مدفوعات الغرامات (ج.م)',fC(sm('penalty_paid')),null,'+'+fC(+L.penalty_paid||0)+' في آخر أسبوع']],wk:{week:L.week,reg:L.registered,disp:L.disposals,tax:L.tax_paid,pen:+L.penalty_paid||0,ch:{reg:ch('registered'),disp:ch('disposals'),tax:ch('tax_paid')}}}}
   function retaInfo(){var L=snaps();if(!L||!L.length)return null;var b=L[L.length-1],last=b.date.slice(0,10),al=[];
     var ref=L.slice().reverse().find(function(s){return(D0(last)-D0(s.date))/864e5>=6})||L[0];
     var coll=function(s){return((s.paid||{}).amount||0)+((s.onacc||{}).amount||0)};
@@ -6021,7 +6049,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   var top=el('header','v2-top');top.setAttribute('dir','rtl');
   top.innerHTML='<span class="v2-brand">TAX <b>Lens</b></span><span class="v2-sep"></span><button type="button" class="v2-btn" id="v2-sw"><span class="v2-dot"></span><span id="v2-swl">الرئيسية</span>'+svg('M6 9l6 6 6-6',14)+'</button><span class="v2-sp"></span>'+
     '<button type="button" class="v2-btn solid" id="v2-ask" hidden>'+svg('M8 9a4 4 0 008 0V7a4 4 0 00-8 0zM5 11a7 7 0 0014 0M12 18v3')+'<span class="v2-hide-m">اسأل عن بياناتك</span></button>'+
-    '<span class="v2-chip v2-hide-m" style="background:#D6202E">تجريبية</span><span class="v2-chip" id="v2-asof" hidden><i></i><span></span></span><span id="v2-bell"></span><button type="button" class="v2-btn icon" id="v2-theme" aria-label="تبديل الوضع الليلي"></button>'+
+    '<span class="v2-chip" id="v2-asof" hidden><i></i><span></span></span><span id="v2-bell"></span><button type="button" class="v2-btn icon" id="v2-theme" aria-label="تبديل الوضع الليلي"></button>'+
     '<button type="button" class="v2-btn icon" id="v2-user" aria-label="قائمة المستخدم"><span class="v2-av">؟</span></button><span class="v2-logo"><img alt="eTax" id="v2-logo"></span>';
   var side=el('nav','v2-side');side.setAttribute('aria-label','شاشات المنصة');side.setAttribute('dir','rtl');side.hidden=true;
   var menu=null;function closeMenu(){if(menu){menu.remove();menu=null}}
@@ -6085,10 +6113,10 @@ var FA=function(t){return String(t);return String(t).replace(/اللي فات/g,
 function isLead(){try{var u=window.TL_USER,a=window.TL_ACCESS,g=a&&a.users&&a.users[u]&&a.users[u].group;return g==='lead'}catch(e){return false}}
 function pc(x){return x==null?'':(x>=0?'زيادة ':'نقص ')+Math.abs(x*100).toFixed(1)+'%'}
 function briefF(I){var s=[];if(I.reta){var k=I.reta.k;s.push('في الضرائب العقارية بلغ عدد الحسابات '+k[0][1]+' والإقرارات '+k[1][1]+'، وبلغ إجمالي المحصّل '+k[2][1]+' جنيه، وذلك حتى '+(I.reta.title.split('حتى ')[1]||'')+'.')}
-  if(I.tsrf){var t=I.tsrf.k,w=I.tsrf.wk||{};s.push('وفي التصرفات العقارية بلغ منذ الإطلاق عدد المسجلين '+t[0][1]+'، وعمليات التصرف '+t[1][1]+'، ومدفوعات الضريبة '+t[2][1]+' جنيه'+(w.disp!=null?'، منها '+Number(w.disp).toLocaleString('en-US')+' عملية خلال الأسبوع الأخير':'')+'.')}
+  if(I.tsrf){var t=I.tsrf.k,w=I.tsrf.wk||{};s.push('وفي التصرفات العقارية بلغ منذ الإطلاق عدد المسجلين '+t[0][1]+'، وعمليات التصرف '+t[1][1]+'، ومدفوعات الضريبة '+t[2][1]+' جنيه'+(t[3]?' ومدفوعات الغرامات '+t[3][1]+' جنيه':'')+(w.disp!=null?'، منها '+Number(w.disp).toLocaleString('en-US')+' عملية خلال الأسبوع الأخير':'')+'.')}
   return s.join(' ')}
 function brief(I){var s=[];if(I.reta){var k=I.reta.k;s.push('في الضرائب العقارية عندنا '+k[0][1]+' حساب و'+k[1][1]+' إقرار، والمحصّل وصل '+k[2][1]+' جنيه، لحد '+(I.reta.title.split('حتى ')[1]||'')+'.')}
-  if(I.tsrf){var t=I.tsrf.k,w=I.tsrf.wk||{};s.push('وفي التصرفات العقارية من الإطلاق: '+t[0][1]+' مسجل، و'+t[1][1]+' عملية تصرف، ومدفوعات '+t[2][1]+' جنيه'+(w.disp!=null?'، منهم '+Number(w.disp).toLocaleString('en-US')+' عملية في آخر أسبوع':'')+'.')}
+  if(I.tsrf){var t=I.tsrf.k,w=I.tsrf.wk||{};s.push('وفي التصرفات العقارية من الإطلاق: '+t[0][1]+' مسجل، و'+t[1][1]+' عملية تصرف، ومدفوعات ضريبة '+t[2][1]+' جنيه'+(t[3]?' وغرامات '+t[3][1]+' جنيه':'')+(w.disp!=null?'، منهم '+Number(w.disp).toLocaleString('en-US')+' عملية في آخر أسبوع':'')+'.')}
   return s.join(' ')}
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function draw(){if(!document.body.classList.contains('v2'))return;var s=document.getElementById('tlx-strip');if(!s||!window.TLX_INFO)return;var I=window.TLX_INFO();if(!I.reta&&!I.tsrf)return;
@@ -6117,6 +6145,25 @@ function pdf(I){if(!window.htmlToImage||!window.jspdf)return Promise.reject(new 
   return(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go).then(function(){n.remove();window.TL_LOG&&window.TL_LOG('report','تقرير القيادة الأسبوعي')},function(e){n.remove();throw e})}
 function dl(b,nm){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nm;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},2000)}
 setInterval(draw,1500);})();
+/* Home screen fits the viewport on desktop/laptop; on short screens it scales down a little before allowing scroll. */
+(function(){
+  if(window.TL_UI_VERSION!=='v2')return;
+  var last='';
+  function fit(){
+    var h=document.getElementById('tl-home'),on=!!(h&&h.offsetParent!==null&&innerWidth>=900&&innerHeight>=520);
+    var m=h&&h.querySelector('.tl-main');
+    var sig=on+'|'+innerWidth+'x'+innerHeight+'|'+(m?m.querySelectorAll('.tlx-pl,.tl-card').length+':'+m.textContent.length:'');
+    if(sig===last)return;last=sig;
+    document.body.classList.toggle('tl-fit',on);
+    if(m)m.style.zoom='';
+    if(!on||!m)return;
+    var over=document.documentElement.scrollHeight-innerHeight;
+    if(over>0)m.style.zoom=Math.max(.75,(m.offsetHeight-over-10)/m.offsetHeight).toFixed(3);
+  }
+  window.TL_FIT=function(){last='';fit();return document.documentElement.scrollHeight+'/'+innerHeight+' z'+((document.querySelector('#tl-home .tl-main')||{}).style||{}).zoom+' fit'+document.body.classList.contains('tl-fit')};
+  addEventListener('resize',function(){last='';fit()});
+  setInterval(fit,600);
+})();
 </script>
 <script>;(function(){/* Phase 7: اسأل عن بياناتك — محرك محلي لكل منصة على حدة، كتابةً وصوتاً */
 var M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -6146,16 +6193,16 @@ function reta(q0){var L=retaSnaps();if(!L||!L.length)return'بيانات الض�
   return hit.map(function(m){var v=m[2](b),u=m[3]||'';var dv0=v-m[2](ref);var s='عدد '+m[1]+' '+fC(v)+u+' لحد '+last;if(m[1]==='إجمالي المحصّل')s=m[1]+' '+fC(v)+u+' لحد '+last;
     if(cmp||hit.length<RM.length){var dv=v-m[2](ref);s+='، '+(dv<0?'بنقص ':'بزيادة ')+fC(Math.abs(dv))+u+' في '+(dd===1?'يوم واحد':dd===2?'يومين':dd+(dd<=10?' أيام':' يوماً'))+' (بمتوسط '+fC(dv/dd)+u+' في اليوم)'}return s+'.'}).join('\n')}
 /* ---------- التصرفات العقارية ---------- */
-var TM=[[['مسجل','تسجيل','مسجلين'],'المسجلين','registered'],[['تصرف','تصرفات','عمليات'],'عمليات التصرف','disposals'],[['مدفوع','ضريبه','محصل','تحصيل','سداد','مبالغ'],'مدفوعات الضريبة','tax_paid',' جنيه']];
+var TM=[[['مسجل','تسجيل','مسجلين'],'المسجلين','registered'],[['تصرف','تصرفات','عمليات'],'عمليات التصرف','disposals'],[['مدفوع','ضريبه','محصل','تحصيل','سداد','مبالغ'],'مدفوعات الضريبة','tax_paid',' جنيه'],[['غرامه','غرامات','غرامة'],'مدفوعات الغرامات','penalty_paid',' جنيه']];
 function tsrf(q0){var W=rows('weekly');if(!W||!W.length)return'بيانات التصرفات العقارية مش متاحة دلوقتي.';var q=N(q0),L=W[W.length-1],P=W[W.length-2];
   if(has(q,['اخر تحديث','تاريخ','امتي','متي'])&&!has(q,['مسجل','تصرف','مدفوع']))return'آخر بيانات للتصرفات العقارية لحد '+dA(L.last_date)+' ('+L.week+').';
   if(has(q,['نسبه التحصيل','معدل التحصيل'])){var cr=L.collection_rate;return cr==null?'نسبة التحصيل مش متاحة للأسبوع ده.':'نسبة تحصيل الضريبة في '+L.week+' '+(cr*100).toFixed(1)+'%'+(P&&P.collection_rate!=null?' قصاد '+(P.collection_rate*100).toFixed(1)+'% في الأسبوع اللي فات':'')+'.'}
-  var hit=TM.filter(function(m){return has(q,m[0])});if(!hit.length)hit=TM;
+  var hit=TM.filter(function(m){return has(q,m[0])});if(!hit.length)hit=TM;if(hit.some(function(m){return m[2]==='tax_paid'})&&!hit.some(function(m){return m[2]==='penalty_paid'}))hit=hit.concat([TM[3]]);
   if(has(q,['اجمالي','الكل','منذ البدايه','تراكمي','اجمالي'])){return hit.map(function(m){var t=W.reduce(function(a,w){return a+(+w[m[2]]||0)},0);return'إجمالي '+m[1]+' من الأول لحد '+dA(L.last_date)+': '+fC(t)+(m[3]||'')+'.'}).join('\n')}
   if(has(q,['اسابيع','اتجاه','تطور','اخر'])&&/\d/.test(q)||has(q,['اتجاه','تطور'])){var k=nWeeks(q),S=W.slice(-k);return hit.map(function(m){return m[1]+' في آخر '+S.length+' أسابيع: '+S.map(function(w){return w.week+' ('+fC(w[m[2]])+')'}).join('، ')+'.'}).join('\n')}
   if(has(q,['اعلي اسبوع','افضل اسبوع','اكبر اسبوع','اقل اسبوع'])){var lo=has(q,['اقل']);return hit.map(function(m){var w=W.slice().sort(function(a,b){return(lo?1:-1)*((+a[m[2]]||0)-(+b[m[2]]||0))})[0];return(lo?'أقل':'أعلى')+' أسبوع في '+m[1]+' هو '+w.week+' بـ '+fC(w[m[2]])+(m[3]||'')+'.'}).join('\n')}
   if(!has(q,['اسبوع','الاسبوع ده','هذا الاسبوع','اخر اسبوع']))return hit.map(function(m){var t=W.reduce(function(a,w){return a+(+w[m[2]]||0)},0);return'إجمالي '+m[1]+' من الإطلاق لحد '+dA(L.last_date)+': '+fC(t)+(m[3]||'')+'، منهم '+fC(+L[m[2]]||0)+(m[3]||'')+' في آخر أسبوع.'}).join('\n');
-  return hit.map(function(m){var v=+L[m[2]]||0;return'عدد '+m[1]+' في '+L.week+' (لحد '+dA(L.last_date)+') '+fC(v)+(m[3]||'')+(P?'، '+pc(v,+P[m[2]])+' عن الأسبوع اللي فات':'')+'.'}).join('\n').replace('عدد مدفوعات','بلغت مدفوعات').replace('عدد المسجلين','عدد المسجلين')}
+  return hit.map(function(m){var v=+L[m[2]]||0;return'عدد '+m[1]+' في '+L.week+' (لحد '+dA(L.last_date)+') '+fC(v)+(m[3]||'')+(P?'، '+pc(v,+P[m[2]])+' عن الأسبوع اللي فات':'')+'.'}).join('\n').replace(/عدد مدفوعات/g,'بلغت مدفوعات').replace('عدد المسجلين','عدد المسجلين')}
 /* ---------- الواجهة ---------- */
 var SUG={reta:['كم عدد الإقرارات؟','كم المحصّل خلال آخر 7 أيام؟','أعلى 5 محافظات','إقرارات القاهرة','توزيع الإقرارات حسب القناة','متى آخر تحديث؟'],
   tsrf:['كم إجمالي المسجلين؟','كم عملية تصرف الأسبوع ده؟','عمليات التصرف في آخر 6 أسابيع','أعلى أسبوع في عمليات التصرف','نسبة التحصيل','إجمالي مدفوعات الضريبة','متى آخر تحديث؟']};
@@ -6379,8 +6426,8 @@ function build(p){var s=S(),out=[];var on=function(id){return!(s.scenes[p]&&s.sc
     add({id:'outro',kind:'outro',items:[(G[0]?G[0].g+' في الصدارة':''),'المحصّل '+fC(coll(b))+' جنيه','الإقرارات '+fC(d.total)].filter(Boolean),say:s.outro||'دي كانت حكاية الضرائب العقارية. شكراً ليكم.'})}
   else if(p==='tsrf'){var W=rows('weekly');if(!W||!W.length)return null;var Lw=W[W.length-1],P=W[W.length-2]||{},tot=W.reduce(function(a,w){return a+(+w.tax_paid||0)},0),ch=function(k){return P[k]?((Lw[k]/P[k]-1)*100):null};
     add({id:'intro',kind:'intro',title:'التصرفات العقارية',sub:Lw.week+' · لحد '+dA(Lw.last_date),say:s.intro||('أهلاً بيكم في حكاية التصرفات العقارية، لحد '+dA(Lw.last_date)+'.')});
-    add({id:'total',kind:'big',label:'إجمالي مدفوعات الضريبة من الإطلاق',value:tot,unit:'جنيه',note:'+'+fC(Lw.tax_paid)+' جنيه في '+Lw.week,say:'من أول ما المنظومة اشتغلت، اتدفع '+fC(tot)+' جنيه ضريبة.'});
-    var sm=function(k){return W.reduce(function(a,w){return a+(+w[k]||0)},0)};add({id:'week',kind:'kpis',title:'الموقف من الإطلاق',items:[['إجمالي المسجلين',sm('registered'),null,null,'+'+fN(Lw.registered)+' في آخر أسبوع'],['إجمالي عمليات التصرف',sm('disposals'),null,null,'+'+fN(Lw.disposals)+' في آخر أسبوع'],['إجمالي المدفوعات',sm('tax_paid'),null,null,'+'+fC(Lw.tax_paid)+' في آخر أسبوع']],say:''});
+    add({id:'total',kind:'big',label:'إجمالي مدفوعات الضريبة من الإطلاق',value:tot,unit:'جنيه',note:'+ غرامات '+fC(W.reduce(function(a,w){return a+(+w.penalty_paid||0)},0))+' جنيه · منهم '+fC(Lw.tax_paid)+' ضريبة في '+Lw.week,say:'من أول ما المنظومة اشتغلت، اتدفع '+fC(tot)+' جنيه ضريبة.'});
+    var sm=function(k){return W.reduce(function(a,w){return a+(+w[k]||0)},0)};add({id:'week',kind:'kpis',title:'الموقف من الإطلاق',items:[['إجمالي المسجلين',sm('registered'),null,null,'+'+fN(Lw.registered)+' في آخر أسبوع'],['إجمالي عمليات التصرف',sm('disposals'),null,null,'+'+fN(Lw.disposals)+' في آخر أسبوع'],['مدفوعات الضريبة',sm('tax_paid'),null,null,'+'+fC(Lw.tax_paid)+' في آخر أسبوع'],['مدفوعات الغرامات',sm('penalty_paid'),null,null,'+'+fC(+Lw.penalty_paid||0)+' في آخر أسبوع']],say:''});
     add({id:'trend',kind:'columns',title:'عمليات التصرف أسبوع بأسبوع',items:W.slice(-12).map(function(w){return[w.week,+w.disposals||0]}),say:mod('tsrf','records')||'ده مسار عمليات التصرف أسبوع بأسبوع.'});
     if(Lw.collection_rate!=null)add({id:'rate',kind:'big',label:'نسبة تحصيل الضريبة · '+Lw.week,value:Lw.collection_rate*100,unit:'%',dec:1,note:P.collection_rate!=null?'الأسبوع اللي فات '+(P.collection_rate*100).toFixed(1)+'%':'',say:'نسبة تحصيل الضريبة في آخر أسبوع '+(Lw.collection_rate*100).toFixed(0)+'%.'});
     var f2=mod('tsrf','forecast');if(f2){var hv=W.slice(-8).map(function(w){return+w.disposals||0}),n8=hv.length,sx=0,sy=0,sxy=0,sxx=0;hv.forEach(function(v,i){sx+=i;sy+=v;sxy+=i*v;sxx+=i*i});var bb=(n8*sxy-sx*sy)/Math.max(1e-9,n8*sxx-sx*sx),aa=(sy-bb*sx)/n8,pv=[1,2,3,4].map(function(k){return Math.max(0,aa+bb*(n8-1+k))});add({id:'forecast',kind:'text',title:'التوقع',text:f2,say:f2,bars:{hist:hv,labels:W.slice(-8).map(function(w){return w.week}),proj:pv}})}
