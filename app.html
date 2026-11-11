@@ -6740,7 +6740,7 @@ function now(){if(!P)return 0;if(P.mu&&!P.mu.paused&&P.mu.currentTime>0&&!P.mu.l
 function start(i){if(!P)return;var t=offsetOf(i);P.ending=0;if(P.mu){P.mu.volume=S().musicVol;try{P.mu.currentTime=P.mu.duration?t%P.mu.duration:t}catch(e){}P.mu.muted=P.muted;P.mu.play().catch(function(){})}P.clock0=performance.now()-t*1000;P.i=-1;tick()}
 function tick(){if(!P)return;if(!P.paused){var t=now(),i=0,acc=0;while(i<P.scenes.length&&acc+sceneLen(P.scenes[i])<=t){acc+=sceneLen(P.scenes[i]);i++}
     P.root.querySelector('.top b').style.width=Math.min(100,t/P.total*100)+'%';
-    if(i>=P.scenes.length){if(P.loop){var me=P;P.paused=true;if(P.mu)P.mu.pause();setTimeout(function(){if(P===me){P.paused=false;start(0)}},S().loopPause*1000)}else{if(!P.ending){P.ending=1;var me=P,m=P.mu;if(m){var v=m.volume,f=setInterval(function(){v=Math.max(0,v-m.volume/45);m.volume=v;if(v<=0.01)clearInterval(f)},70)}setTimeout(function(){if(P===me)close()},3400)}P.raf=requestAnimationFrame(tick);return}}
+    if(i>=P.scenes.length){if(P.loop){var me=P;P.paused=true;if(P.mu)P.mu.pause();setTimeout(function(){if(P===me){P.paused=false;start(0)}},S().loopPause*1000)}else{if(!P.ending){P.ending=1;var me=P,m=P.mu;if(m){var v=m.volume,f=setInterval(function(){v=Math.max(0,v-m.volume/45);m.volume=v;if(v<=0.01)clearInterval(f)},70)}var lastK=P.scenes[P.scenes.length-1].kind;if(lastK!=='egl')setTimeout(function(){if(P===me)close()},3400)}P.raf=requestAnimationFrame(tick);return}}
     else if(i!==P.i)show(i)}P.raf=requestAnimationFrame(tick)}
 function show(i){var sc=P.scenes[i],stage=P.root.querySelector('.stg'),old=stage.querySelector('.sc');P.i=i;if(old){old.classList.add('out');var me=P;setTimeout(function(){if(P===me&&P.i===i)render(sc,stage,i)},380)}else render(sc,stage,i);if(i>0&&sc.kind!=='outro')sfx('whoosh',.45);
   var lt=P.root.querySelector('.lt');lt.classList.remove('on');var names={intro:'',total:'المحصّل',kpis:'المؤشرات',govs:'المحافظات',trend:'الاتجاه',channels:'القنوات',alerts:'التنبيهات',forecast:'التوقع',outro:'',week:'الموقف',rate:'نسبة التحصيل',duo:'كل المنصات',types:'الممولين',acts:'الأنشطة',speed:'السرعة',over:'المراجعة'};
@@ -6802,7 +6802,7 @@ var CFG={
     pick.forEach(function(q){if(I&&I[q[0]]===false)return;var c;try{c=CFG[q[0]]()}catch(e){}if(c&&c.layers[q[1]]){var l=c.layers[q[1]];out.push(L(q[2],'',l.cum,l.w,q[3]))}});
     return out.length>1?{color:RED,sum:true,kick:'حكاية القيادة',open:['كل المنظومات…','نور واحد على خريطة مصر'],label:'تعامل من المواطنين على المنظومات',layers:out}:null}
 };
-window.TL_EGL_SCENE=function(p){var c;try{c=CFG[p]&&CFG[p]()}catch(e){console.error(e)}if(!c||!c.layers||!c.layers.length)return null;return{id:'egl',kind:'egl',len:8,cfg:c,say:''}};
+window.TL_EGL_SCENE=function(p){var c;try{c=CFG[p]&&CFG[p]()}catch(e){console.error(e)}if(!c||!c.layers||!c.layers.length)return null;return{id:'egl',kind:'egl',len:11,cfg:c,say:''}};
 
 /* ---------- الرسم ---------- */
 function rng(s){return function(){s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
@@ -6813,7 +6813,7 @@ function fV(l,v){return(l.money||v>=1e7?fM(v):fN(v))+(l.unit?' '+l.unit:'')}
 function sprite(sz,c0,c1){var c=document.createElement('canvas');c.width=c.height=sz;var g=c.getContext('2d'),gr=g.createRadialGradient(sz/2,sz/2,0,sz/2,sz/2,sz/2);gr.addColorStop(0,c0);gr.addColorStop(.18,c1);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,sz,sz);return c}
 function star(sz,c){var cv=document.createElement('canvas');cv.width=cv.height=sz;var g=cv.getContext('2d'),h=sz/2;g.translate(h,h);var gr=g.createRadialGradient(0,0,0,0,0,h*.35);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1,rgb(c,0));g.fillStyle=gr;g.fillRect(-h,-h,sz,sz);
   g.globalCompositeOperation='lighter';[0,Math.PI/2].forEach(function(a){g.save();g.rotate(a);var l=g.createLinearGradient(-h,0,h,0);l.addColorStop(0,rgb(c,0));l.addColorStop(.5,'rgba(255,250,230,1)');l.addColorStop(1,rgb(c,0));g.fillStyle=l;g.fillRect(-h,-1.2,sz,2.4);g.restore()});return cv}
-var W=1920,H=1080,SC=1.42,OX=W*0.30-662*SC/2,OY=H*0.52-594*SC/2,T0=1.4,T1=12.4,END=19.2;
+var W=1920,H=1080,SC=1.42,OX=W*0.30-662*SC/2,OY=H*0.52-594*SC/2,T0=1.4,T1=15.5,END=26.4;
 function prep(D){var PA=window.TL_EG_PATHS||window.TL_EG_PATHS_FB;if(!PA)return null;var r=rng(7),paths={},bb={},tmp=document.createElement('canvas').getContext('2d'),P=[],stars=[];
   for(var i=0;i<220;i++)stars.push([r()*W,r()*H,r()*1.3,r()]);
   Object.keys(PA).forEach(function(g){paths[g]=new Path2D(PA[g]);var a=1e9,b=1e9,c=-1e9,d=-1e9;PA[g].replace(/(-?\d+\.?\d*),(-?\d+\.?\d*)/g,function(m,p,q){p=+p;q=+q;a=Math.min(a,p);c=Math.max(c,p);b=Math.min(b,q);d=Math.max(d,q)});bb[g]=[a,b,c,d]});
