@@ -6569,6 +6569,7 @@ function build(p){var s=S(),out=[];var on=function(id){return!(s.scenes[p]&&s.sc
     add({id:'outro',kind:'outro',items:msgs,say:s.outro||'دي كانت حكاية الأسبوع. شكراً ليكم.'})}
   var dw=function(v){if(typeof v==='string')return v.replace(/WW(\d+)/g,'الأسبوع $1');if(Array.isArray(v))return v.map(dw);if(v&&typeof v==='object'){Object.keys(v).forEach(function(k){if(k!=='labels')v[k]=dw(v[k])});return v}return v};out.forEach(function(o){Object.keys(o).forEach(function(k){if(k!=='kind'&&k!=='id')o[k]=dw(o[k])})});
   out.forEach(function(o){o.say=String(o.say).replace(/WW(\d+)/g,'الأسبوع $1').replace(/\s*\(ج\.م\)/g,'').replace(/ج\.م/g,'جنيه').replace(/\((-?[\d.]+)%\)/g,function(m,x){return'، يعني '+(+x>=0?'زيادة ':'نقص ')+Math.abs(+x)+'%'}).replace(/\s+/g,' ').replace(/ ،/g,'،').trim()});
+  if(out&&out.length&&window.TL_EGL_SCENE&&on('egl')){if(p==='lead')out=out.filter(function(x){return!/_egl$/.test(x.id)});var eg=TL_EGL_SCENE(p);if(eg)out.push(eg)}
   return out}
 window.TL_STORY_TEXTS=function(p){var sc=build(p)||[];return sc.map(function(x){return{id:x.id,text:x.say}})};
 
@@ -6658,6 +6659,7 @@ function xt(w,W,x,t){var a=el('div','xt',t);var px=Math.min(94,Math.max(6,x/W*10
 var TR=['tB','tA','tC','tD','tE'];
 
 function render(sc,stage,i){var d=el('div','sc '+TR[i%TR.length]);var head=function(k,t){if(k)d.appendChild(el('div','kick',k));if(t)d.appendChild(words(t,.15))};
+  if(window.TL_STORY_R2&&TL_STORY_R2[sc.kind]){try{TL_STORY_R2[sc.kind](sc,d,{later:later,sfx:sfx,words:words,count:count,fN:fN,fC:fC,sv:sv,el:el,stage:stage})}catch(e){console.error(e)}stage.replaceChildren(d);return d}
   if(sc.kind==='intro'){var lg=el('div','lgo'),mk=el('div','mk'),im=el('img');im.alt='eTax';var src=document.querySelector('#v2-logo,.v2-logo img,img[alt="eTax"]');if(src&&src.src)im.src=src.src;mk.appendChild(im);var wm=el('div','wm');wm.innerHTML='TAX <i>Lens</i> · الحكاية';lg.append(mk,wm);d.append(lg);d.appendChild(words(sc.title,.9));var su=el('div','sub',sc.sub);su.style.cssText='opacity:0;animation:tE .8s 1.4s both';d.append(su);later(function(){sfx('sting',.9)},150)}
   else if(sc.kind==='big'&&sc.unit==='%'){head('',sc.label);var g=el('div','gg'),s=sv('svg',{viewBox:'0 0 200 200'});defs(s);var r=84,C=2*Math.PI*r;s.append(sv('circle',{cx:100,cy:100,r:r,class:'tr'}));var v=sv('circle',{cx:100,cy:100,r:r,class:'vl','stroke-dasharray':C,'stroke-dashoffset':C});s.append(v);g.append(s);var ct=el('div','ct'),n=el('div','num','0');n.style.fontSize='calc(9*var(--u))';ct.append(n,el('div','unit','%'));g.append(ct);d.append(g);if(sc.note){var pl=el('div','pill',sc.note);d.append(pl)}
     later(function(){v.setAttribute('stroke-dashoffset',C*(1-Math.min(1,sc.value/100)));sfx('tick',.6);count(n,sc.value,sc.dec,2200,function(){sfx('hit')})},500)}
@@ -6711,9 +6713,9 @@ function render(sc,stage,i){var d=el('div','sc '+TR[i%TR.length]);var head=funct
 
 /* ---------- المشغّل (متزامن مع إيقاع الموسيقى) ---------- */
 var P=null;
-function sceneLen(sc){return(sc.kind==='intro'?3:sc.kind==='outro'?5:4)*BAR}
+function sceneLen(sc){if(sc.len)return sc.len*BAR;return(sc.kind==='intro'?3:sc.kind==='outro'?5:4)*BAR}
 function close(){if(!P)return;var me=P;P=null;clearTimeout(me.t);cancelAnimationFrame(me.raf);if(me.key)document.removeEventListener('keydown',me.key);try{speechSynthesis.cancel()}catch(e){}if(me.au)me.au.pause();if(me.mu){var m=me.mu,v=m.volume;var f=setInterval(function(){v-=0.08;if(v<=0){clearInterval(f);m.pause()}else m.volume=v},60)}if(me.stopBg)me.stopBg();if(me.rec)try{me.rec.stop()}catch(e){}Object.values(me.audio||{}).forEach(function(u){URL.revokeObjectURL(u)});setTimeout(function(){me.root.remove()},400);try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}}
-function play(p,opts){opts=opts||{};var s=S();if(P)close();var scenes=build(p);if(!scenes||!scenes.length){alert('مفيش بيانات كفاية للحكاية دلوقتي.');return}
+function play(p,opts){opts=opts||{};var s=S();if(P)close();var mode=opts.mode||window.TL_STORY_MODE||(window.TL_ADMINKEY?'both':'old'),sOld=build(p),sNew=(mode!=='old'&&window.TL_STORY_V2)?TL_STORY_V2(p,build(p)):null,scenes=(mode==='new'&&sNew)?sNew:(mode==='both'&&sNew)?sNew:sOld;if(!scenes||!scenes.length){alert('مفيش بيانات كفاية للحكاية دلوقتي.');return}
   var root=el('div');root.id='tls';root.tabIndex=-1;root.innerHTML='<canvas class="bg"></canvas><div class="glow"></div><div class="vig"></div><div class="top"><b></b></div><div class="hd"><b>TAX <i>Lens</i> · الحكاية</b><span class="lg"><img alt="eTax"></span></div><div class="stg"></div><div class="lt"><b></b><span></span></div><div class="sb" hidden><span></span></div><div class="ctl"></div>';
   var lg=document.querySelector('#v2-logo,.v2-logo img,img[alt="eTax"]');if(lg&&lg.src)root.querySelector('.hd img').src=lg.src;else root.querySelector('.hd .lg').remove();document.body.appendChild(root);
   var total=scenes.reduce(function(a,x){return a+sceneLen(x)},0);
@@ -6727,7 +6729,10 @@ function play(p,opts){opts=opts||{};var s=S();if(P)close();var scenes=build(p);i
   function key(e){if(!P)return;if(e.key==='Escape')close();else if(e.key==='ArrowLeft')seek(P.i+1);else if(e.key==='ArrowRight')seek(P.i-1);else if(e.key===' '){e.preventDefault();pb.click()}}P.key=key;document.addEventListener('keydown',key);
   if(s.music&&s.track!=='off'&&TRACKS[s.track]){var mu=new Audio(aurl(TRACKS[s.track]));mu.preload='auto';mu.volume=s.musicVol;mu.crossOrigin='anonymous';P.mu=mu;mu.addEventListener('loadedmetadata',function(){if(P&&P.mu===mu)mu.loop=P.total>mu.duration-2})}
   preloadSfx();var prep=audioFor(p,scenes).then(function(a){if(P)P.audio=a});
-  var go_=root.appendChild(el('div','go'));var gb=el('button',null,'▶ شغّل الحكاية');go_.append(gb,el('small',null,'الأسهم للتنقل · المسافة للإيقاف · Esc للخروج'));
+  var go_=root.appendChild(el('div','go'));var gb=el('button',null,'▶ شغّل الحكاية');go_.append(gb);
+  if(mode==='both'&&sNew){gb.textContent='▶ الحكاية الجديدة';var gb2=el('button',null,'الحكاية الكلاسيكية');gb2.style.cssText='margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,.5);font-size:15px;padding:8px 22px';
+    gb2.onclick=function(){P.scenes=sOld;P.total=sOld.reduce(function(a,x){return a+sceneLen(x)},0);prep=audioFor(p,sOld).then(function(a){if(P)P.audio=a});gb.click()};go_.append(gb2)}
+  go_.append(el('small',null,'الأسهم للتنقل · المسافة للإيقاف · Esc للخروج'));
   gb.onclick=function(){go_.remove();try{root.requestFullscreen&&!opts.noFs&&root.requestFullscreen()}catch(e){}prep.then(function(){start(0)})};
   if(opts.auto)setTimeout(function(){gb.click()},400);window.TL_LOG&&window.TL_LOG('story',PN[p])}
 function offsetOf(i){var t=0;for(var k=0;k<i;k++)t+=sceneLen(P.scenes[k]);return t}
@@ -6748,7 +6753,7 @@ function toggle(b){P.paused=!P.paused;b.textContent=P.paused?'▶':'⏸';if(P.pa
 function record(b){if(P.rec){P.rec.stop();return}navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'browser',frameRate:30},audio:true,preferCurrentTab:true,selfBrowserSurface:'include'}).then(function(st){var ch=[],r=new MediaRecorder(st,{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':'video/webm'});P.rec=r;b.classList.add('on');b.textContent='⏹ وقّف التسجيل';var pp=P.p;
   r.ondataavailable=function(e){if(e.data.size)ch.push(e.data)};r.onstop=function(){st.getTracks().forEach(function(t){t.stop()});var bl=new Blob(ch,{type:'video/webm'}),a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='الحكاية_'+PN[pp]+'_'+new Date().toISOString().slice(0,10)+'.webm';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},3000);if(P){P.rec=null;b.classList.remove('on');b.textContent='⏺ فيديو'}};
   r.start(1000);seek(0)}).catch(function(){})}
-window.TL_STORY_PLAY=play;
+window.TL_STORY_PLAY=play;window.TL_STORY_BUILD=build;
 
 /* ---------- مين يشوف الحكاية وأزرارها ---------- */
 function allowed(p){var s=S();if(!s.on||!s.plats[p])return false;var u=window.TL_USER,a=window.TL_ACCESS,g=a&&a.users&&a.users[u]&&a.users[u].group,adm=!!window.TL_ADMINKEY;if(adm)return true;
@@ -6766,6 +6771,96 @@ function wire(){if(!document.body.classList.contains('v2'))return;
   var lead=document.getElementById('tlv2-lead');if(lead){var hb=lead.querySelector('.tls-b');var ok=allowed('lead');if(ok&&!hb){var b2=btn('▶ حكاية القيادة','lead');b2.style.marginInlineStart='8px';var pdf=lead.querySelector('button');if(pdf)pdf.after(b2);else lead.appendChild(b2)}else if(!ok&&hb)hb.remove()}
   var m=/[#&]story=(reta|tsrf|simp|pay|lead)/.exec(location.hash);if(m&&!wire.done&&window.TLX_INFO){var I=window.TLX_INFO();if((m[1]==='lead'&&(I.reta||I.tsrf))||I[m[1]]){wire.done=1;if(allowed(m[1]))play(m[1],{loop:/[#&]loop=1/.test(location.hash)?true:undefined})}}}
 setInterval(wire,1200);
+})();
+</script>
+<script>;(function(){/* «مصر بتنوّر»: آخر مشهد في حكاية كل منصة — طبقات نور على خريطة مصر، كل طبقة رقم بيزيد، والأرقام والتواريخ من آخر بيانات البوابة */
+var MATCH=[["المنشأة","سوهاج"],["مدينة نصر","القاهرة"],["مصر الجديدة","القاهرة"],["6 اكتوبر","الجيزة"],["العاشر من رمضان","الشرقية"],["شبين الكوم","المنوفية"],["مرسي مطروح","مطروح"],["بني سويف","بني سويف"],["كفر الدوار","البحيرة"],["المحلة الكبري","الغربية"],["ميت غمر","الدقهلية"],["كفر سعد","دمياط"],["نجع حمادي","قنا"],["كفر الشيخ","كفر الشيخ"],["الوادي الجديد","الوادي الجديد"],["شبرا الخمية","القليوبية"],["كفر الزيات","الغربية"],["سيدي سالم","كفر الشيخ"],["بني مزار","المنيا"],["دير مواس","المنيا"],["كفر صقر","الشرقية"],["اولاد صقر","الشرقية"],["ابو حماد","الشرقية"],["منيا القمح","الشرقية"],["ابو كبير","الشرقية"],["بئر العبد","شمال سيناء"],["سيدي جابر","الإسكندرية"],["باب شرق","الإسكندرية"],["محرم بك","الإسكندرية"],["مينا البصل","الإسكندرية"],["بولاق الدكرور","الجيزة"],["ابو قرقاص","المنيا"],["ابو المطامير","البحيرة"],["ايتاي البارود","البحيرة"],["كوم حمادة","البحيرة"],["كوم امبو","أسوان"],["التل الكبير","الإسماعيلية"],["بركة السبع","المنوفية"],["حدائق القبة","القاهرة"],["قصر النيل","القاهرة"],["عين شمس","القاهرة"],["الاسماعيلية","الإسماعيلية"],["الأسماعيلية","الإسماعيلية"],["الاسكندرية","الإسكندرية"],["الاسكندريه","الإسكندرية"],["السنبلاوين","الدقهلية"],["الاستثمار","القاهرة"],["العمرانية","الجيزة"],["المحمودية","البحيرة"],["القليوبية","القليوبية"],["الازبكية","القاهرة"],["الجمالية","القاهرة"],["ابوالعلا","القاهرة"],["الحكوميه","القاهرة"],["المساهمة","القاهرة"],["البدرشين","الجيزة"],["اسكندريه","الإسكندرية"],["العامرية","الإسكندرية"],["العطارين","الإسكندرية"],["الزقازيق","الشرقية"],["الحسينية","الشرقية"],["المطامير","البحيرة"],["الدلنجات","البحيرة"],["المنصورة","الدقهلية"],["القاهرة","القاهرة"],["القاهره","القاهرة"],["الجديدة","القاهرة"],["المطرية","القاهرة"],["الزيتون","القاهرة"],["الزاوية","القاهرة"],["الوايلي","القاهرة"],["المعادي","القاهرة"],["الموسكي","القاهرة"],["التفتيش","القاهرة"],["المصالح","القاهرة"],["القاهرة","القاهرة"],["الشركات","القاهرة"],["العجوزة","الجيزة"],["الدكرور","الجيزة"],["المنتزة","الإسكندرية"],["الدخيلة","الإسكندرية"],["المنشية","الإسكندرية"],["السادات","المنوفية"],["الباجور","المنوفية"],["الشهداء","المنوفية"],["الغردقة","البحر الأحمر"],["بورسعيد","بورسعيد"],["البلينا","سوهاج"],["الواسطي","بني سويف"],["البارود","البحيرة"],["المنزلة","الدقهلية"],["فارسكور","دمياط"],["القوصيه","أسيوط"],["النزهه","القاهرة"],["السلام","القاهرة"],["الظاهر","القاهرة"],["عابدين","القاهرة"],["الساحل","القاهرة"],["اكتوبر","الجيزة"],["امبابة","الجيزة"],["الجيزة","الجيزة"],["العياط","الجيزة"],["الجمرك","الإسكندرية"],["العاشر","الشرقية"],["قويسنا","المنوفية"],["القصير","البحر الأحمر"],["السويس","السويس"],["الكبير","الإسماعيلية"],["الدوار","البحيرة"],["دمنهور","البحيرة"],["الاقصر","الأقصر"],["المحلة","الغربية"],["الكبري","الغربية"],["الزيات","الغربية"],["السنطة","الغربية"],["ابوتيج","أسيوط"],["منفلوط","أسيوط"],["الفيوم","الفيوم"],["ابشواي","الفيوم"],["المنيا","المنيا"],["سمالوط","المنيا"],["الوادي","الوادي الجديد"],["الجديد","الوادي الجديد"],["العريش","شمال سيناء"],["الخمية","القليوبية"],["مدينة","القاهرة"],["المرج","القاهرة"],["المهن","القاهرة"],["الحرة","القاهرة"],["النيل","القاهرة"],["حدائق","القاهرة"],["القبة","القاهرة"],["بولاق","القاهرة"],["الهرم","الجيزة"],["الدقي","الجيزة"],["بولاق","الجيزة"],["الرمل","الإسكندرية"],["البصل","الإسكندرية"],["كرموز","الإسكندرية"],["رمضان","الشرقية"],["بلبيس","الشرقية"],["القمح","الشرقية"],["فاقوس","الشرقية"],["اولاد","الشرقية"],["اشمون","المنوفية"],["الكوم","المنوفية"],["السبع","المنوفية"],["مطروح","مطروح"],["سوهاج","سوهاج"],["اخميم","سوهاج"],["الفشن","بني سويف"],["الطور","جنوب سيناء"],["ايتاي","البحيرة"],["حمادة","البحيرة"],["بلطيم","كفر الشيخ"],["الشيخ","كفر الشيخ"],["بسيون","الغربية"],["سمنود","الغربية"],["دكرنس","الدقهلية"],["بلقاس","الدقهلية"],["دمياط","دمياط"],["شربين","دمياط"],["أسيوط","أسيوط"],["اسيوط","أسيوط"],["ديروط","أسيوط"],["حمادي","قنا"],["فرشوط","قنا"],["سنورس","الفيوم"],["طامية","الفيوم"],["اسوان","أسوان"],["قرقاص","المنيا"],["مغاغة","المنيا"],["العبد","شمال سيناء"],["قليوب","القليوبية"],["فيصل","الجيزة"],["الصف","الجيزة"],["اطسا","الجيزة"],["سيدي","الإسكندرية"],["جابر","الإسكندرية"],["محرم","الإسكندرية"],["مينا","الإسكندرية"],["منيا","الشرقية"],["حماد","الشرقية"],["ديرب","الشرقية"],["كبير","الشرقية"],["منوف","المنوفية"],["شبين","المنوفية"],["بركة","المنوفية"],["مرسي","مطروح"],["التل","الإسماعيلية"],["جرجا","سوهاج"],["طهطا","سوهاج"],["سويف","بني سويف"],["رشيد","البحيرة"],["اسنا","الأقصر"],["دسوق","كفر الشيخ"],["سيدي","كفر الشيخ"],["سالم","كفر الشيخ"],["بيلا","كفر الشيخ"],["طنطا","الغربية"],["زفتي","الغربية"],["طلخا","الدقهلية"],["دشنا","قنا"],["امبو","أسوان"],["ادفو","أسوان"],["ملوي","المنيا"],["مزار","المنيا"],["مطاي","المنيا"],["مواس","المنيا"],["شبرا","القليوبية"],["بنها","القليوبية"],["نصر","القاهرة"],["مصر","القاهرة"],["عين","القاهرة"],["شمس","القاهرة"],["قصر","القاهرة"],["بدر","القاهرة"],["علي","القاهرة"],["باب","الإسكندرية"],["شرق","الإسكندرية"],["ابو","الشرقية"],["نجم","الشرقية"],["ابو","الشرقية"],["صقر","الشرقية"],["كفر","الشرقية"],["صقر","الشرقية"],["تلا","المنوفية"],["طما","سوهاج"],["بني","بني سويف"],["ببا","بني سويف"],["كفر","البحيرة"],["ابو","البحيرة"],["كوم","البحيرة"],["فوة","كفر الشيخ"],["كفر","كفر الشيخ"],["كفر","الغربية"],["كفر","الدقهلية"],["ميت","الدقهلية"],["غمر","الدقهلية"],["اجا","الدقهلية"],["أجا","الدقهلية"],["كفر","دمياط"],["سعد","دمياط"],["قنا","قنا"],["نجع","قنا"],["قوص","قنا"],["كوم","أسوان"],["ابو","المنيا"],["بني","المنيا"],["دير","المنيا"],["بئر","شمال سيناء"]];
+var MO=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+var BLUE=[95,168,255],WHITE=[235,240,255],GOLD=[255,196,90],GREEN=[70,230,160],PURP=[181,140,255],RED=[255,120,130];
+/* توزيع تقريبي لما المنصة مافيهاش تقسيم جغرافي */
+var POP={'القاهرة':10.2,'الجيزة':9.2,'الشرقية':7.8,'الدقهلية':6.9,'البحيرة':6.9,'القليوبية':6,'المنيا':6.2,'سوهاج':5.6,'أسيوط':4.9,'الغربية':5.4,'المنوفية':4.6,'كفر الشيخ':3.7,'الفيوم':3.9,'قنا':3.6,'بني سويف':3.5,'الإسكندرية':5.5,'أسوان':1.6,'الأقصر':1.4,'دمياط':1.6,'الإسماعيلية':1.4,'بورسعيد':.8,'السويس':.8,'مطروح':.5,'البحر الأحمر':.4,'الوادي الجديد':.3,'شمال سيناء':.5,'جنوب سيناء':.1};
+function D0(s){return new Date(String(s).slice(0,10)+'T12:00:00').getTime()}
+function fix(o){var r={};Object.keys(o||{}).forEach(function(k){var v=o[k];if(typeof v==='string'&&/^\s*[\[{]/.test(v)){try{v=JSON.parse(v)}catch(e){}}r[k]=v});return r}
+function ds(id){var d=window.dash&&dash.data(id);return d&&d.status==='ok'?d.data:null}
+function acc(pairs){var c=0;return pairs.map(function(p){c+=+p[1]||0;return[p[0],c]})}
+function govOf(n){for(var i=0;i<MATCH.length;i++)if(n.indexOf(MATCH[i][0])>=0)return MATCH[i][1];return'القاهرة'}
+function L(name,unit,cum,w,color,kind,money){return{name:name,unit:unit||'',cum:cum,w:w,color:color,kind:kind||'dot',money:!!money}}
+function simpW(R){var w={};((R&&R.xl&&R.xl.dist)||[]).forEach(function(o){var g=govOf(o.name);w[g]=(w[g]||0)+o.n});return Object.keys(w).length?w:POP}
+var CFG={
+  simp:function(){var R=ds('simp');if(!R||!R.daily)return null;var by={};R.daily.forEach(function(x){(by[x.d]=by[x.d]||{s:0,a:0,x:0}).s+=x.n;by[x.d].a+=(x.app||0)+(x.auto||0)});((R.xl&&R.xl.daily)||[]).forEach(function(x){(by[x.d]=by[x.d]||{s:0,a:0,x:0}).x+=x.n});
+    var ds_=Object.keys(by).sort(),w=simpW(R);return{color:GOLD,kick:'التسهيلات الضريبية',open:['في '+MO[new Date(D0(ds_[0])).getMonth()]+' '+new Date(D0(ds_[0])).getFullYear()+'…','اتولّعت أول نقطة نور'],
+      layers:[L('طلب اتقدّم','',acc(ds_.map(function(d){return[d,by[d].s+by[d].x]})),w,BLUE),L('طلب اتقبل','',acc(ds_.map(function(d){return[d,by[d].a+by[d].x]})),w,GOLD)]}},
+  reta:function(){var d=ds('reta_snapshots');if(!Array.isArray(d))return null;var S=d.map(fix).filter(function(s){return s.date&&s.accounts&&s.decl}).sort(function(a,b){return a.date<b.date?-1:1});if(S.length<2)return null;var b=S[S.length-1],w={};
+    Object.keys(b.man||{}).concat(Object.keys(b.map||{})).forEach(function(g){var v=((b.man||{})[g]||[0])[0]+((b.map||{})[g]||[0])[0];if(v>0)w[g]=v});
+    var coll=function(s){return((s.paid||{}).amount||0)+((s.onacc||{}).amount||0)},m=new Date(D0(S[0].date));
+    return{color:GREEN,kick:'الضرائب العقارية',open:['في '+MO[m.getMonth()]+' '+m.getFullYear()+'…','بدأت الإقرارات تنوّر مصر'],layers:[L('حساب اتفتح','',S.map(function(s){return[s.date,s.accounts.total]}),w,BLUE),L('إقرار اتقدّم','',S.map(function(s){return[s.date,s.decl.total]}),w,GREEN),L('محصّل','جنيه',S.map(function(s){return[s.date,coll(s)]}),w,GOLD,'gold',true)]}},
+  pay:function(){var R=ds('pay');if(!R||!R.series)return null;var S=R.series.filter(function(s){return s.sub}),w=simpW(ds('simp')),m=new Date(D0(S[0].d));if(S.length<2)return null;
+    return{color:BLUE,kick:'منظومة المرتبات',open:['في '+MO[m.getMonth()]+' '+m.getFullYear()+'…','المنظومة بدأت تنوّر'],layers:[L('ممول اتسجل','',S.map(function(s){return[s.d,s.reg]}),w,BLUE),L('ممول بيقدّم','',S.map(function(s){return[s.d,s.sub]}),w,WHITE),L('موظف بتغطيهم المنظومة','',S.map(function(s){return[s.d,s.emp]}),w,GOLD,'gold')]}},
+  tsrf:function(){var W=ds('weekly');if(!Array.isArray(W)||W.length<2)return null;W=W.slice().sort(function(a,b){return a.last_date<b.last_date?-1:1});var gc={'القاهرة':60,'الجيزة':30,'القليوبية':10},m=new Date(D0(W[0].week_start||W[0].last_date)),c=function(k){return acc(W.map(function(x){return[x.last_date,x[k]]}))};
+    return{color:PURP,zoom:'cairo',kick:'التصرفات العقارية',open:['في '+MO[m.getMonth()]+' '+m.getFullYear()+'…','القاهرة الكبرى بدأت تنوّر'],layers:[L('مواطن سجّل','',c('registered'),gc,BLUE),L('مستعلم','',c('inquirers'),gc,WHITE),L('متصرّف','',c('disposers'),gc,PURP),L('مدفوعات الضريبة','جنيه',c('tax_paid'),gc,GOLD,'gold',true)]}},
+  lead:function(){var out=[],I=window.TLX_INFO?TLX_INFO():{},pick=[['simp',0,'التسهيلات · طلبات',GOLD],['pay',1,'المرتبات · ممولين',BLUE],['reta',1,'العقارات · إقرارات',GREEN],['tsrf',0,'التصرفات · مسجلين',PURP]];
+    pick.forEach(function(q){if(I&&I[q[0]]===false)return;var c;try{c=CFG[q[0]]()}catch(e){}if(c&&c.layers[q[1]]){var l=c.layers[q[1]];out.push(L(q[2],'',l.cum,l.w,q[3]))}});
+    return out.length>1?{color:RED,sum:true,kick:'حكاية القيادة',open:['كل المنظومات…','نور واحد على خريطة مصر'],label:'تعامل من المواطنين على المنظومات',layers:out}:null}
+};
+window.TL_EGL_SCENE=function(p){var c;try{c=CFG[p]&&CFG[p]()}catch(e){console.error(e)}if(!c||!c.layers||!c.layers.length)return null;return{id:'egl',kind:'egl',len:8,cfg:c,say:''}};
+
+/* ---------- الرسم ---------- */
+function rng(s){return function(){s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+var ease=function(t){return t<0?0:t>1?1:1-Math.pow(1-t,3)},sm=function(a,b,t){return Math.max(0,Math.min(1,(t-a)/(b-a)))};
+var rgb=function(c,a){return'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'},fN=function(v){return Math.round(v).toLocaleString('en-US')};
+var fM=function(v){return v>=1e9?(v/1e9).toFixed(2)+' مليار':v>=1e6?(v/1e6).toFixed(1)+' مليون':fN(v)};
+function fV(l,v){return(l.money||v>=1e7?fM(v):fN(v))+(l.unit?' '+l.unit:'')}
+function sprite(sz,c0,c1){var c=document.createElement('canvas');c.width=c.height=sz;var g=c.getContext('2d'),gr=g.createRadialGradient(sz/2,sz/2,0,sz/2,sz/2,sz/2);gr.addColorStop(0,c0);gr.addColorStop(.18,c1);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,sz,sz);return c}
+function star(sz,c){var cv=document.createElement('canvas');cv.width=cv.height=sz;var g=cv.getContext('2d'),h=sz/2;g.translate(h,h);var gr=g.createRadialGradient(0,0,0,0,0,h*.35);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1,rgb(c,0));g.fillStyle=gr;g.fillRect(-h,-h,sz,sz);
+  g.globalCompositeOperation='lighter';[0,Math.PI/2].forEach(function(a){g.save();g.rotate(a);var l=g.createLinearGradient(-h,0,h,0);l.addColorStop(0,rgb(c,0));l.addColorStop(.5,'rgba(255,250,230,1)');l.addColorStop(1,rgb(c,0));g.fillStyle=l;g.fillRect(-h,-1.2,sz,2.4);g.restore()});return cv}
+var W=1920,H=1080,SC=1.42,OX=W*0.30-662*SC/2,OY=H*0.52-594*SC/2,T0=1.4,T1=12.4,END=19.2;
+function prep(D){var PA=window.TL_EG_PATHS||window.TL_EG_PATHS_FB;if(!PA)return null;var r=rng(7),paths={},bb={},tmp=document.createElement('canvas').getContext('2d'),P=[],stars=[];
+  for(var i=0;i<220;i++)stars.push([r()*W,r()*H,r()*1.3,r()]);
+  Object.keys(PA).forEach(function(g){paths[g]=new Path2D(PA[g]);var a=1e9,b=1e9,c=-1e9,d=-1e9;PA[g].replace(/(-?\d+\.?\d*),(-?\d+\.?\d*)/g,function(m,p,q){p=+p;q=+q;a=Math.min(a,p);c=Math.max(c,p);b=Math.min(b,q);d=Math.max(d,q)});bb[g]=[a,b,c,d]});
+  var anchor=function(g){var B=bb[g],a=B[0],b=B[1],c=B[2],d=B[3],w=c-a,h=d-b;
+    if(g==='الجيزة')return[c-w*.1,b+h*.1,w*.09,h*.08];if(g==='القاهرة')return[a+w*.3,b+h*.4,w*.16,h*.16];if(g==='مطروح')return[a+w*.75,b+h*.08,w*.25,h*.06];if(g==='البحر الأحمر')return[a+w*.55,b+h*.3,w*.12,h*.25];
+    if(g==='الوادي الجديد')return[a+w*.6,b+h*.4,w*.12,h*.12];if(g==='شمال سيناء')return[a+w*.5,b+h*.15,w*.3,h*.1];if(g==='جنوب سيناء')return[a+w*.6,b+h*.75,w*.15,h*.15];return[(a+c)/2,(b+d)/2,w*.22,h*.22]};
+  var gauss=function(){var u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+  var LAY=D.layers.map(function(l){var C=l.cum.map(function(c){return[c[0],+c[1]||0,D0(c[0])]});return Object.assign({},l,{cum:C,t0:C[0][2],t1:C[C.length-1][2],T:C[C.length-1][1]})}).filter(function(l){return l.T>0});
+  if(!LAY.length)return null;var GS=Math.min.apply(0,LAY.map(function(l){return l.t0})),GE=Math.max.apply(0,LAY.map(function(l){return l.t1}));if(GE<=GS)GE=GS+864e5;
+  var CAM=null;if(D.zoom==='cairo'&&bb['القاهرة']){var A=anchor('القاهرة');CAM={x:OX+A[0]*SC-20,y:OY+A[1]*SC-10,z:3.4}}
+  var nd=LAY.filter(function(l){return l.kind!=='gold'}).length||1,Nt=D.zoom?1700:7000;
+  LAY.forEach(function(l,li){var N=Math.round(l.kind==='gold'?Nt/nd*.35:Nt/nd),govs=Object.keys(l.w).filter(function(g){return paths[g]}),den=govs.reduce(function(q,h){return q+Math.pow(l.w[h],.62)},0)||1,pts=[],col=l.color;
+    l.sp=sprite(48,rgb([Math.min(255,col[0]+60),Math.min(255,col[1]+60),Math.min(255,col[2]+60)],1),rgb(col,.55));l.hot=sprite(120,'rgba(255,255,255,1)',rgb(col,.7));l.st=star(64,col);l.dim=li===0&&LAY.length>2&&!D.sum?.55:1;
+    govs.forEach(function(g){var n=Math.max(6,Math.round(Math.pow(l.w[g],.62)/den*N)),A=anchor(g),k2=D.zoom?2.6:1,k=0,tr=0;
+      while(k<n&&tr<n*300){tr++;var px=A[0]+gauss()*A[2]*k2,py=A[1]+gauss()*A[3]*k2;if(tmp.isPointInPath(paths[g],px,py)){pts.push({x:OX+px*SC,y:OY+py*SC,af:Math.max(.22,Math.min(1,Math.sqrt(250/n))),L:l});k++}}});
+    for(var i=pts.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),t=pts[i];pts[i]=pts[j];pts[j]=t}
+    var C=l.cum;pts.forEach(function(p,i){var f=(i+1)/pts.length*l.T,lo=0,hi=C.length-1;while(lo<hi){var m=(lo+hi)>>1;if(C[m][1]>=f)hi=m;else lo=m+1}p.at=(C[lo][2]-GS)/(GE-GS);p.s=.55+r()*.9;p.ph=r()*6.28;p.base=lo===0});P=P.concat(pts)});
+  P.sort(function(a,b){return(a.L.kind==='gold')-(b.L.kind==='gold')});return{D:D,LAY:LAY,P:P,paths:paths,stars:stars,GS:GS,GE:GE,CAM:CAM}}
+function cumAt(l,t){var C=l.cum;if(t<l.t0)return 0;var lo=0,hi=C.length-1;while(lo<hi){var m=(lo+hi+1)>>1;if(C[m][2]<=t)lo=m;else hi=m-1}if(lo<C.length-1){var a=C[lo],b=C[lo+1];return a[1]+(b[1]-a[1])*(t-a[2])/(b[2]-a[2])}return C[lo][1]}
+function draw(x,S,t){var D=S.D,LAY=S.LAY,ac=D.color,F='Cairo,Tahoma,sans-serif';x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-over';x.globalAlpha=1;x.clearRect(0,0,W,H);
+  var z=1+0.07*ease(sm(T1-2,END,t)),cx=W*.30,cy=H*.52,CAM=S.CAM;
+  if(CAM){var k=ease(sm(.3,3,t));z=1+(CAM.z-1)*k+0.15*ease(sm(T1-2,END,t));var tx=cx+(CAM.x-cx)*k,ty=cy+(CAM.y-cy)*k;x.setTransform(z,0,0,z,cx-tx*z,cy-ty*z)}else x.setTransform(z,0,0,z,cx*(1-z),cy*(1-z));
+  var mo=ease(sm(.3,2,t));x.save();x.translate(OX,OY);x.scale(SC,SC);x.lineWidth=1.1/SC/(CAM?z:1);
+  for(var g in S.paths){x.strokeStyle=rgb(ac,.3*mo);x.fillStyle='rgba(30,50,100,'+(.18*mo)+')';x.fill(S.paths[g]);x.stroke(S.paths[g])}x.restore();
+  var pr=Math.pow(sm(T0,T1,t),1.15),now=S.GS+pr*(S.GE-S.GS),ps=CAM?1/Math.sqrt(z):1,mul=(D.sum?.34:LAY.length>1?.55:1)*(CAM?.22:1);x.globalCompositeOperation='lighter';
+  for(var i=0;i<S.P.length;i++){var p=S.P[i],vis=p.base?sm(T0-.6,T0+.4,t):1;if(p.at>pr||vis<=0)continue;var l=p.L,age=(pr-p.at)*(T1-T0),hot=p.base?0:Math.max(0,1-age/0.9),s,tw;
+    if(l.kind==='gold'){tw=Math.max(0,Math.sin(t*3.1+p.ph*5));s=(10+18*tw)*p.s*ps;x.globalAlpha=(.25+.75*tw)*vis*(CAM?.45:.7);x.drawImage(l.st,p.x-s,p.y-s,s*2,s*2);continue}
+    tw=.75+.25*Math.sin(t*2+p.ph);s=8*p.s*tw*ps;x.globalAlpha=.32*p.af*vis*mul*l.dim;x.drawImage(l.sp,p.x-s,p.y-s,s*2,s*2);
+    if(hot>0){var h=38*hot*p.s*ps;x.globalAlpha=hot*.6*Math.max(.35,p.af)*(D.sum?.3:.5)*(CAM?.4:1);x.drawImage(l.hot,p.x-h,p.y-h,h*2,h*2)}}
+  x.setTransform(1,0,0,1,0,0);var fb=sm(T1,T1+.6,t)*(1-sm(T1+.6,T1+2.6,t));if(fb>0){x.globalAlpha=fb*.45;var g2=x.createRadialGradient(cx,cy,0,cx,cy,620);g2.addColorStop(0,rgb(ac,.5));g2.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g2;x.fillRect(0,0,W,H)}
+  x.globalAlpha=1;x.globalCompositeOperation='source-over';
+  x.direction='rtl';x.textAlign='right';var RX=W-150,acs=rgb(ac,1),fin=t>=T1,dE=new Date(S.GE),dN=new Date(now);
+  var a0=sm(.2,1,t)*(1-sm(T0+1,T0+1.8,t));if(a0>0){x.globalAlpha=a0;x.fillStyle=acs;x.font='700 34px '+F;x.fillText(D.kick,RX,380);x.fillStyle='#EEF3FA';x.font='900 64px '+F;x.fillText(D.open[0],RX,470);x.fillText(D.open[1],RX,560)}
+  var a1=sm(T0+1.2,T0+2,t);if(a1>0){x.globalAlpha=a1;x.fillStyle=acs;x.font='700 30px '+F;x.fillText('مصر بتنوّر · '+D.kick,RX,150);x.fillStyle='rgba(238,243,250,.7)';x.font='700 34px '+F;x.fillText(fin?'لحد '+dE.getDate()+' '+MO[dE.getMonth()]+' '+dE.getFullYear():MO[dN.getMonth()]+' '+dN.getFullYear(),RX,196);
+    var y=250;if(D.sum){var tot=LAY.reduce(function(a,l){return a+(fin?l.T:cumAt(l,now))},0);x.fillStyle='#fff';x.shadowColor=rgb(ac,.9);x.shadowBlur=36;x.font='900 120px '+F;x.fillText(fN(tot),RX,y+110);x.shadowBlur=0;x.fillStyle=acs;x.font='700 34px '+F;x.fillText(D.label,RX,y+160);y+=200}
+    var big=D.sum?54:LAY.length>3?72:86,gap=big+(D.sum?52:64);
+    LAY.forEach(function(l){var v=fin?l.T:cumAt(l,now);if(!(v>0))return;var c=l.color;x.fillStyle='#fff';x.shadowColor=rgb(c,.95);x.shadowBlur=28;x.font='900 '+big+'px '+F;x.fillText(fV(l,v),RX,y+big);x.shadowBlur=0;
+      x.fillStyle=rgb(c,1);x.beginPath();x.arc(RX-6,y+big+30,8,0,7);x.fill();x.font='700 '+(D.sum?26:30)+'px '+F;x.fillText(l.name,RX-24,y+big+40);y+=gap});
+    var a2=sm(T1+2,T1+2.9,t);if(a2>0){y+=24;x.globalAlpha=a2;x.fillStyle='#EEF3FA';x.font='900 40px '+F;x.fillText('كل نقطة نور… مواطن اختار يتعامل مع المنظومة',RX,y+40);
+      x.globalAlpha=sm(T1+3.2,T1+4,t);x.fillStyle='#3DDC97';x.beginPath();x.arc(RX-8,y+92,9,0,7);x.fill();x.fillStyle='rgba(238,243,250,.8)';x.font='700 28px '+F;x.fillText('بيتحدّث تلقائياً',RX-30,y+101)}}
+  x.globalAlpha=1}
+window.TL_STORY_R2=window.TL_STORY_R2||{};
+TL_STORY_R2.egl=function(sc,d,HH){var S=prep(sc.cfg);if(!S)return;var cv=document.createElement('canvas');cv.width=W;cv.height=H;cv.style.cssText='width:100%;height:100%;object-fit:contain;display:block';d.style.padding='0';d.appendChild(cv);
+  var x=cv.getContext('2d'),t0=null,pauseAt=0,last=0;HH.later(function(){HH.sfx('sting',.7)},200);
+  function f(ts){if(!d.isConnected&&t0!=null)return;var root=document.getElementById('tls'),paused=root&&root.querySelector('.ctl button:nth-child(3)')&&root.querySelector('.ctl button:nth-child(3)').textContent==='▶';
+    if(t0==null)t0=ts;if(paused){t0=ts-last*1000}else{last=Math.min(END,(ts-t0)/1000)}draw(x,S,last);requestAnimationFrame(f)}requestAnimationFrame(f)};
+window.TL_EGL_DRAW=function(cfg,cv,t){var S=cv.__S||(cv.__S=prep(cfg));if(S)draw(cv.getContext('2d'),S,t)};
 })();
 </script>
 <script>;(function(){/* الصفحة الرئيسية (تصميم 2): كارت واحد لكل منصة + أخبار الأسبوع + أهم التنبيهات */
