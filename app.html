@@ -89,7 +89,7 @@
   var ready=Promise.resolve();
   if(window.TL_REMOTE){
     ready=fetchVault()
-      .then(function(v){window.TL_ACCESS=v.access;window.TL_VAULT=v.vault;window.TL_ADMIN_BOX=v.admin||null;window.TL_BUILT=v.built;window.TL_LOG_URL=v.logUrl||'';window.TL_NOTICES=v.notices||[];window.TL_UIALL=v.uiAll||'v1';window.TL_STORY=v.story||null;window.TL_LAYOUT=v.layout||null;window.TL_PWPUB=v.pwPub||null;window.TL_PWPRIV_BOX=v.pwPriv||null;window.dispatchEvent(new Event('tl-vault'))});
+      .then(function(v){window.TL_ACCESS=v.access;window.TL_VAULT=v.vault;window.TL_ADMIN_BOX=v.admin||null;window.TL_BUILT=v.built;window.TL_LOG_URL=v.logUrl||'';window.TL_NOTICES=v.notices||[];window.TL_UIALL=v.uiAll||'v1';window.TL_STORY=v.story||null;window.TL_LAYOUT=v.layout||null;window.TL_PK_BOX=v.pk||null;window.TL_PWPUB=v.pwPub||null;window.TL_PWPRIV_BOX=v.pwPriv||null;window.dispatchEvent(new Event('tl-vault'))});
     ready.catch(function(){var e=document.querySelector('#tl-err');if(e)e.textContent='تعذر تحميل البيانات. تأكد من الاتصال بالإنترنت ثم أعد فتح الملف.'});
   }
   window.TL_READY=ready;
@@ -98,7 +98,16 @@
     return ready.then(function(){return S.digest('SHA-256',new TextEncoder().encode('tl:'+u))}).then(function(h){var hx=Array.prototype.map.call(new Uint8Array(h),function(b){return('0'+b.toString(16)).slice(-2)}).join('');r=((window.TL_ACCESS||{}).users||{})[hx];window.TL_UHASH=hx;if(!r)throw new Error('no user');return S.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveKey'])})
      .then(function(base){return S.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:ub(r.salt),iterations:200000},base,{name:'AES-GCM',length:256},false,['decrypt'])})
      .then(function(kek){return S.decrypt({name:'AES-GCM',iv:ub(r.iv)},kek,ub(r.ct))})
-     .then(function(buf){var body=JSON.parse(new TextDecoder().decode(buf));window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_UIPREF=body.ui||'';window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_LOGKEY=body.lk||'';window.TL_EL_KEY=body.el||'';window.TL_USER=u;
+     .then(function(buf){var body=JSON.parse(new TextDecoder().decode(buf));
+        // الأدمن: نكمّل مفاتيح المنصات اللي اتفعّلت له في الإعدادات ومش موجودة في دخوله (منصات اتضافت بعد ما حسابه اتعمل)
+        if(!body.a||!window.TL_PK_BOX)return body;
+        var ak;return S.importKey('raw',ub(body.a),'AES-GCM',false,['decrypt']).then(function(k){ak=k;return S.decrypt({name:'AES-GCM',iv:ub(window.TL_PK_BOX.iv)},k,ub(window.TL_PK_BOX.ct))})
+         .then(function(b){var all=JSON.parse(new TextDecoder().decode(b));var box=window.TL_ADMIN_BOX;
+           var want=box?S.decrypt({name:'AES-GCM',iv:ub(box.iv)},ak,ub(box.ct)).then(function(d){var dir=JSON.parse(new TextDecoder().decode(d)),me=dir[u]||{};var g=((window.TL_ACCESS||{}).groups||{})[me.group||body.group]||{};
+               return (g.platforms||[]).indexOf('*')>=0&&!(me.platforms||[]).length?Object.keys(all):(me.platforms||[])}):Promise.resolve(Object.keys(all));
+           return want.then(function(ps){ps.forEach(function(pl){if(!body.k[pl]&&all[pl]&&window.TL_VAULT[pl])body.k[pl]=all[pl]});return body})})
+         .catch(function(){return body})})
+     .then(function(body){window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_UIPREF=body.ui||'';window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_LOGKEY=body.lk||'';window.TL_EL_KEY=body.el||'';window.TL_USER=u;
         return Promise.all(Object.keys(body.k).map(function(pl){var v=window.TL_VAULT[pl];
           return S.importKey('raw',ub(body.k[pl]),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(v.iv)},k,ub(v.ct))})
            .then(function(b){var d=JSON.parse(new TextDecoder().decode(b));(window.TL_PLATKEYS=window.TL_PLATKEYS||{})[pl]=Object.keys(d);Object.keys(d).forEach(function(id){window.TL_DATA[id]=d[id]})})}))
