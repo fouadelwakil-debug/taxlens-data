@@ -3730,7 +3730,7 @@ dash.calc('quality', {
 <div class="grid k full" id="dk"></div>
 <div class="grid two">
  <div class="card"><h2>المسار التراكمي</h2><div class="seg" id="dSeries"><button data-m="accounts" class="on">الحسابات</button><button data-m="decl">الإقرارات</button><button data-m="units">الوحدات</button><button data-m="coll">التحصيل</button></div><div class="ch"><canvas id="d1"></canvas></div></div>
- <div class="card"><h2>الزيادة اليومية (متوسط لكل يوم بين التقارير)</h2><div class="ch" style="height:330px"><canvas id="d2"></canvas></div></div>
+ <div class="card"><h2>الزيادة اليومية (متوسط لكل يوم بين التقارير)</h2><div class="seg" id="d2Mode"><button data-m="w" class="on">أسبوعي</button><button data-m="r">كل التقارير</button></div><div class="ch" style="height:330px"><canvas id="d2"></canvas></div></div>
 </div>
 <div class="card full"><h2>مقارنة بين تقريرين</h2>
  <div class="filters" style="position:static;padding:0 0 10px"><label class="f">من<select id="cA" class="inp"></select></label><label class="f">إلى<select id="cB" class="inp"></select></label><label class="f">ترتيب حسب<select id="cS" class="inp"><option value="d">الزيادة</option><option value="p">نسبة النمو</option><option value="b">الإجمالي</option></select></label></div>
@@ -4339,7 +4339,10 @@ if(window.dq)dq.innerHTML=[`إجمالي الإقرارات في جداول ال
 })();
 
 
-mk('x1',{type:'bar',data:{labels:GOV.map(g=>row(g,'all')).sort((a,b)=>b.total-a.total).slice(0,10).map(o=>o.g),datasets:[{data:GOV.map(g=>row(g,'all').total).sort((a,b)=>b-a).slice(0,10),backgroundColor:K.a,borderRadius:4}]},options:{indexAxis:'y',maintainAspectRatio:false,layout:{padding:{left:50}},plugins:{lbl:{on:true,fmt:v=>fk(v)},legend:{display:false},tooltip:tt},scales:{x:{display:false}}}});
+{const T10=GOV.map(g=>({g,v:row(g,'all').total})).sort((a,b)=>b.v-a.v),tAll=T10.reduce((x,y)=>x+y.v,0)||1,top=T10.slice(0,10),mx=top.length?top[0].v:0,lb=v=>fk(v)+' · '+Math.round(v/tAll*100)+'%';
+ const inLbl={id:'inLbl',afterDatasetsDraw(c){const m=c.getDatasetMeta(0),{ctx}=c;ctx.save();ctx.font='700 11px "Cairo"';ctx.textBaseline='middle';m.data.forEach((el,i)=>{const t=lb(top[i].v),w=ctx.measureText(t).width,len=Math.abs(el.x-el.base);
+   if(len>w+16){ctx.fillStyle='#fff';ctx.textAlign='right';ctx.fillText(t,el.x-8,el.y)}else{ctx.fillStyle=css('--ink');ctx.textAlign='left';ctx.fillText(t,el.x+6,el.y)}});ctx.restore()}};
+ mk('x1',{type:'bar',plugins:[inLbl],data:{labels:top.map(o=>o.g),datasets:[{data:top.map(o=>o.v),backgroundColor:top.map((o,i)=>i?K.a+'b3':K.a),borderRadius:4}]},options:{indexAxis:'y',maintainAspectRatio:false,layout:{padding:{left:8,right:12}},plugins:{legend:{display:false},tooltip:Object.assign({},tt,{callbacks:{label:it=>' '+f(it.raw)+' إقرار · '+(it.raw/tAll*100).toFixed(1)+'% من الإجمالي'}})},scales:{x:{display:false,max:mx*1.15,beginAtZero:true},y:{grid:{display:false}}}}})}
 // ===== Operations
 (function(){
 const wdH=H.map((_,i)=>Math.round(WDX.reduce((s,d)=>s+D[d][i],0)/Math.max(1,WDX.length))),pk=L.peak;
@@ -4520,13 +4523,40 @@ const tot=(s,k)=>k=='accounts'?s.accounts.total:k=='decl'?s.decl.total:k=='units
 const gT=(s,g)=>(s.man&&s.man[g]&&s.map&&s.map[g])?(s.man[g][0]+s.map[g][0]):null;
 const days=(a,b)=>Math.max(1,Math.round((new Date(b)-new Date(a))/864e5));
 function list(){return Object.values(SNAP).sort((a,b)=>a.date<b.date?-1:1)}
-function render(){const L=list(),n=L.length,cur=L[n-1],prv=L[n-2];
+let d2m='w';function render(){const L=list(),n=L.length,cur=L[n-1],prv=L[n-2];
  const dlt=(k,fmt)=>{if(!prv)return'';const d=tot(cur,k)-tot(prv,k),pd=d/days(prv.date,cur.date);return`<span style="color:${d>=0?'var(--b)':'var(--e)'}">${d>=0?'▲':'▼'} ${fmt(Math.abs(d))}</span> منذ ${fd(prv.date)} · ${fmt(Math.abs(pd))}/يوم`};
  const fm=v=>v>=1e6?(v/1e6).toFixed(2)+'M':f(v);
  dk.innerHTML=[['آخر تقرير',fd(cur.date),n+' تقرير محفوظ'],['الحسابات',f(tot(cur,'accounts')),dlt('accounts',f)],['الإقرارات',f(tot(cur,'decl')),dlt('decl',f)],['الوحدات',f(tot(cur,'units')),dlt('units',f)],['التحصيل (ج.م)',fm(tot(cur,'coll')),dlt('coll',fm)]].map(x=>`<div class="card"><div class="kl">${x[0]}</div><div class="kv" style="font-size:22px">${x[1]}</div><div class="kn">${x[2]||'ارفع تقرير يوم تاني لبدء المقارنة'}</div></div>`).join('');
- mk('d1',{type:'line',data:{labels:L.map(s=>fd(s.date)),datasets:[{label:{accounts:'الحسابات',decl:'الإقرارات',units:'الوحدات',coll:'التحصيل'}[mode],data:L.map(s=>tot(s,mode)),borderColor:K.a,backgroundColor:K.a,tension:.25,pointRadius:4}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tt,lbl:{on:n<=12,fmt:v=>fk(v)}},layout:{padding:{top:18}},scales:{y:{ticks:{callback:fk}}}}});
- const inc=L.slice(1).map((s,i)=>({l:fd(s.date),a:(tot(s,'accounts')-tot(L[i],'accounts'))/days(L[i].date,s.date),d:(tot(s,'decl')-tot(L[i],'decl'))/days(L[i].date,s.date)}));
- mk('d2',{type:'bar',data:{labels:inc.map(x=>x.l),datasets:[{label:'حسابات/يوم',data:inc.map(x=>Math.round(x.a)),backgroundColor:K.a},{label:'إقرارات/يوم',data:inc.map(x=>Math.round(x.d)),backgroundColor:K.b}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:tt,title:{display:!inc.length,text:'تحتاج تقريرين على الأقل'}},scales:{y:{ticks:{callback:fk}}}}});
+ const MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+ const ser=L.map(s=>tot(s,mode));let jI=-1,jV=0;for(let i=1;i<n;i++){const v=ser[i]-ser[i-1];if(v>jV){jV=v;jI=i}}
+ const mF0=(A,g)=>{const r=A.map((s,i)=>i==0||g(s).slice(0,7)!=g(A[i-1]).slice(0,7));const nx=r.indexOf(true,1);if(nx>0&&nx<A.length*.07)r[0]=false;return r};const mFirst=mF0(L,s=>s.date);
+ const d1ann={id:'d1ann',afterDatasetsDraw(c){const m=c.getDatasetMeta(0);if(!m.data.length)return;const{ctx,chartArea:A}=c;ctx.save();
+   ctx.strokeStyle=K.line;ctx.lineWidth=1;ctx.setLineDash([3,4]);mFirst.forEach((on,i)=>{if(!on||!i)return;const x=m.data[i].x;ctx.beginPath();ctx.moveTo(x,A.top);ctx.lineTo(x,A.bottom);ctx.stroke()});ctx.setLineDash([]);
+   if(jI>0&&n>3){const pt=m.data[jI];ctx.fillStyle=K.e;ctx.beginPath();ctx.arc(pt.x,pt.y,4,0,7);ctx.fill();ctx.font='600 11px "Cairo"';const lt=pt.x<A.left+(A.right-A.left)*.55;ctx.textAlign=lt?'left':'right';ctx.textBaseline='top';
+     ctx.fillText('أكبر زيادة: +'+fk(jV)+' في '+fd(L[jI].date),pt.x+(lt?8:-8),pt.y+6)}
+   const last=m.data[n-1];ctx.fillStyle=K.a;ctx.beginPath();ctx.arc(last.x,last.y,5,0,7);ctx.fill();ctx.strokeStyle=K.card;ctx.lineWidth=2;ctx.stroke();
+   ctx.font='700 12px "Cairo"';ctx.fillStyle=css('--ink');ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText(fk(ser[n-1])+' · '+fd(L[n-1].date),last.x-6,last.y-9);ctx.restore()}};
+ const grad=c=>{const A=c.chart.chartArea;if(!A)return 'transparent';const g=c.chart.ctx.createLinearGradient(0,A.top,0,A.bottom);g.addColorStop(0,K.a+'44');g.addColorStop(1,K.a+'03');return g};
+ mk('d1',{type:'line',plugins:[d1ann],data:{labels:L.map(s=>s.date),datasets:[{label:{accounts:'الحسابات',decl:'الإقرارات',units:'الوحدات',coll:'التحصيل'}[mode],data:ser,borderColor:K.a,borderWidth:2.5,tension:.3,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:K.a,fill:true,backgroundColor:grad}]},
+   options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},layout:{padding:{top:28,left:6,right:6}},plugins:{legend:{display:false},
+     tooltip:Object.assign({},tt,{callbacks:{title:it=>fd(L[it[0].dataIndex].date),label:it=>{const i=it.dataIndex,v=ser[i];return ' '+f(v)+(i?'  (+'+f(v-ser[i-1])+' عن التقرير اللي قبله)':'')}}})},
+     scales:{x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:0,callback:(v,i)=>mFirst[i]?MN[+L[i].date.slice(5,7)-1]:null}},y:{beginAtZero:true,ticks:{callback:fk},grid:{color:K.line}}}}});
+ // الزيادة اليومية
+ const rate=k=>L.slice(1).map((s,i)=>(tot(s,k)-tot(L[i],k))/days(L[i].date,s.date));
+ let lab,ra,rd,ma=null,tip;
+ if(d2m=='w'){const B=[];const t0=new Date(L[0].date);L.forEach((s,i)=>{const w=Math.floor((new Date(s.date)-t0)/(7*864e5));if(!B.length||B[B.length-1].w!=w)B.push({w,i});else B[B.length-1].i=i});
+   const P=[];for(let j=1;j<B.length;j++){const a=L[B[j-1].i],b=L[B[j].i],dd=days(a.date,b.date);P.push({l:'أسبوع '+fd(b.date),s:a,e:b,a:(tot(b,'accounts')-tot(a,'accounts'))/dd,d:(tot(b,'decl')-tot(a,'decl'))/dd})}
+   lab=P.map(x=>x.e.date);ra=P.map(x=>Math.round(x.a));rd=P.map(x=>Math.round(x.d));tip=i=>'من '+fd(P[i].s.date)+' لـ '+fd(P[i].e.date)}
+ else{lab=L.slice(1).map(s=>s.date);ra=rate('accounts').map(Math.round);rd=rate('decl').map(Math.round);tip=i=>fd(lab[i]);ma=ra.map((_,i)=>{const w=ra.slice(Math.max(0,i-6),i+1);return Math.round(w.reduce((x,y)=>x+y,0)/w.length)})}
+ const tA=n>1?(tot(L[n-1],'accounts')-tot(L[0],'accounts'))/days(L[0].date,L[n-1].date):0;
+ const lmF=mF0(lab,s=>s);
+ const avgLn={id:'avgLn',afterDatasetsDraw(c){if(!lab.length)return;const{ctx,chartArea:A,scales:{y}}=c,yy=y.getPixelForValue(tA);ctx.save();ctx.strokeStyle=K.e;ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(A.left,yy);ctx.lineTo(A.right,yy);ctx.stroke();ctx.setLineDash([]);
+   ctx.font='600 11px "Cairo"';ctx.fillStyle=K.e;ctx.textAlign='left';ctx.textBaseline='bottom';ctx.fillText('متوسط الفترة: '+fk(Math.round(tA))+' حساب/يوم',A.left+6,yy-4);ctx.restore()}};
+ const ds2=[{type:'bar',label:'حسابات/يوم',data:ra,backgroundColor:K.a+'cc',borderRadius:d2m=='w'?5:1,order:3,categoryPercentage:d2m=='w'?.8:1,barPercentage:d2m=='w'?.85:.9},
+   {type:'line',label:'إقرارات/يوم',data:rd,borderColor:K.b,backgroundColor:K.b,borderWidth:2.5,tension:.3,pointRadius:d2m=='w'?3:0,order:1}];
+ if(ma)ds2.push({type:'line',label:'متوسط 7 تقارير (حسابات)',data:ma,borderColor:K.d||K.c,borderWidth:2,borderDash:[2,0],tension:.4,pointRadius:0,order:2});
+ mk('d2',{type:'bar',plugins:[avgLn],data:{labels:lab,datasets:ds2},options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'},tooltip:Object.assign({},tt,{callbacks:{title:it=>tip(it[0].dataIndex),label:it=>' '+it.dataset.label+': '+f(it.raw)}}),title:{display:!lab.length,text:'تحتاج تقريرين على الأقل'}},
+   scales:{x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:0,callback:(v,i)=>lmF[i]?MN[+lab[i].slice(5,7)-1]:null}},y:{beginAtZero:true,ticks:{callback:fk},grid:{color:K.line}}}}});
  const opts=L.map(s=>`<option value="${s.date}">${fd(s.date)}</option>`).join('');const a0=cA.value,b0=cB.value;cA.innerHTML=opts;cB.innerHTML=opts;cA.value=(SNAP[a0]&&cA.dataset.u)?a0:(prv||cur).date;cB.value=(SNAP[b0]&&cB.dataset.u)?b0:cur.date;cmp();
  hT.innerHTML='<thead><tr><th>تاريخ التقرير</th><th>أيام منذ الانطلاق</th><th>الحسابات</th><th>الإقرارات</th><th>الوحدات</th><th>التحصيل</th><th>المصدر</th>'+(canW?'<th></th>':'')+'</tr></thead><tbody>'+[...L].reverse().map(s=>`<tr><td>${fd(s.date)}</td><td>${s.days||'—'}</td><td>${f(tot(s,'accounts'))}</td><td>${f(tot(s,'decl'))}</td><td>${f(tot(s,'units'))}</td><td>${f(tot(s,'coll'))}</td><td>${s.fileName||'التقرير الأصلي'}</td>${canW?`<td>${s.fileName?`<button class="chip" data-del="${s.date}">حذف</button>`:''}</td>`:''}</tr>`).join('')+'</tbody>'}
 function cmp(){const A=SNAP[cA.value],B=SNAP[cB.value];if(!A||!B)return;const dd=days(A.date,B.date),same=A.date==B.date;
@@ -4534,7 +4564,7 @@ function cmp(){const A=SNAP[cA.value],B=SNAP[cB.value];if(!A||!B)return;const dd
  const R=GOV.map(g=>{const a=gT(A,g),b=gT(B,g);return{g,a,b,d:(a==null||b==null)?0:b-a,p:a?(b-a)/a*100:0,na:a==null||b==null}}).sort((x,y)=>y[cS.value]-x[cS.value]);
  mk('d3',{type:'bar',data:{labels:R.map(r=>r.g),datasets:[{label:'الزيادة في الإقرارات',data:R.map(r=>r.d),backgroundColor:R.map(r=>r.d>=0?K.b:K.e),borderRadius:3}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tt,lbl:{on:!same,fmt:v=>f(v)}},layout:{padding:{left:40}},scales:{y:{ticks:{font:{size:10}}}}}});
  cT.innerHTML='<thead><tr><th>المحافظة</th><th>'+fd(A.date)+'</th><th>'+fd(B.date)+'</th><th>الزيادة</th><th>النمو</th><th>/يوم</th></tr></thead><tbody>'+R.map(r=>r.na?`<tr><td>${r.g}</td><td>${r.a==null?'—':f(r.a)}</td><td>${r.b==null?'—':f(r.b)}</td><td colspan="3" style="color:var(--mute)">جدول المحافظات غير متاح في أحد التقريرين</td></tr>`:`<tr><td>${r.g}</td><td>${f(r.a)}</td><td>${f(r.b)}</td><td>${f(r.d)}</td><td>${r.p.toFixed(1)}%</td><td>${f(r.d/dd)}</td></tr>`).join('')+'</tbody>'}
-cA.onchange=function(){cA.dataset.u=1;cmp()};cB.onchange=function(){cB.dataset.u=1;cmp()};cS.onchange=cmp;seg('dSeries',m=>{mode=m;render()});
+cA.onchange=function(){cA.dataset.u=1;cmp()};cB.onchange=function(){cB.dataset.u=1;cmp()};cS.onchange=cmp;seg('dSeries',m=>{mode=m;render()});seg('d2Mode',m=>{d2m=m;render()});
 hT.onclick=async e=>{const b=e.target.closest('[data-del]');if(!b||!db)return;b.disabled=true;try{await db.doc('snapshots/'+b.dataset.del).delete()}catch(err){upMsg.textContent='تعذر الحذف.'}};
 // upload
 drop.onclick=()=>upF.click();drop.ondragover=e=>{e.preventDefault();drop.classList.add('ov')};drop.ondragleave=()=>drop.classList.remove('ov');
