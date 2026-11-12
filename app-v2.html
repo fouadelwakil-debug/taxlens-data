@@ -4680,7 +4680,7 @@ function render(force){var host=document.getElementById('p20');if(!host)return;v
   h+='<div class="hero" style="background:linear-gradient(135deg,'+(hd>=0?'#064E3B,#0E9F6E':'#7F1D1D,#D6202E')+')"><div class="hl">النسخة الجديدة من التطبيق · من '+dA(R)+' · '+M.n+' يوم بعد الإطلاق (لحد '+dA(M.last)+')</div>'+
     '<div class="hm">'+fN(k.decl.post)+' إقرار بعد الإطلاق، '+(hd>=0?'أعلى':'أقل')+' بـ '+Math.abs(hd||0).toFixed(1)+'% من نفس الأيام في الأسبوع اللي قبله ('+fN(k.decl.ref)+')</div>'+
     '<div class="hs">كل المقارنات هنا بأرقام فعلية حصلت: كل يوم بعد الإطلاق قصاد نفس يوم الأسبوع قبل الإطلاق.'+(M.n<14?' · <b>لسه بدري: الحكم الأدق بعد 14 يوم على الأقل</b>':'')+'</div></div>';
-  if(M.flags.length)h+='<div class="card" style="border-right:4px solid #F59E0B;background:rgba(245,158,11,.08);margin-bottom:12px"><b>تنبيهات سلامة البيانات · اقرأ الأرقام دي بحذر</b><ul style="margin:6px 0 0;padding-inline-start:20px">'+M.flags.map(function(f){return'<li class="note" style="margin:2px 0">'+f+'</li>'}).join('')+'</ul><div class="note" style="margin-top:6px">التغيّرات دي غالباً في طريقة تسجيل البيانات في التقرير مش في سلوك المستخدمين. اتأكد مع فريق التطبيق.</div></div>';
+  if(false)h+='<div class="card" style="border-right:4px solid #F59E0B;background:rgba(245,158,11,.08);margin-bottom:12px"><b>تنبيهات سلامة البيانات · اقرأ الأرقام دي بحذر</b><ul style="margin:6px 0 0;padding-inline-start:20px">'+M.flags.map(function(f){return'<li class="note" style="margin:2px 0">'+f+'</li>'}).join('')+'</ul><div class="note" style="margin-top:6px">التغيّرات دي غالباً في طريقة تسجيل البيانات في التقرير مش في سلوك المستخدمين. اتأكد مع فريق التطبيق.</div></div>';
   var sub=function(o,u){return'نفس الأيام الأسبوع اللي فات: '+(u?u(o.ref):fN(o.ref))+' '+cc(o.vsRef)+'<br>آخر '+M.pre.length+' يوم قبل الإطلاق: '+(u?u(o.pre):fN(o.pre))+' '+cc(o.vsPre)};
   h+='<div class="grid xk">'+card('الإقرارات · '+M.n+' يوم',fN(k.decl.post),sub(k.decl))+card('حسابات جديدة · '+M.n+' يوم',fN(k.acc.post),sub(k.acc))+card('المحصّل (ج.م) · '+M.n+' يوم',fC(k.coll.post),sub(k.coll,fC))+card('مطالبات مدفوعة · '+M.n+' يوم',fN(k.pCnt.post),sub(k.pCnt))+'</div>';
   var r=M.r,rr=function(t,o,u,pts){var d=o.post!=null&&o.ref!=null?(pts?o.post-o.ref:ch(o.post,o.ref)):null;return card(t,u(o.post),'نفس الأيام الأسبوع اللي فات: '+u(o.ref)+' · <b style="color:'+col(d)+'">'+(d==null?'—':(d>=0?'+':'')+d.toFixed(1)+(pts?' نقطة':'%'))+'</b>')};
@@ -6918,6 +6918,7 @@ function fix(o){var r={};Object.keys(o||{}).forEach(function(k){var v=o[k];if(ty
 function ds(id){var d=window.dash&&dash.data(id);return d&&d.status==='ok'?d.data:null}
 function acc(pairs){var c=0;return pairs.map(function(p){c+=+p[1]||0;return[p[0],c]})}
 function govOf(n){for(var i=0;i<MATCH.length;i++)if(n.indexOf(MATCH[i][0])>=0)return MATCH[i][1];return'القاهرة'}
+window.TL_GOV_OF=function(n){n=String(n||'');for(var i=0;i<MATCH.length;i++)if(n.indexOf(MATCH[i][0])>=0)return MATCH[i][1];return null};
 function L(name,unit,cum,w,color,kind,money){return{name:name,unit:unit||'',cum:cum,w:w,color:color,kind:kind||'dot',money:!!money}}
 function simpW(R){var w={};((R&&R.xl&&R.xl.dist)||[]).forEach(function(o){var g=govOf(o.name);w[g]=(w[g]||0)+o.n});return Object.keys(w).length?w:POP}
 var CFG={
@@ -7500,6 +7501,375 @@ var css=el('style');css.textContent=[
 '@media (max-width:760px){#tld-btn{display:none}.tld-myh h1{font-size:21px}}',
 'html.tl-en .tld-edit,html.tl-en .tld-my,html.tl-en .tld-pan,html.tl-en .tld-banner,html.tl-en .tld-mbox{direction:ltr}'
 ].join('\n');document.head.appendChild(css);
+})();
+</script>
+<script>/* TAX Lens · «مصر بتنوّر» في صفحة القيادة (نموذج للمراجعة)
+   خريطة مصر في النص + بطاقة لكل منظومة، مربوطة بالخريطة.
+   أرقام المحافظات بتظهر بس للمنظومات اللي بياناتها متقسّمة فعلاً، وكل مقارنة بأرقام حقيقية حصلت قبل كده. */
+(function(){
+'use strict';
+var COL={reta:'#4F8BFF',tsrf:'#B58CFF',simp:'#FFC24B',pay:'#3FE0B0'};
+var NAME={reta:'الضرائب العقارية',tsrf:'التصرفات العقارية',simp:'التسهيلات الضريبية',pay:'منظومة المرتبات'};
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.textContent=h;return e}
+function sv(t,a){var e=document.createElementNS('http://www.w3.org/2000/svg',t);for(var k in a)e.setAttribute(k,a[k]);return e}
+function fx(v){if(typeof v==='string'&&/^\s*[\[{]/.test(v)){try{return JSON.parse(v)}catch(e){}}return v}
+function rows(id){var d=window.dash&&dash.data&&dash.data(id);return d&&d.status==='ok'&&Array.isArray(d.data)?d.data:null}
+function allowed(p){return !window.TL_KEYS||!!window.TL_KEYS[p]}
+function nf(n){return Math.round(n).toLocaleString('en-US')}
+function big(n){var a=Math.abs(n);return a>=1e9?(n/1e9).toFixed(2)+' مليار':a>=1e6?(n/1e6).toFixed(2)+' مليون':a>=1e4?(n/1e3).toFixed(1)+' ألف':nf(n)}
+function pf(x){return (x>=0?'+':'')+(x*100).toFixed(1)+'%'}
+function dAr(s){var d=new Date(String(s).slice(0,10)+'T00:00:00');return d.getDate()+' '+['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][d.getMonth()]+' '+d.getFullYear()}
+var GOVS=null;
+
+/* ---------- البيانات ---------- */
+function model(){
+  var M={dates:[],reta:null,tsrf:null,simp:null,pay:null};
+  var S=rows('reta_snapshots');
+  if(S&&allowed('reta')){S=S.map(function(s){var o={};for(var k in s)o[k]=fx(s[k]);return o}).filter(function(s){return s.date&&s.decl&&s.accounts}).sort(function(a,b){return a.date<b.date?-1:1});
+    var full=function(s){return s.man&&s.map&&Object.keys(s.man).length>=27&&Object.keys(s.map).length>=27};
+    var govAt=function(i){for(var j=i;j>=0;j--)if(full(S[j])){var g={};Object.keys(S[j].man).forEach(function(n){g[n]=((S[j].man[n]||[0])[0]||0)+((S[j].map[n]||[0])[0]||0)});var mp={};Object.keys(S[j].map).forEach(function(n){mp[n]=(S[j].map[n]||[0])[0]||0});return{g:g,mp:mp,date:S[j].date,exact:j===i}}return null};
+    M.reta={S:S,govAt:govAt,at:function(i){var s=S[i];return{main:s.decl.total,acc:s.accounts.total,coll:(+(s.paid&&s.paid.amount)||0)+(+(s.onacc&&s.onacc.amount)||0),date:s.date}}};
+    M.dates=S.map(function(s){return String(s.date).slice(0,10)})}
+  var W=rows('weekly');
+  if(W&&allowed('tsrf')){W=W.slice().sort(function(a,b){return a.last_date<b.last_date?-1:1});
+    M.tsrf={W:W,upTo:function(d){var c={disp:0,reg:0,paid:0,last:null};W.forEach(function(w){if(String(w.last_date).slice(0,10)<=d){c.disp+=+w.disposals||0;c.reg+=+w.registered||0;c.paid+=(+w.tax_paid||0)+(+w.penalty_paid||0);c.last=w}});return c}}}
+  if(window.SIMP_MODEL&&allowed('simp')){try{var R=SIMP_MODEL().R;var g={},un=0;((R.xl&&R.xl.dist)||[]).forEach(function(o){var gv=govOf(o.name);if(gv)g[gv]=(g[gv]||0)+o.n;else un+=o.n});
+    M.simp={R:R,g:g,unk:un+(+(R.xl&&R.xl.distUnk)||0)+(+(R.xl&&R.xl.distNA)||0),xlN:+(R.xl&&R.xl.n)||0,upTo:function(d){var n=0,a=0;(R.daily||[]).forEach(function(x){if(x.d<=d){n+=x.n||0;a+=(x.app||0)+(x.auto||0)}});return{n:n,a:a}}}}catch(e){}}
+  if(window.PAY_MODEL&&allowed('pay')){try{var Y=PAY_MODEL().R,Q=Y.series.slice().sort(function(a,b){return a.d<b.d?-1:1});var last=Q[Q.length-1],rg={};
+    Object.keys(last.regions||{}).forEach(function(k){if(k==='__tot')return;var gv=/القاهره|القاهرة/.test(k)?'القاهرة':/الجيزه|الجيزة/.test(k)?'الجيزة':/القليوبيه|القليوبية/.test(k)?'القليوبية':null;if(!gv)return;var o=rg[gv]=rg[gv]||{enr:0,reg:0,sub:0,n:0};o.enr+=last.regions[k].enr||0;o.reg+=last.regions[k].reg||0;o.sub+=last.regions[k].sub||0;o.n++});
+    M.pay={Q:Q,rg:rg,at:function(d){var x=null;Q.forEach(function(s){if(s.d<=d)x=s});return x}}}catch(e){}}
+  return M}
+var GN=['القاهرة','الجيزة','الإسكندرية','القليوبية','الشرقية','الدقهلية','الغربية','المنوفية','البحيرة','كفر الشيخ','دمياط','بورسعيد','الإسماعيلية','السويس','الفيوم','بني سويف','المنيا','أسيوط','سوهاج','قنا','الأقصر','أسوان','البحر الأحمر','الوادي الجديد','مطروح','شمال سيناء','جنوب سيناء'];
+var ALIAS={'القاهره':'القاهرة','الجيزه':'الجيزة','اسكندرية':'الإسكندرية','الاسكندرية':'الإسكندرية','اسكندريه':'الإسكندرية','القليوبيه':'القليوبية','الشرقيه':'الشرقية','الدقهليه':'الدقهلية','الغربيه':'الغربية','المنوفيه':'المنوفية','البحيره':'البحيرة','الفيوم':'الفيوم','المنيا':'المنيا','اسيوط':'أسيوط','سوهاج':'سوهاج','الاقصر':'الأقصر','اسوان':'أسوان','الاسماعيلية':'الإسماعيلية','الاسماعيليه':'الإسماعيلية','بور سعيد':'بورسعيد','بورسعيد':'بورسعيد','السويس':'السويس','دمياط':'دمياط','كفر الشيخ':'كفر الشيخ','بني سويف':'بني سويف','قنا':'قنا','مطروح':'مطروح','الغردقة':'البحر الأحمر','طنطا':'الغربية','المنصورة':'الدقهلية','الزقازيق':'الشرقية','دمنهور':'البحيرة','بنها':'القليوبية'};
+function govOf(n){n=String(n||'');for(var i=0;i<GN.length;i++)if(n.indexOf(GN[i])>=0)return GN[i];for(var k in ALIAS)if(n.indexOf(k)>=0)return ALIAS[k];
+  var f=window.TL_GOV_OF;return f?f(n):null}
+
+/* ---------- الواجهة ---------- */
+var root=null,M=null,idx=0,sel=null,hov=null,playT=null,cent={};
+function open(){if(root)close();M=model();if(!M.dates.length){var t=new Date().toISOString().slice(0,10);M.dates=[t]}idx=M.dates.length-1;sel=null;hov=null;
+  root=el('section','tlq');root.setAttribute('dir','rtl');document.body.appendChild(root);document.documentElement.classList.add('tlq-on');
+  var head=el('div','tlq-head');head.appendChild(el('h1',null,'مصر بتنوّر'));var tg=el('div','tlq-top');head.appendChild(tg);var x=el('button','tlq-x','✕');x.onclick=close;head.appendChild(x);root.appendChild(head);
+  var main=el('div','tlq-main');root.appendChild(main);
+  ['reta','tsrf','simp','pay'].forEach(function(p){var c=el('div','tlq-p tlq-'+p);c.style.setProperty('--c',COL[p]);c.dataset.p=p;if(!M[p])c.classList.add('na');
+    c.onmouseenter=function(){hov=p;paint()};c.onmouseleave=function(){hov=null;paint()};main.appendChild(c)});
+  var mw=el('div','tlq-map');main.appendChild(mw);
+  var svg=sv('svg',{viewBox:'0 -10 662 610',class:'tlq-svg'});mw.appendChild(svg);
+  var defs=sv('defs',{});defs.innerHTML='<filter id="tlqg" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="7"/></filter><radialGradient id="tlqsea" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#10275A"/><stop offset="1" stop-color="#050C22"/></radialGradient>';svg.appendChild(defs);
+  var P=window.TL_EG_PATHS_FB||{},gG=sv('g',{class:'tlq-govs'}),gL=sv('g',{class:'tlq-lights'}),gT=sv('g',{class:'tlq-tags'});svg.append(gG,gL,gT);
+  Object.keys(P).forEach(function(n){var pa=sv('path',{d:P[n],class:'tlq-gov'});pa.dataset.g=n;gG.appendChild(pa);
+    pa.onmouseenter=function(e){tip(n,e)};pa.onmousemove=function(e){tip(n,e)};pa.onmouseleave=function(){tip(null)};pa.onclick=function(e){e.stopPropagation();sel=sel===n?null:n;paint()}});
+  svg.onclick=function(){if(sel){sel=null;paint()}};
+  var lines=sv('svg',{class:'tlq-lines'});root.appendChild(lines);
+  var tp=el('div','tlq-tip');root.appendChild(tp);
+  var foot=el('div','tlq-foot');var pb=el('button','tlq-play','▶');pb.title='إعادة الزمن من الإطلاق';var rg=el('input');rg.type='range';rg.min=0;rg.max=M.dates.length-1;rg.value=idx;var dl=el('span','tlq-date');
+  rg.oninput=function(){stop();idx=+rg.value;paint()};pb.onclick=function(){playT?stop():play()};foot.append(pb,rg,dl);root.appendChild(foot);
+  root._r={tg:tg,svg:svg,gG:gG,gL:gL,gT:gT,lines:lines,tp:tp,rg:rg,dl:dl,pb:pb};
+  // مراكز المحافظات
+  setTimeout(function(){[].forEach.call(gG.children,function(pa){var b=pa.getBBox();cent[pa.dataset.g]=[b.x+b.width/2,b.y+b.height/2]});
+    var fixC={'البحر الأحمر':[-30,-40],'مطروح':[0,-60],'الوادي الجديد':[0,-30],'جنوب سيناء':[0,10]};Object.keys(fixC).forEach(function(k){if(cent[k]){cent[k][0]+=fixC[k][0];cent[k][1]+=fixC[k][1]}});
+    paint();intro()},30);
+  document.addEventListener('keydown',esc)}
+/* ---------- النسخة الأوتوماتيك (فيلم الحكاية): من غير أي ضغط ---------- */
+var runId=0;
+function cap(t,sub){var c=root.querySelector('.tlq-cap');if(!c){c=el('div','tlq-cap');root.querySelector('.tlq-map').appendChild(c)}c.classList.remove('in');void c.offsetWidth;c.innerHTML=t+(sub?'<small>'+sub+'</small>':'');c.classList.add('in')}
+function topOf(p,n){var V=layerVals(p);if(!V)return[];return Object.keys(V).sort(function(a,b){return V[b]-V[a]}).slice(0,n||1).map(function(k){return[k,V[k]]})}
+function auto(opt){opt=opt||{};open();root.classList.add('auto');var my=++runId,T=0,q=[];
+  var at=function(ms,f){T+=ms;q.push([T,f])};var go=function(){var t0=Date.now();q.forEach(function(x){setTimeout(function(){if(my===runId&&root)x[1]()},x[0])})};
+  var last=M.dates.length-1;
+  at(600,function(){hov=null;sel=null;idx=last;paint();cap('مصر بتنوّر','كل منظومة بلونها · لحد '+dAr(M.dates[last]))});
+  var order=['reta','simp','pay','tsrf'].filter(function(p){return M[p]});
+  order.forEach(function(p){
+    at(4200,function(){hov=p;sel=null;paint();var t=topOf(p,1)[0];
+      if(p==='reta'){var a=M.reta.at(last);cap('<b style="color:'+COL.reta+'">الضرائب العقارية</b> · '+big(a.main)+' إقرار',t?'أكبر محافظة '+t[0]+' بـ'+big(t[1])+' إقرار':'')}
+      if(p==='simp'){var s2=M.simp.upTo(M.dates[last]);cap('<b style="color:'+COL.simp+'">التسهيلات الضريبية</b> · '+nf(s2.n)+' طلب ساب + '+nf(M.simp.xlN)+' اكسيل',t?'أكبر محافظة في طلبات اكسيل '+t[0]+' بـ'+nf(t[1])+' طلب':'')}
+      if(p==='pay'){var y=M.pay.at(M.dates[last]);cap('<b style="color:'+COL.pay+'">منظومة المرتبات</b> · '+nf(y.sub)+' ممول بيقدّم',big(y.emp)+' موظف بتغطيهم المنظومة'+(t?' · القاهرة الأكبر في المناطق المدمجة':''))}
+      if(p==='tsrf'){var u=M.tsrf.upTo(M.dates[last]);cap('<b style="color:'+COL.tsrf+'">التصرفات العقارية</b> · '+nf(u.disp)+' عملية تصرف','ودفعوا '+big(u.paid)+' جنيه ضريبة وغرامات · البيانات على مستوى الجمهورية')}});
+    if(p==='reta'||p==='simp'){at(4200,function(){var t=topOf(p,1)[0];if(!t)return;hov=null;sel=t[0];paint();
+      cap(t[0],p==='reta'?'البطاقات بتعرض أرقام المحافظة في كل المنظومات اللي ليها تقسيم بالمحافظة':'')})}
+  });
+  at(4200,function(){hov=null;sel=null;idx=0;paint();cap('من أول تقرير محفوظ',dAr(M.dates[0])+' ← '+dAr(M.dates[last]))});
+  var steps=Math.min(last,90),dur=11000;for(var i=1;i<=steps;i++)(function(i){at(dur/steps,function(){idx=Math.round(i*last/steps);root._r.rg.value=idx;paint()})})(i);
+  at(800,function(){idx=last;hov=null;sel=null;paint();cap('مصر بتنوّر','الأرقام لحد '+dAr(M.dates[last]));root.classList.add('final')});
+  // ثابتة على الأرقام النهائية — مفيش قفل أوتوماتيك
+  go();return T}
+function esc(e){if(e.key==='Escape')close()}
+function close(){runId++;stop();if(root)root.remove();root=null;document.documentElement.classList.remove('tlq-on');document.removeEventListener('keydown',esc)}
+function play(){var r=root._r;if(idx>=M.dates.length-1)idx=0;r.pb.textContent='⏸';sel=null;playT=setInterval(function(){idx++;if(idx>=M.dates.length-1){idx=M.dates.length-1;stop()}r.rg.value=idx;paint()},Math.max(60,9000/M.dates.length))}
+function stop(){if(playT)clearInterval(playT);playT=null;if(root)root._r.pb.textContent='▶'}
+function intro(){var gs=root._r.gL;gs.classList.add('intro');setTimeout(function(){gs&&gs.classList.remove('intro')},1600)}
+function tip(n,e){var t=root._r.tp;if(!n){t.style.display='none';return}var G=M.reta&&M.reta.govAt(idx);t.innerHTML='<b>'+n+'</b>'+(G?'<span>'+nf(G.g[n]||0)+' إقرار</span>':'');t.style.display='block';t.style.left=(e.clientX+14)+'px';t.style.top=(e.clientY+14)+'px'}
+
+function layerVals(p){if(p==='reta'&&M.reta){var G=M.reta.govAt(idx);return G?G.g:null}if(p==='simp'&&M.simp)return M.simp.g;if(p==='pay'&&M.pay){var o={};Object.keys(M.pay.rg).forEach(function(k){o[k]=M.pay.rg[k].sub});return o}return null}
+function paint(){if(!root)return;var r=root._r,d=M.dates[idx];r.dl.textContent=dAr(d);
+  // بطاقات
+  ['reta','tsrf','simp','pay'].forEach(function(p){var c=root.querySelector('.tlq-'+p);c.classList.toggle('dim',!!hov&&hov!==p);c.classList.toggle('on',hov===p);card(c,p,d)});
+  // الخريطة
+  [].forEach.call(r.gG.children,function(pa){var n=pa.dataset.g;pa.classList.toggle('sel',sel===n);pa.classList.toggle('mute',!!sel&&sel!==n)});
+  r.gL.replaceChildren();r.gT.replaceChildren();r.lines.replaceChildren();
+  var show=hov?[hov]:['reta','pay','simp'];var off={reta:[0,0],pay:[9,6],simp:[-9,6]};
+  r.svg.classList.toggle('nation',hov==='tsrf');
+  show.forEach(function(p){var V=layerVals(p);if(!V)return;var mx=0;var VF=p==='reta'&&M.reta?(M.reta.govAt(M.dates.length-1)||{}).g||V:V;Object.keys(VF).forEach(function(k){mx=Math.max(mx,VF[k])});if(!mx)return;
+    Object.keys(V).forEach(function(k){var c=cent[k];if(!c||!V[k])return;var f=Math.sqrt(V[k]/mx),R=(hov?34:p==='reta'?28:16)*f+3,o=hov?[0,0]:off[p];
+      var gl=sv('circle',{cx:c[0]+o[0],cy:c[1]+o[1],r:R*1.6,fill:COL[p],opacity:hov?.55:.38,filter:'url(#tlqg)'}),dot=sv('circle',{cx:c[0]+o[0],cy:c[1]+o[1],r:Math.max(2,R*.32),fill:'#fff',opacity:.9});
+      if(sel&&sel!==k){gl.setAttribute('opacity',.12);dot.setAttribute('opacity',.3)}r.gL.append(gl,dot)})});
+  if(hov&&hov!=='tsrf'){var V=layerVals(hov);if(V){var top=Object.keys(V).sort(function(a,b){return V[b]-V[a]}).slice(0,3);var used=[];top.forEach(function(k,i){var c=cent[k];if(!c)return;var y=c[1]-16;used.forEach(function(u){if(Math.abs(u[0]-c[0])<120&&Math.abs(u[1]-y)<18)y=u[1]-20});used.push([c[0],y]);var t=sv('text',{x:c[0]+(c[0]<330?-60:60),y:y,class:'tlq-lab'});t.textContent=k+' · '+big(V[k]);r.gT.appendChild(t)});
+      links(hov,top)}}
+  if(sel&&cent[sel]){var c=cent[sel],t=sv('text',{x:c[0],y:c[1]+4,class:'tlq-lab sel'});t.textContent=sel;r.gT.appendChild(t)}
+  r.tg.replaceChildren();top3().forEach(function(s){var i=el('div','tlq-t');i.style.setProperty('--c',COL[s.p]);i.innerHTML='<i></i>'+s.t;r.tg.appendChild(i)})}
+function links(p,top){var r=root._r,c=root.querySelector('.tlq-'+p).getBoundingClientRect(),sm=r.svg.getScreenCTM();if(!sm)return;
+  var sx=c.left>innerWidth/2?c.left:c.right,sy=c.top+c.height/2;
+  top.forEach(function(k){var q=cent[k];if(!q)return;var pt=r.svg.createSVGPoint();pt.x=q[0];pt.y=q[1];var s=pt.matrixTransform(sm);
+    var mx=(sx+s.x)/2,path=sv('path',{d:'M'+sx+','+sy+' C'+mx+','+sy+' '+mx+','+s.y+' '+s.x+','+s.y,stroke:COL[p],'stroke-width':1.4,fill:'none',opacity:.7,class:'tlq-link'});r.lines.appendChild(path)})}
+
+function card(c,p,d){c.replaceChildren();var h=el('div','tlq-ph');h.appendChild(el('b',null,NAME[p]));var sub=el('small');h.appendChild(sub);c.appendChild(h);
+  if(!M[p]){c.appendChild(el('div','tlq-na','مش متاحة في حسابك'));return}
+  var K=function(v,l,cls){var b=el('div','tlq-k'+(cls?' '+cls:''));b.appendChild(el('strong',null,v));b.appendChild(el('span',null,l));c.appendChild(b);return b};
+  var note=function(t){c.appendChild(el('div','tlq-note',t))};
+  if(p==='reta'){var a=M.reta.at(idx);if(sel){var G=M.reta.govAt(idx);var v=G?G.g[sel]||0:0,tot=0;if(G)Object.keys(G.g).forEach(function(k){tot+=G.g[k]});sub.textContent=sel+' · '+(G&&!G.exact?'آخر تقرير فيه المحافظات '+dAr(G.date):dAr(d));
+      K(nf(v),'إقرار في '+sel,'main');K(tot?(v/tot*100).toFixed(1)+'%':'—','من إقرارات الجمهورية');var mp=G&&G.mp[sel]||0;K(v?(mp/v*100).toFixed(0)+'%':'—','اتقدّموا بالخريطة');
+      var ch=govChange(sel);if(ch!=null)K(pf(ch),'الزيادة آخر 7 أيام مقارنة بالـ7 اللي قبلها',ch>=0?'up':'dn')}
+    else{sub.textContent='الجمهورية · '+dAr(a.date);K(nf(a.main),'إقرار','main');K(big(a.acc),'حساب');K(big(a.coll)+' ج','المحصّل');var w=weekChange();if(w!=null)K(pf(w),'إقرارات آخر 7 أيام مقارنة بالـ7 اللي قبلها',w>=0?'up':'dn')}}
+  if(p==='tsrf'){var t=M.tsrf.upTo(d);sub.textContent='الجمهورية'+(t.last?' · لحد '+dAr(t.last.last_date):'');K(nf(t.disp),'عملية تصرف','main');K(nf(t.reg),'مسجّل');K(big(t.paid)+' ج','المدفوع ضريبة وغرامات');
+    if(t.last){var W=M.tsrf.W,i=W.indexOf(t.last);if(i>0&&W[i-1].disposals)K(pf(t.last.disposals/W[i-1].disposals-1),'آخر أسبوع مقارنة باللي قبله',t.last.disposals>=W[i-1].disposals?'up':'dn')}
+    note(sel?'مفيش تقسيم بالمحافظة، الأرقام دي للجمهورية كلها':'البيانات على مستوى الجمهورية فقط');if(sel)c.classList.add('soft');else c.classList.remove('soft')}
+  if(p==='simp'){var s=M.simp.upTo(d);if(sel){sub.textContent=sel+' · طلبات اكسيل';var v2=M.simp.g[sel]||0;K(nf(v2),'طلب اكسيل في '+sel,'main');var tt=0;Object.keys(M.simp.g).forEach(function(k){tt+=M.simp.g[k]});K(tt?(v2/tt*100).toFixed(1)+'%':'—','من طلبات اكسيل المعروفة محافظتها');
+      note('التقسيم بالمحافظة متاح لطلبات اكسيل بس (حسب المأمورية)'+(M.simp.unk?' · '+nf(M.simp.unk)+' طلب مأموريتها مش محددة المحافظة':''))}
+    else{sub.textContent='الجمهورية · لحد '+dAr(d<M.simp.R.asof?d:M.simp.R.asof);K(nf(s.n),'طلب ساب','main');K(nf(s.a),'اتقبل');var tot2=M.simp.R.tot;if(tot2&&M.simp.xlN&&idx===M.dates.length-1)K(nf(M.simp.xlN),'طلب اكسيل (إجمالي)');var w2=simpWeek(d);if(w2!=null)K(pf(w2),'آخر 7 أيام مقارنة بالـ7 اللي قبلها',w2>=0?'up':'dn')}}
+  if(p==='pay'){var y=M.pay.at(d);if(!y){K('—','لسه مكانش فيه تقارير','main');return}
+    if(sel){var o=M.pay.rg[sel];sub.textContent=sel;if(o){K(nf(o.sub),'ممول بيقدّم','main');K(nf(o.reg),'مسجّل');K(o.enr?(o.sub/o.enr*100).toFixed(1)+'%':'—','نسبة التقديم من الملزمين');note('من '+o.n+' منطقة ضريبية مدمجة في '+sel+' بس')}else{K('—','','main');note('مفيش بيانات مناطق للمحافظة دي؛ تقسيم المناطق متاح للقاهرة والجيزة والقليوبية بس')}}
+    else{sub.textContent='الجمهورية · '+dAr(y.d);K(nf(y.sub),'ممول بيقدّم','main');K(nf(y.reg),'مسجّل');K(big(y.emp),'موظف');var Q=M.pay.Q,i2=Q.indexOf(y);if(i2>0)K(pf(y.sub/Q[i2-1].sub-1),'مقارنة بالتقرير اللي قبله',y.sub>=Q[i2-1].sub?'up':'dn')}}}
+/* مقارنات حقيقية بس */
+function refIdx(days){var S=M.reta.S,d0=new Date(S[idx].date);for(var j=idx-1;j>=0;j--)if((d0-new Date(S[j].date))/864e5>=days)return j;return -1}
+function weekChange(){var S=M.reta.S,a=refIdx(7),b=a>=0?(function(){var d0=new Date(S[a].date);for(var j=a-1;j>=0;j--)if((d0-new Date(S[j].date))/864e5>=7)return j;return -1})():-1;if(a<0||b<0)return null;var x=S[idx].decl.total-S[a].decl.total,y=S[a].decl.total-S[b].decl.total;return y>0?x/y-1:null}
+function govChange(g){var S=M.reta.S,G0=M.reta.govAt(idx);if(!G0||!G0.exact)return null;var a=refIdx(7);if(a<0)return null;var Ga=M.reta.govAt(a);if(!Ga||!Ga.exact)return null;var d0=new Date(S[a].date),b=-1;for(var j=a-1;j>=0;j--)if((d0-new Date(S[j].date))/864e5>=7){b=j;break}if(b<0)return null;var Gb=M.reta.govAt(b);if(!Gb||!Gb.exact)return null;
+  var x=(G0.g[g]||0)-(Ga.g[g]||0),y=(Ga.g[g]||0)-(Gb.g[g]||0);return y>0?x/y-1:null}
+function simpWeek(d){var D=M.simp.R.daily||[],i=-1;for(var k=0;k<D.length;k++)if(D[k].d<=d)i=k;if(i<14)return null;var a=0,b=0;for(var j=0;j<7;j++){a+=D[i-j].n;b+=D[i-7-j].n}return b?a/b-1:null}
+function top3(){var L=[];
+  if(M.reta){var S=M.reta.S,G0=M.reta.govAt(idx);if(G0&&G0.exact){var best=null;Object.keys(G0.g).forEach(function(g){var c=govChange(g);if(c!=null&&(G0.g[g]||0)>5000&&(!best||c>best.c))best={g:g,c:c}});if(best)L.push({p:'reta',t:'<b>الضرائب العقارية:</b> '+best.g+' أسرع محافظة نمواً، إقرارات آخر 7 أيام '+pf(best.c)+' عن الـ7 اللي قبلها'})}
+    else{var w=weekChange();if(w!=null)L.push({p:'reta',t:'<b>الضرائب العقارية:</b> الإقرارات آخر 7 أيام '+pf(w)+' عن الـ7 اللي قبلها'})}}
+  if(M.tsrf){var t=M.tsrf.upTo(M.dates[idx]).last,W=M.tsrf.W,i=t?W.indexOf(t):-1;if(i>0&&W[i-1].disposals)L.push({p:'tsrf',t:'<b>التصرفات العقارية:</b> '+nf(t.disposals)+' عملية في آخر أسبوع ('+pf(t.disposals/W[i-1].disposals-1)+' عن اللي قبله)'})}
+  if(M.simp){var w2=simpWeek(M.dates[idx]);if(w2!=null)L.push({p:'simp',t:'<b>التسهيلات الضريبية:</b> طلبات آخر 7 أيام '+pf(w2)+' عن الـ7 اللي قبلها'})}
+  if(M.pay&&L.length<3){var y=M.pay.at(M.dates[idx]),Q=M.pay.Q,j=y?Q.indexOf(y):-1;if(j>0)L.push({p:'pay',t:'<b>المرتبات:</b> '+nf(y.sub)+' ممول بيقدّم ('+(y.sub-Q[j-1].sub>=0?'+':'')+nf(y.sub-Q[j-1].sub)+' عن التقرير اللي قبله)'})}
+  return L.slice(0,3)}
+
+/* ---------- الستايل ---------- */
+var css=el('style');css.textContent=[
+'.tlq{position:fixed;inset:var(--v2-top,64px) 0 0 0;z-index:75;background:radial-gradient(ellipse at 50% 40%,#0E2356 0%,#060E26 60%,#03081A 100%);color:#EAF0FF;font-family:Cairo,"Segoe UI",Tahoma,sans-serif;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}',
+'.tlq-on body{overflow:hidden}',
+'.tlq-head{display:flex;align-items:center;gap:18px;padding:16px 26px 6px}.tlq-head h1{margin:0;font:800 26px Cairo,sans-serif;white-space:nowrap;background:linear-gradient(90deg,#FFE7A3,#FFC24B);-webkit-background-clip:text;color:transparent}',
+'.tlq-top{flex:1;display:flex;gap:10px;flex-wrap:wrap}.tlq-t{flex:1;min-width:220px;display:flex;gap:8px;align-items:flex-start;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:12.5px;line-height:1.7;animation:tlqin .6s both}.tlq-t i{flex:none;width:9px;height:9px;margin-top:7px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}.tlq-t b{color:var(--c)}',
+'.tlq-x{border:0;background:rgba(255,255,255,.1);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:15px}',
+'.tlq-main{display:grid;grid-template-columns:minmax(230px,300px) 1fr minmax(230px,300px);grid-template-rows:1fr 1fr;grid-template-areas:"reta map tsrf" "simp map pay";gap:14px;padding:6px 26px;min-height:0}',
+'.tlq-reta{grid-area:reta}.tlq-tsrf{grid-area:tsrf}.tlq-simp{grid-area:simp}.tlq-pay{grid-area:pay}.tlq-map{grid-area:map;position:relative;min-height:0;display:grid;place-items:center}',
+'.tlq-p{position:relative;align-self:stretch;padding:14px 16px;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-top:3px solid var(--c);transition:opacity .3s,transform .3s,box-shadow .3s;overflow:hidden;cursor:default;animation:tlqin .7s both}',
+'.tlq-p.on{box-shadow:0 0 0 1px var(--c),0 0 40px -8px var(--c);transform:translateY(-2px)}.tlq-p.dim{opacity:.35}.tlq-p.soft .tlq-k{opacity:.55}.tlq-p.na{opacity:.4}',
+'.tlq-ph{display:flex;flex-direction:column;margin-bottom:6px}.tlq-ph b{font-size:15px;color:var(--c)}.tlq-ph small{font-size:11.5px;color:#9FB0D6}',
+'.tlq-k{display:flex;align-items:baseline;gap:8px;padding:3px 0}.tlq-k strong{font:800 18px Cairo,sans-serif;font-variant-numeric:tabular-nums}.tlq-k span{font-size:12px;color:#AFC0E4}.tlq-k.main strong{font-size:30px;color:#fff;text-shadow:0 0 24px var(--c)}.tlq-k.main{flex-direction:column;gap:0}',
+'.tlq-k.up strong{color:#5BE39A}.tlq-k.dn strong{color:#FF7D86}',
+'.tlq-note{margin-top:8px;font-size:11.5px;line-height:1.6;color:#C9D4EE;background:rgba(255,255,255,.06);border-radius:8px;padding:5px 9px}.tlq-na{color:#9FB0D6;margin-top:10px}',
+'.tlq-svg{width:100%;height:100%;max-height:calc(100vh - 270px);overflow:visible}',
+'.tlq-gov{fill:#0F2452;stroke:#3B5C9E;stroke-width:.8;cursor:pointer;transition:fill .25s,opacity .25s}.tlq-gov:hover{fill:#1A3775}.tlq-gov.sel{fill:#24478F;stroke:#fff;stroke-width:1.6}.tlq-gov.mute{opacity:.55}',
+'.tlq-svg.nation .tlq-gov{fill:#2A1C55;stroke:#B58CFF;animation:tlqn 1.6s ease-in-out infinite alternate}@keyframes tlqn{to{fill:#3B2775}}',
+'.tlq-lights circle{transition:opacity .3s;pointer-events:none}.tlq-lights.intro circle{animation:tlqpop 1.4s both}@keyframes tlqpop{from{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.2)}}',
+'.tlq-lab{fill:#fff;font:700 13px Cairo,sans-serif;text-anchor:middle;paint-order:stroke;stroke:#03081A;stroke-width:4px;pointer-events:none}.tlq-lab.sel{font-size:15px}',
+'.tlq-lines{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:2}.tlq-link{stroke-dasharray:4 4;animation:tlqd 1s linear infinite}@keyframes tlqd{to{stroke-dashoffset:-16}}',
+'.tlq-tip{position:fixed;z-index:3;display:none;background:#fff;color:#14306A;border-radius:10px;padding:6px 10px;font-size:12.5px;box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:none}.tlq-tip b{display:block}',
+'.tlq-foot{display:flex;align-items:center;gap:14px;padding:10px 26px 18px}.tlq-play{border:0;width:42px;height:42px;border-radius:50%;background:#FFC24B;color:#03081A;font-size:16px;cursor:pointer;box-shadow:0 0 22px rgba(255,194,75,.5)}',
+'.tlq-foot input{flex:1;accent-color:#FFC24B}.tlq-date{min-width:150px;font:700 14px Cairo,sans-serif;color:#FFE7A3}',
+'@keyframes tlqin{from{opacity:0;transform:translateY(10px)}}',
+'.tlq-cap{position:absolute;left:50%;bottom:2%;transform:translateX(-50%);text-align:center;font:800 26px/1.5 Cairo,sans-serif;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.8);white-space:nowrap;opacity:0;pointer-events:none}.tlq-cap small{display:block;font:600 15px Cairo,sans-serif;color:#C9D4EE}.tlq-cap.in{animation:tlqcap .7s both}@keyframes tlqcap{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}',
+'.tlq.auto .tlq-play,.tlq.auto .tlq-x{display:none}.tlq.auto .tlq-foot input{pointer-events:none}.tlq.auto .tlq-gov{cursor:default}.tlq.auto .tlq-gov:hover{fill:#0F2452}',
+'.tlq-on #tlx2-tools,.tlq-on #tla-fab,.tlq-on #tlm-fab{visibility:hidden}',
+'.tlq.final .tlq-p{box-shadow:0 0 34px -10px var(--c)}',
+'@media (max-width:900px){.tlq-main{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;grid-template-areas:"map map" "reta tsrf" "simp pay";overflow:auto}.tlq-svg{max-height:52vh}.tlq-top{display:none}}'
+].join('\n');document.head.appendChild(css);
+window.TL_LEADMAP={open:open,close:close,auto:auto,model:model};
+})();
+</script>
+<script>/* TAX Lens · «مصر بتنوّر — ليلة الأرقام»
+   فيلم سينمائي بيشتغل لوحده: خريطة مصر مايلة بالليل، النيل شريط نور، وكل رقم عمود نور طالع من الأرض.
+   كل فريم دالة في الزمن t (ثواني) — نفس الصورة كل مرة، فالتسجيل والعرض الحي متطابقين. الأرقام كلها من بيانات البوابة. */
+(function(){
+'use strict';
+var C={night:'#050817',ink:'#F4F7FF',dust:'#8E9BC4',reta:'#5AA9FF',simp:'#F5B942',pay:'#36D6A0',tsrf:'#B48CFF',nile:'#9FE6FF'};
+var DUR=46;
+/* ---------- أدوات ---------- */
+function cl(x,a,b){return x<a?a:x>b?b:x}
+function seg(t,a,b){return cl((t-a)/(b-a),0,1)}
+function eio(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+function eout(x){return 1-Math.pow(1-x,3)}
+function eback(x){var c=1.4;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)}
+function lerp(a,b,x){return a+(b-a)*x}
+function rnd(s){var x=Math.sin(s*127.1+311.7)*43758.5453;return x-Math.floor(x)}
+function rgba(h,a){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'}
+function nf(n){return Math.round(n).toLocaleString('en-US')}
+function big(n){var a=Math.abs(n);return a>=1e9?(n/1e9).toFixed(2)+' مليار':a>=1e6?(n/1e6).toFixed(2)+' مليون':a>=1e4?(n/1e3).toFixed(1)+' ألف':nf(n)}
+function dAr(s){var d=new Date(String(s).slice(0,10)+'T00:00:00');return d.getDate()+' '+['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][d.getMonth()]+' '+d.getFullYear()}
+
+/* ---------- تجهيز البيانات والخريطة ---------- */
+function prep(){
+  var P=window.TL_EG_PATHS_FB||{},G={},names=Object.keys(P);
+  names.forEach(function(n){var rings=[],cur=null;String(P[n]).replace(/([MLZ])([^MLZ]*)/g,function(_,c,a){var v=a.trim().split(/[\s,]+/).filter(Boolean).map(Number);
+      if(c==='M'){cur=[];rings.push(cur)}if(c==='Z'){return ''}for(var i=0;i+1<v.length;i+=2)cur.push([v[i],v[i+1]]);return ''});
+    var sx=0,sy=0,k=0,A=0;rings.forEach(function(r){r.forEach(function(p){sx+=p[0];sy+=p[1];k++})});
+    // مركز المساحة لأكبر حلقة (أدق من متوسط النقط)
+    var bigR=rings.slice().sort(function(a,b){return b.length-a.length})[0]||[],cx=0,cy=0;for(var i=0;i<bigR.length;i++){var a=bigR[i],b=bigR[(i+1)%bigR.length],f=a[0]*b[1]-b[0]*a[1];A+=f;cx+=(a[0]+b[0])*f;cy+=(a[1]+b[1])*f}
+    var c=Math.abs(A)>1?[cx/(3*A),cy/(3*A)]:[sx/k,sy/k];G[n]={rings:rings,c:c,len:rings.reduce(function(s,r){return s+r.length},0)}});
+  var fix={'البحر الأحمر':[-25,-60],'مطروح':[10,-90],'الوادي الجديد':[0,-40],'جنوب سيناء':[-5,15],'شمال سيناء':[0,-8]};Object.keys(fix).forEach(function(k){if(G[k]){G[k].c[0]+=fix[k][0];G[k].c[1]+=fix[k][1]}});
+  var LL=function(a){return[5.7+(a[0]-24.7)*54.7,7+(31.67-a[1])*60.5]};
+  // المحافظات الكبيرة اللي سكانها على النيل: النقطة في مدنها الرئيسية مش في نص الصحرا
+  var city={'الجيزة':[31.05,29.95],'المنيا':[30.75,28.1],'أسيوط':[31.18,27.18],'سوهاج':[31.7,26.56],'قنا':[32.72,26.16],'أسوان':[32.9,24.2],'بني سويف':[31.1,29.07],'الفيوم':[30.84,29.31]};Object.keys(city).forEach(function(k){if(G[k])G[k].c=LL(city[k])});
+  var M=window.TL_LEADMAP&&TL_LEADMAP.model?TL_LEADMAP.model():null;
+  var D={G:G,names:names,M:M,dates:M?M.dates:[],last:M?M.dates.length-1:0};
+  if(M&&M.reta){D.retaAt=[];var prev=null;for(var i=0;i<=D.last;i++){var g=M.reta.govAt(i);D.retaAt.push(g?g.g:prev);if(g)prev=g.g}
+    D.retaF=D.retaAt[D.last]||{};D.retaMax=Math.max.apply(null,Object.keys(D.retaF).map(function(k){return D.retaF[k]}));D.retaTot=M.reta.at(D.last).main;
+    D.retaTop=Object.keys(D.retaF).sort(function(a,b){return D.retaF[b]-D.retaF[a]});D.retaTotAt=function(i){return M.reta.at(i).main}}
+  if(M&&M.simp){var s=M.simp.upTo(D.dates[D.last]||'9999');D.simpSap=s.n;D.simpXl=M.simp.xlN;D.simpG=M.simp.g;D.simpTop=Object.keys(M.simp.g).sort(function(a,b){return M.simp.g[b]-M.simp.g[a]})}
+  if(M&&M.pay){var y=M.pay.at(D.dates[D.last]||'9999')||M.pay.Q[M.pay.Q.length-1];D.paySub=y.sub;D.payEmp=y.emp;D.payRg=M.pay.rg}
+  if(M&&M.tsrf){var u=M.tsrf.upTo(D.dates[D.last]||'9999');D.tsrfN=u.disp;D.tsrfPaid=u.paid}
+  // النيل: من أسوان لحد القاهرة، وبعدها فرعين رشيد ودمياط (مرسوم تقريبي كخلفية جمالية من غير أرقام)
+  // النيل الحقيقي: إحداثيات (خط طول، عرض) محوّلة لنظام الخريطة
+  var ll=function(a){return[5.7+(a[0]-24.7)*54.7,7+(31.67-a[1])*60.5]};
+  var trunk=[[32.89,23.6],[32.89,24.09],[32.95,24.47],[32.87,24.98],[32.55,25.29],[32.64,25.70],[32.72,26.10],[32.24,26.05],[31.70,26.56],[31.18,27.18],[30.84,27.73],[30.75,28.10],[30.95,28.70],[31.10,29.07],[31.25,29.70],[31.23,30.06],[31.20,30.20]].map(ll);
+  D.nile=[smooth(trunk),smooth([[31.20,30.20],[30.95,30.60],[30.60,31.00],[30.42,31.42]].map(ll)),smooth([[31.20,30.20],[31.25,30.60],[31.38,31.04],[31.82,31.42]].map(ll))];
+  // نجوم
+  D.stars=[];for(var k=0;k<220;k++)D.stars.push([rnd(k),rnd(k+9.3),rnd(k+3.1)]);
+  return D}
+function smooth(p){if(p.length<3)return p;var o=[];for(var i=0;i<p.length-1;i++){var p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p2;for(var s=0;s<12;s++){var t=s/12,t2=t*t,t3=t2*t;
+  o.push([.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),.5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)])}}o.push(p[p.length-1]);return o}
+
+/* ---------- الكاميرا: مفاتيح (زمن، مركز، تقريب، ميل، لفّة) ---------- */
+function camAt(t,D){var c=function(n){return D.G[n]?D.G[n].c:[330,300]},cai=c('القاهرة'),del=c('الغربية');
+  var K=[[0,[330,285],.8,0,0],[4.5,[330,285],.84,0,0],[7.5,[del[0]+10,del[1]-25],1.75,.95,-.06],[12.5,[del[0]+20,del[1]-30],1.9,1.0,-.1],
+    [15,[cai[0]-30,cai[1]-40],1.75,.98,.04],[18.5,[cai[0]-20,cai[1]-45],1.85,1.0,.08],[21,[cai[0]-5,cai[1]-25],2.7,1.02,.12],[24.5,[cai[0]-5,cai[1]-25],2.85,1.05,.16],
+    [27,[335,320],1.15,.7,.02],[29.5,[335,320],1.12,.72,0],[31,[335,235],.86,.82,-.05],[39,[335,235],.88,.84,.03],[40.5,[335,190],.76,.82,.05],[46,[335,190],.8,.84,.15]];
+  for(var i=0;i<K.length-1;i++)if(t<=K[i+1][0]){var a=K[i],b=K[i+1],x=eio(seg(t,a[0],b[0]));return{cx:lerp(a[1][0],b[1][0],x),cy:lerp(a[1][1],b[1][1],x),z:lerp(a[2],b[2],x),tilt:lerp(a[3],b[3],x),yaw:lerp(a[4],b[4],x)}}
+  var L=K[K.length-1];return{cx:L[1][0],cy:L[1][1],z:L[2],tilt:L[3],yaw:L[4]}}
+function projector(cam,W,H){var s=Math.min(W/700,H/640)*cam.z,cy=Math.cos(cam.yaw),sy=Math.sin(cam.yaw),ct=Math.cos(cam.tilt),st=Math.sin(cam.tilt),F=900;
+  return function(x,y,z){var dx=x-cam.cx,dy=y-cam.cy,rx=dx*cy-dy*sy,ry=dx*sy+dy*cy;var Y=ry*ct,depth=ry*st,f=F/(F+depth*s*.9);return[W/2+rx*s*f,H*.57+(Y*s-(z||0)*s)*f,f,depth]}}
+
+/* ---------- الرسم ---------- */
+function draw(cv,t,D){var ctx=cv.getContext('2d'),W=cv.width,H=cv.height,u=Math.min(W,H)/900;
+  ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+  var bg=ctx.createRadialGradient(W*.5,H*.45,0,W*.5,H*.5,Math.max(W,H)*.75);bg.addColorStop(0,'#0B1540');bg.addColorStop(.55,'#060B24');bg.addColorStop(1,C.night);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  // نجوم بتلمع ببطء
+  D.stars.forEach(function(s,i){var a=(.25+.6*s[2])*(.6+.4*Math.sin(t*1.3+i))*cl(1-seg(t,2,6)*.5,0,1);ctx.fillStyle='rgba(220,230,255,'+a+')';ctx.fillRect(s[0]*W,s[1]*H*.9,s[2]*1.8*u+.4,s[2]*1.8*u+.4)});
+  var cam=camAt(t,D),pr=projector(cam,W,H);
+  // المحافظات: رسم الحدود بخط نور في الافتتاح
+  var trace=eio(seg(t,.4,4.2)),fillA=seg(t,2.6,5.2);
+  ctx.lineJoin='round';
+  // سُمك الخريطة: نفس الشكل تحت السطح بشوية، فيبان كأنه لوح واقف على الأرض، وحواليه حافة نور
+  var slab=fillA*Math.min(1,cam.tilt*2.2+.25),TH=14;
+  if(slab>0){for(var L2=3;L2>=1;L2--){var zz=-TH*L2/3;ctx.beginPath();D.names.forEach(function(n){D.G[n].rings.forEach(function(r){r.forEach(function(p,i){var q=pr(p[0],p[1],zz);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.closePath()})});
+      ctx.fillStyle='rgba('+(10+L2*6)+','+(24+L2*10)+','+(70+L2*20)+','+slab+')';ctx.fill()}
+    ctx.save();ctx.beginPath();D.names.forEach(function(n){D.G[n].rings.forEach(function(r){r.forEach(function(p,i){var q=pr(p[0],p[1],-TH);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.closePath()})});
+    ctx.strokeStyle='rgba(110,170,255,'+(.55*slab)+')';ctx.lineWidth=2.2*u;ctx.shadowColor='#6FA8FF';ctx.shadowBlur=22*u;ctx.stroke();ctx.restore()}
+  D.names.forEach(function(n,gi){var g=D.G[n];
+    ctx.beginPath();g.rings.forEach(function(r){r.forEach(function(p,i){var q=pr(p[0],p[1],0);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.closePath()});
+    var hl=0;if(D.focus&&D.focus[n])hl=D.focus[n];
+    var lg=ctx.createLinearGradient(0,H*.15,0,H*.95);lg.addColorStop(0,'rgba(44,78,160,'+fillA+')');lg.addColorStop(1,'rgba(24,46,108,'+fillA+')');ctx.fillStyle=lg;ctx.fill();
+    if(hl>0){ctx.fillStyle=rgba(D.focusC||C.reta,.16*hl);ctx.fill()}
+    // حدود بتترسم
+    ctx.save();ctx.strokeStyle='rgba(150,195,255,'+(.4+.4*(1-fillA)+hl*.4)+')';ctx.lineWidth=(hl?1.8:1.1)*u;
+    if(trace<1){var tot=g.len,k=Math.floor(tot*trace);ctx.beginPath();var c2=0;g.rings.forEach(function(r){r.forEach(function(p,i){if(c2++>k)return;var q=pr(p[0],p[1],0);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])})});ctx.shadowColor='#7FB2FF';ctx.shadowBlur=10*u;ctx.stroke()}
+    else ctx.stroke();ctx.restore()});
+  D.focus=null;
+  // النيل: شريط نور بيجري
+  var nl=eio(seg(t,3,6.5));if(nl>0){ctx.save();ctx.globalCompositeOperation='lighter';D.nile.forEach(function(path,bi){var n=Math.floor(path.length*(bi?cl(nl*1.6-.6,0,1):cl(nl*1.25,0,1)));if(n<2)return;
+      ctx.beginPath();for(var i=0;i<n;i++){var q=pr(path[i][0],path[i][1],0);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])}
+      ctx.strokeStyle=rgba(C.nile,.22);ctx.lineWidth=6*u*Math.min(cam.z,1.5);ctx.shadowColor=C.nile;ctx.shadowBlur=18*u;ctx.stroke();ctx.strokeStyle=rgba(C.nile,.85);ctx.lineWidth=1.5*u*Math.min(cam.z,1.5);ctx.stroke();
+      // ذرات ماشية مع التيار
+      for(var j=0;j<14;j++){var f=((t*.08+j/14)%1);var idx=Math.floor(f*(n-1)),q2=pr(path[idx][0],path[idx][1],0);ctx.fillStyle='rgba(230,250,255,.9)';ctx.beginPath();ctx.arc(q2[0],q2[1],1.6*u*Math.min(cam.z,1.5),0,7);ctx.fill()}});ctx.restore()}
+  // ---------- الطبقات ----------
+  var objs=[];
+  if(D.retaAt){
+    var tl=seg(t,30.5,38.5),ix=t<30?D.last:Math.round(eio(tl)*D.last),vals=D.retaAt[ix]||D.retaF;
+    var rise=function(rank){return eback(seg(t,7+rank*.11,8.6+rank*.11))};
+    var dimR=t<13?1:t<19?lerp(1,.16,eio(seg(t,13,14.2))):t<29.5?lerp(.16,.05,seg(t,19,20)):lerp(.05,1,seg(t,29.5,31));var reset=t<29.5?1:t<30.5?1-eio(seg(t,29.5,30.4)):1;
+    D.retaTop.forEach(function(n,rank){var g=D.G[n];if(!g)return;var v=vals[n]||0,h=(v/D.retaMax)*105*(t<30.5?rise(rank)*reset:1);if(t>=29.5&&t<30.5)h=(D.retaF[n]/D.retaMax)*105*reset;
+      var q=pr(g.c[0],g.c[1],0);objs.push({d:q[3],f:function(){col(ctx,pr,g.c,h,C.reta,dimR,u,cam)}})});}
+  objs.sort(function(a,b){return b.d-a.d}).forEach(function(o){o.f()});
+  // التسهيلات: ذرات دهبي من المحافظات للعدّاد
+  if(D.simpG&&t>13&&t<46){var a1=seg(t,13.2,14.5)*(t<19?1:t<39?1-seg(t,19,20.5):seg(t,39,41)*.45);if(a1>0){ctx.save();ctx.globalCompositeOperation='lighter';var tx=W-260*Math.min(W,H)/900,ty=H-210*Math.min(W,H)/900,mx=D.simpG[D.simpTop[0]]||1;
+      D.simpTop.slice(0,16).forEach(function(n,i){var g=D.G[n];if(!g)return;var q=pr(g.c[0],g.c[1],0),k=Math.ceil(14*Math.sqrt(D.simpG[n]/mx))+3;
+        // نبضة على المحافظة
+        var gg=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],(12+34*Math.sqrt(D.simpG[n]/mx))*u*q[2]*cam.z*.6);gg.addColorStop(0,rgba(C.simp,.75*a1));gg.addColorStop(1,rgba(C.simp,0));ctx.fillStyle=gg;ctx.beginPath();ctx.arc(q[0],q[1],(12+34*Math.sqrt(D.simpG[n]/mx))*u*q[2]*cam.z*.6,0,7);ctx.fill();
+        ctx.fillStyle=rgba('#FFF3D6',.9*a1);ctx.beginPath();ctx.arc(q[0],q[1],2.2*u*cam.z*.7,0,7);ctx.fill();
+        if(t<19.5)for(var j=0;j<k;j++){var ph=((t-13.2)*.55+j/k+rnd(i*7+j)*.5)%1;var e=eio(ph);var bx=lerp(q[0],tx,e),by=lerp(q[1],ty,e)-Math.sin(e*Math.PI)*90*u;ctx.fillStyle=rgba('#FFD27A',(1-e*.7)*a1);ctx.beginPath();ctx.arc(bx,by,(3.2-1.6*e)*u,0,7);ctx.fill()}});
+      ctx.restore()}}
+  // المرتبات: دواير نور من مناطق القاهرة الكبرى
+  if(D.payRg&&t>18.5){var a2=seg(t,18.6,20)*(t<25?1:t<39?1-seg(t,25,26):seg(t,39,41)*.5);if(a2>0){ctx.save();ctx.globalCompositeOperation='lighter';var mx2=Math.max.apply(null,Object.keys(D.payRg).map(function(k){return D.payRg[k].sub}));
+      Object.keys(D.payRg).forEach(function(n,i){var g=D.G[n];if(!g)return;var q=pr(g.c[0],g.c[1],0),R=Math.sqrt(D.payRg[n].sub/mx2);
+        for(var r=0;r<4;r++){var ph=((t*.45+r/4+i*.13)%1);ctx.strokeStyle=rgba(C.pay,(1-ph)*.75*a2);ctx.lineWidth=2*u;ctx.beginPath();ctx.ellipse(q[0],q[1],ph*120*R*u*cam.z*.55,ph*120*R*u*cam.z*.55*Math.cos(cam.tilt),0,0,7);ctx.stroke()}
+        var gr=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],26*R*u*cam.z*.6);gr.addColorStop(0,rgba(C.pay,.8*a2));gr.addColorStop(1,rgba(C.pay,0));ctx.fillStyle=gr;ctx.beginPath();ctx.arc(q[0],q[1],26*R*u*cam.z*.6,0,7);ctx.fill()});
+      // سرب الموظفين: كل نقطة = 100 ألف موظف
+      if(t>20.5&&t<25.5){var n2=Math.round((D.payEmp||0)/1e5),cq=pr(D.G['القاهرة'].c[0],D.G['القاهرة'].c[1],0),e2=eout(seg(t,20.5,23));
+        for(var j=0;j<n2;j++){var ang=rnd(j)*6.283,rad=(20+rnd(j+5)*120)*u*e2,sp=t*(.15+rnd(j+2)*.25);ctx.fillStyle=rgba('#CFFFF0',.75*a2*(1-seg(t,24.6,25.5)));ctx.fillRect(cq[0]+Math.cos(ang+sp)*rad*1.4,cq[1]+Math.sin(ang+sp)*rad*.55,1.6*u,1.6*u)}}
+      ctx.restore()}}
+  // التصرفات: موجة بنفسجي بتعدّي على مصر كلها
+  if(t>24.8&&t<30.2||t>39){var a3=t>39?seg(t,39,41)*.35:seg(t,24.8,25.6)*(1-seg(t,29.4,30.2));var w1=(t>39?((t-39)*.12)%1:seg(t,25.3,28.8));ctx.save();ctx.globalCompositeOperation='lighter';
+    D.names.forEach(function(n){var g=D.G[n],yy=1-g.c[1]/600,dist=Math.abs(yy-w1),k=Math.max(0,1-dist*5);if(k<=0&&t<=39)return;ctx.beginPath();g.rings.forEach(function(r){r.forEach(function(p,i){var q=pr(p[0],p[1],0);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.closePath()});
+      ctx.fillStyle=rgba(C.tsrf,(t>39?.05:.12*k+.03)*a3);ctx.fill();ctx.shadowColor=C.tsrf;ctx.shadowBlur=14*u*k;ctx.strokeStyle=rgba('#E6D8FF',(t>39?.2:.85*k+.1)*a3);ctx.lineWidth=(1+1.4*k)*u;ctx.stroke();ctx.shadowBlur=0});ctx.restore()}
+  // نداء على أعلى محافظة
+  if(D.retaTop&&t>9.6&&t<13.2)callout(ctx,pr,D,D.retaTop[0],(D.retaF[D.retaTop[0]]/D.retaMax)*105,big(D.retaF[D.retaTop[0]])+' إقرار',C.reta,seg(t,9.6,10.4)*(1-seg(t,12.6,13.2)),u);
+  if(D.simpTop&&t>16.2&&t<19.2)callout(ctx,pr,D,D.simpTop[0],8,nf(D.simpG[D.simpTop[0]])+' طلب اكسيل',C.simp,seg(t,16.2,17)*(1-seg(t,18.6,19.2)),u);
+  // ---------- الكتابة ----------
+  var T=function(p0,p1,f){if(t>=p0&&t<=p1)f(eout(seg(t,p0,p0+.8))*(1-seg(t,p1-.6,p1)))};
+  T(1.6,6.8,function(a){title(ctx,W,H,u,'مصر بتنوّر',(D.dates.length?'ليلة الأرقام · لحد '+dAr(D.dates[D.last]):'ليلة الأرقام'),a)});
+  if(D.retaTot)T(7.4,13.2,function(a){lower(ctx,W,H,u,C.reta,'الضرائب العقارية',nf(D.retaTot*eout(seg(t,7.4,10.5))),'إقرار من كل محافظات مصر',a)});
+  if(D.simpSap!=null)T(13.6,19.2,function(a){lower(ctx,W,H,u,C.simp,'التسهيلات الضريبية',nf((D.simpSap+D.simpXl)*eout(seg(t,13.6,16.5))),'طلب تسجيل · '+nf(D.simpSap)+' ساب و'+nf(D.simpXl)+' اكسيل',a)});
+  if(D.paySub)T(19.6,25,function(a){lower(ctx,W,H,u,C.pay,'منظومة المرتبات',nf(D.paySub*eout(seg(t,19.6,22.5))),'ممول بيقدّم · المنظومة بتغطي '+big(D.payEmp)+' موظف',a)});
+  if(D.tsrfN)T(25.4,30.2,function(a){lower(ctx,W,H,u,C.tsrf,'التصرفات العقارية',nf(D.tsrfN*eout(seg(t,25.4,28))),'عملية تصرف · '+big(D.tsrfPaid)+' جنيه ضريبة وغرامات · أرقام الجمهورية',a)});
+  if(D.retaAt&&t>30.2&&t<39.6){var ix2=Math.round(eio(seg(t,30.5,38.5))*D.last),a4=seg(t,30.2,31)*(1-seg(t,39,39.6));timeline(ctx,W,H,u,D,ix2,a4)}
+  if(t>39.4)finale(ctx,W,H,u,D,eout(seg(t,39.4,41.4)));
+  // إطار سينمائي خفيف
+  var vg=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.35)');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  var fin=seg(t,0,.8);if(fin<1){ctx.fillStyle='rgba(0,0,0,'+(1-fin)+')';ctx.fillRect(0,0,W,H)}
+}
+function col(ctx,pr,c,h,color,dim,u,cam){if(h<=.5)return;var wide=cam.z<1.25,gk=wide?.28:1;if(wide)h*=1.6;var b=pr(c[0],c[1],0),tp=pr(c[0],c[1],h),w=Math.max(7,13*u*b[2]*Math.sqrt(cam.z));
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  var gl=ctx.createRadialGradient(b[0],b[1],0,b[0],b[1],w*(wide?3:5));gl.addColorStop(0,rgba(color,.55*dim*gk));gl.addColorStop(1,rgba(color,0));ctx.fillStyle=gl;ctx.beginPath();ctx.ellipse(b[0],b[1],w*(wide?3:5),w*(wide?3:5)*Math.cos(cam.tilt)*.8+1,0,0,7);ctx.fill();
+  var g=ctx.createLinearGradient(b[0],b[1],tp[0],tp[1]);g.addColorStop(0,rgba(color,.9*dim));g.addColorStop(.55,rgba(color,.55*dim));g.addColorStop(.92,rgba('#DDEBFF',.85*dim));g.addColorStop(1,rgba('#FFFFFF',dim));
+  ctx.fillStyle=g;ctx.shadowColor=color;ctx.shadowBlur=(wide?5:14)*u*dim;ctx.beginPath();ctx.moveTo(b[0]-w/2,b[1]);ctx.lineTo(tp[0]-w/2,tp[1]);ctx.lineTo(tp[0]+w/2,tp[1]);ctx.lineTo(b[0]+w/2,b[1]);ctx.closePath();ctx.fill();
+  ctx.fillStyle=rgba('#FFFFFF',.95*dim);ctx.beginPath();ctx.ellipse(tp[0],tp[1],w*.7,w*.35,0,0,7);ctx.fill();ctx.restore()}
+function callout(ctx,pr,D,n,h,txt,color,a,u){if(a<=0||!D.G[n])return;var c=D.G[n].c,p=pr(c[0],c[1],h),x2=p[0]+190*u,y2=p[1]<ctx.canvas.height*.3?p[1]+80*u:p[1]-70*u;ctx.save();ctx.globalAlpha=a;ctx.strokeStyle=rgba('#FFFFFF',.8);ctx.lineWidth=1.2*u;
+  ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(p[0]+40*u,y2);ctx.lineTo(x2,y2);ctx.stroke();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p[0],p[1],3*u,0,7);ctx.fill();
+  ctx.direction='rtl';ctx.textAlign='right';ctx.font='800 '+Math.round(26*u)+'px Cairo,sans-serif';var bw=Math.max(ctx.measureText(n).width,150*u)+30*u;ctx.fillStyle='rgba(5,8,23,.78)';ctx.beginPath();ctx.roundRect?ctx.roundRect(x2+12*u-bw,y2-44*u,bw,78*u,10*u):ctx.rect(x2+12*u-bw,y2-44*u,bw,78*u);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(n,x2+4*u,y2-10*u);ctx.fillStyle=color;ctx.font='700 '+Math.round(18*u)+'px Cairo,sans-serif';ctx.fillText(txt,x2+4*u,y2+22*u);ctx.restore()}
+function title(ctx,W,H,u,a,b,al){ctx.save();ctx.globalAlpha=al;ctx.direction='rtl';ctx.textAlign='center';var y=H*.1;
+  ctx.font='900 '+Math.round(84*u)+'px Cairo,sans-serif';var g=ctx.createLinearGradient(W/2-260*u,0,W/2+260*u,0);g.addColorStop(0,'#FFE9B0');g.addColorStop(.5,'#FFFFFF');g.addColorStop(1,'#9FD8FF');ctx.fillStyle=g;ctx.shadowColor='rgba(160,200,255,.6)';ctx.shadowBlur=30*u;
+  ctx.fillText(a,W/2,y+(1-al)*20*u);ctx.shadowBlur=0;ctx.fillStyle=C.dust;ctx.font='600 '+Math.round(22*u)+'px Cairo,sans-serif';ctx.fillText(b,W/2,y+46*u);ctx.restore()}
+function lower(ctx,W,H,u,color,k,num,sub,al){ctx.save();ctx.globalAlpha=al;ctx.direction='rtl';ctx.textAlign='right';var x=W-70*u,y=H-170*u,sl=(1-al)*40*u;
+  ctx.fillStyle=color;ctx.fillRect(x-4*u+sl,y-62*u,4*u,128*u);
+  ctx.fillStyle=color;ctx.font='700 '+Math.round(24*u)+'px Cairo,sans-serif';ctx.fillText(k,x-20*u+sl,y-36*u);
+  ctx.fillStyle='#fff';ctx.font='900 '+Math.round(76*u)+'px Cairo,sans-serif';ctx.shadowColor=color;ctx.shadowBlur=26*u;ctx.fillText(num,x-20*u+sl,y+34*u);ctx.shadowBlur=0;
+  ctx.fillStyle=C.dust;ctx.font='600 '+Math.round(19*u)+'px Cairo,sans-serif';ctx.fillText(sub,x-20*u+sl,y+66*u);ctx.restore()}
+function timeline(ctx,W,H,u,D,ix,al){ctx.save();ctx.globalAlpha=al;var x0=W*.14,x1=W*.86,y=H-70*u,f=ix/Math.max(1,D.last);
+  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=2*u;ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);ctx.stroke();
+  // في العربي الزمن بيمشي من اليمين للشمال
+  var xp=x1-(x1-x0)*f;var g=ctx.createLinearGradient(x1,0,xp,0);g.addColorStop(0,rgba(C.reta,.2));g.addColorStop(1,C.reta);ctx.strokeStyle=g;ctx.lineWidth=3*u;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(xp,y);ctx.stroke();
+  ctx.fillStyle='#fff';ctx.shadowColor=C.reta;ctx.shadowBlur=16*u;ctx.beginPath();ctx.arc(xp,y,6*u,0,7);ctx.fill();ctx.shadowBlur=0;
+  ctx.direction='rtl';ctx.textAlign='center';ctx.font='800 '+Math.round(28*u)+'px Cairo,sans-serif';ctx.fillStyle='#fff';ctx.fillText(dAr(D.dates[ix]),xp,y-22*u);
+  ctx.textAlign='right';ctx.font='900 '+Math.round(58*u)+'px Cairo,sans-serif';ctx.fillStyle='#fff';ctx.shadowColor=C.reta;ctx.shadowBlur=22*u;ctx.fillText(nf(D.retaTotAt(ix)),W-70*u,H*.2);ctx.shadowBlur=0;
+  ctx.font='600 '+Math.round(20*u)+'px Cairo,sans-serif';ctx.fillStyle=C.dust;ctx.fillText('إقرار عقاري لحد التاريخ ده',W-70*u,H*.2+34*u);
+  ctx.textAlign='center';ctx.fillStyle=C.dust;ctx.font='600 '+Math.round(17*u)+'px Cairo,sans-serif';ctx.fillText('من أول تقرير محفوظ',W/2,y+34*u);ctx.restore()}
+function finale(ctx,W,H,u,D,al){ctx.save();var bk=ctx.createLinearGradient(0,H*.68,0,H);bk.addColorStop(0,'rgba(5,8,23,0)');bk.addColorStop(.45,'rgba(5,8,23,.85)');bk.addColorStop(1,'rgba(5,8,23,.95)');ctx.globalAlpha=al;ctx.fillStyle=bk;ctx.fillRect(0,H*.68,W,H*.32);var tk=ctx.createLinearGradient(0,0,0,H*.2);tk.addColorStop(0,'rgba(5,8,23,.9)');tk.addColorStop(1,'rgba(5,8,23,0)');ctx.fillStyle=tk;ctx.fillRect(0,0,W,H*.2);ctx.direction='rtl';var it=[[C.reta,'الضرائب العقارية',D.retaTot,'إقرار'],[C.simp,'التسهيلات الضريبية',D.simpSap!=null?D.simpSap+D.simpXl:null,'طلب تسجيل'],[C.pay,'منظومة المرتبات',D.paySub,'ممول بيقدّم'],[C.tsrf,'التصرفات العقارية',D.tsrfN,'عملية تصرف']].filter(function(x){return x[2]!=null});
+  var n=it.length,cw=Math.min(340*u,(W-120*u)/n),x0=W/2+cw*n/2,y=H-110*u;
+  it.forEach(function(x,i){var cx=x0-cw*(i+.5),d=eout(cl(al*1.6-i*.15,0,1));ctx.globalAlpha=al*d;ctx.textAlign='center';ctx.fillStyle=x[0];ctx.fillRect(cx-22*u,y-66*u+(1-d)*14*u,44*u,3*u);
+    ctx.font='700 '+Math.round(18*u)+'px Cairo,sans-serif';ctx.fillText(x[1],cx,y-38*u+(1-d)*14*u);ctx.fillStyle='#fff';ctx.font='900 '+Math.round(52*u)+'px Cairo,sans-serif';ctx.shadowColor=x[0];ctx.shadowBlur=20*u;ctx.fillText(nf(x[2]),cx,y+12*u+(1-d)*14*u);ctx.shadowBlur=0;
+    ctx.fillStyle=C.dust;ctx.font='600 '+Math.round(16*u)+'px Cairo,sans-serif';ctx.fillText(x[3],cx,y+40*u+(1-d)*14*u)});
+  ctx.globalAlpha=al;ctx.textAlign='center';ctx.font='900 '+Math.round(54*u)+'px Cairo,sans-serif';var g=ctx.createLinearGradient(W/2-200*u,0,W/2+200*u,0);g.addColorStop(0,'#FFE9B0');g.addColorStop(.5,'#fff');g.addColorStop(1,'#9FD8FF');ctx.fillStyle=g;ctx.shadowColor='rgba(160,200,255,.5)';ctx.shadowBlur=24*u;ctx.fillText('مصر بتنوّر',W/2,H*.09);ctx.shadowBlur=0;
+  ctx.fillStyle=C.dust;ctx.font='600 '+Math.round(19*u)+'px Cairo,sans-serif';ctx.fillText('الأرقام لحد '+dAr(D.dates[D.last]),W/2,H*.09+36*u);ctx.restore()}
+
+/* ---------- تشغيل ---------- */
+var CUR=null;
+function mount(host,opt){opt=opt||{};var D=prep(),cv=document.createElement('canvas');cv.className='tlc-cv';host.appendChild(cv);
+  var fit=function(){var r=host.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);cv.style.width=r.width+'px';cv.style.height=r.height+'px'};fit();
+  var t0=performance.now(),raf=0,stopAt=opt.hold===false?DUR:1e9;function loop(){var t=Math.min((performance.now()-t0)/1000,DUR);draw(cv,t,D);if(t<DUR||opt.loop){raf=requestAnimationFrame(loop)}else if(opt.onEnd)opt.onEnd()}
+  if(!opt.manual)raf=requestAnimationFrame(loop);window.addEventListener('resize',fit);
+  CUR={cv:cv,D:D,stop:function(){cancelAnimationFrame(raf);window.removeEventListener('resize',fit)},frame:function(t){draw(cv,t,D)}};return CUR}
+function open(){var o=document.createElement('div');o.className='tlc';document.body.appendChild(o);var x=document.createElement('button');x.className='tlc-x';x.textContent='✕';x.onclick=function(){CUR&&CUR.stop();o.remove()};o.appendChild(x);return mount(o,{})}
+var st=document.createElement('style');st.textContent='.tlc{position:fixed;inset:0;z-index:190;background:#050817}.tlc-cv{display:block}.tlc-x{position:absolute;top:16px;left:16px;z-index:2;border:0;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;cursor:pointer}';document.head.appendChild(st);
+window.TL_CINE={open:open,mount:mount,draw:draw,prep:prep,DUR:DUR};
 })();
 </script>
 <script>;(function(){/* «قصة الأسبوع» للضرائب العقارية: الرسم ثابت يمين، والقصة شمال، وكل فقرة بتغيّر الرسم */
