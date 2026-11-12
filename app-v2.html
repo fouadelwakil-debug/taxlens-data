@@ -3962,7 +3962,7 @@ function pick(item){
   return cv||item;
 }
 var REG={};// آخر إعداد ناجح لكل معرّف
-function snap(ch){return {type:ch.config.type,data:ch.config.data,options:ch.config.options,plugins:ch.config.plugins}}
+function snap(ch){var o=ch.config.options||{};return {type:ch.config.type,idx:o.indexAxis,data:ch.config.data,options:o,plugins:ch.config.plugins}}
 function G(item,cfg){
   var cv=pick(item),old=cv&&cv.tagName==='CANVAS'?Base.getChart(cv):null;
   if(old)try{old.destroy()}catch(e){}
@@ -3982,16 +3982,19 @@ G.$tlGuard=true;G.$base=Base;
 // حماية التحديث: لو تحديث فشل، يرجع لآخر شكل سليم بدل ما يفضل فاضي
 var up=Base.prototype.update;
 Base.prototype.update=function(m){if(!this.canvas){var nx=this.$tlnext;return nx&&nx.canvas?nx.update(m):undefined}try{var r=up.call(this,m);this.$tlok=snap(this);return r}catch(e){
-  console.warn('chartguard: update failed, restoring',e);var s=this.$tlok,cv=this.canvas;
-  if(s&&cv){try{this.destroy()}catch(_){}try{var n=new Base(cv,{type:s.type,data:s.data,options:s.options,plugins:s.plugins});this.$tlnext=n;if(cv.id)REG[cv.id]=n;return}catch(_){}}
+  console.warn('chartguard: update failed, restoring',e);var s=this.$tlok,cv=this.canvas;if(s&&s.options){if(s.idx===undefined)delete s.options.indexAxis;else s.options.indexAxis=s.idx}
+  if(s&&cv){try{this.destroy()}catch(_){}try{var n=new Base(cv,{type:s.type,data:s.data,options:s.options,plugins:s.plugins});n.$tlsafe=true;this.$tlnext=n;try{document.dispatchEvent(new CustomEvent('tl-chart-fail',{detail:{canvas:cv,chart:n}}))}catch(_){}if(cv.id)REG[cv.id]=n;return}catch(_){}}
 }};
 ['resize','render','draw','stop','reset','toBase64Image'].forEach(function(m){var f=Base.prototype[m];if(f)Base.prototype[m]=function(){if(!this.canvas){var n=this.$tlnext;return n&&n.canvas?n[m].apply(n,arguments):undefined}return f.apply(this,arguments)}});
 var dsF=Base.prototype.destroy;Base.prototype.destroy=function(){if(!this.canvas)return;return dsF.apply(this,arguments)};
+// حركة واحدة بايظة كانت بتوقف حركة كل الرسومات في الصفحة فتفضل فاضية
+if(Base.Animation&&Base.Animation.prototype.tick){var tk=Base.Animation.prototype.tick;Base.Animation.prototype.tick=function(t){try{return tk.call(this,t)}catch(e){try{this._active=false;if(this._target&&this._prop)this._target[this._prop]=this._to;this._notify&&this._notify(true)}catch(_){}}}}
+if(Base.animator&&Base.animator._update){var au=Base.animator._update;Base.animator._update=function(){try{return au.apply(this,arguments)}catch(e){console.warn('chartguard: animator',e)}}}
 window.Chart=G;
 
 // فحص دوري: أي كانفاس ظاهر لازم يكون مرسوم وبحجمه الصحيح
-function blank(cv){try{var w=cv.width,h=cv.height;if(!w||!h)return true;var d=cv.getContext('2d').getImageData(0,0,w,h).data;
-  for(var y=0;y<h;y+=5){var r=y*w*4;for(var x=0;x<w;x+=5)if(d[r+x*4+3]>0)return false}return true}catch(e){return false}}
+var SM=document.createElement('canvas');SM.width=64;SM.height=32;var SX=SM.getContext('2d',{willReadFrequently:true});
+function blank(cv){try{if(!cv.width||!cv.height)return true;SX.clearRect(0,0,64,32);SX.drawImage(cv,0,0,64,32);var d=SX.getImageData(0,0,64,32).data;for(var i=3;i<d.length;i+=4)if(d[i]>0)return false;return true}catch(e){return false}}
 function hasData(ch){var ds=(ch.data&&ch.data.datasets)||[];return ds.some(function(d){return (d.data||[]).some(function(v){return v!=null&&v!==0&&!(typeof v==='object'&&v.y==null&&v.r==null&&v.v==null)})})}
 var fixes={},LOG=[];function lg(a,cv){LOG.push(a+':'+(cv&&cv.id||'?'));if(LOG.length>200)LOG.shift()}
 function heal(){
@@ -4014,7 +4017,7 @@ var t=null;function soon(d){clearTimeout(t);t=setTimeout(heal,d==null?400:d)}
 ['resize','hashchange','popstate','focus','pageshow'].forEach(function(e){window.addEventListener(e,function(){soon()})});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)soon(200)});
 document.addEventListener('click',function(){soon(700);setTimeout(heal,2200)},true);
-try{new MutationObserver(function(){soon(600)}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','hidden']})}catch(e){}
+try{new MutationObserver(function(){soon(600)}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']})}catch(e){}
 setInterval(function(){if(!document.hidden)heal()},2500);
 window.TL_CHARTGUARD={heal:heal,blank:blank,log:LOG};
 })();
@@ -7294,8 +7297,11 @@ function applyChart(ch,force){if(inApply)return;var k=ckey(ch);if(!k)return;var 
     if(pie){d.backgroundColor=mapCol(d.backgroundColor,PALS[ov.pal],st)}else{var nb=mapCol(d.borderColor,PALS[ov.pal],st);d.backgroundColor=mapCol(d.backgroundColor,PALS[ov.pal],st);d.borderColor=nb}})}
   if(ov.leg!=null)op.plugins.legend.display=ov.leg;
   if(ov.grid!=null)['x','y'].forEach(function(a){var s=op.scales&&op.scales[a];if(s){s.grid=s.grid||{};s.grid.display=ov.grid}});
-  ch.update('none')}catch(e){console.warn('tld chart',e)}finally{inApply=false}}
-if(window.Chart&&Chart.register)Chart.register({id:'tld',afterInit:function(ch){setTimeout(function(){if(ch.canvas&&ch.canvas.isConnected)applyChart(ch)},0)}});
+  if(c.type!==(ch.$tlcur||o.type)||(op.indexAxis||'x')!==(ch.$tlidx||o.idx||'x')){var cv=ch.canvas,cfg={type:c.type,data:c.data,options:op,plugins:c.plugins},sw=ch.$tlswap,B0=Chart.$base||Chart;ch.destroy();var n=new B0(cv,cfg);n.$tlo=o;n.$tlswap=sw;n.$tlcur=c.type;n.$tlidx=op.indexAxis||'x';ch.$tlnext=n}
+  else ch.update('none')}catch(e){console.warn('tld chart',e);dropOv(ch)}finally{inApply=false}}
+function dropOv(ch){try{var k=ckey(ch);if(k&&L.charts[k]){delete L.charts[k];if(L.own)save()}}catch(e){}}
+document.addEventListener('tl-chart-fail',function(e){var c=e.detail&&e.detail.chart;if(c)dropOv(c)});
+if(window.Chart&&Chart.register)Chart.register({id:'tld',afterInit:function(ch){if(ch.$tlsafe||ch.$tlcur)return;setTimeout(function(){if(ch.canvas&&ch.canvas.isConnected)applyChart(ch)},0)}});
 
 function chartPanel(u,btn){closePanel();var cvs=[].slice.call(u.querySelectorAll('canvas')).map(function(c){return Chart.getChart(c)}).filter(Boolean);if(!cvs.length)return;
   var ch=cvs[0],k=ckey(ch);if(!k)return;var fam=family(ch),pn=el('div','tld-pan');pn.onmousedown=function(e){e.stopPropagation()};
