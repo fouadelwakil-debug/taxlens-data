@@ -963,12 +963,12 @@ body{background:#FFFFFF}.reta-root .card{box-shadow:0 1px 3px rgba(20,48,106,.06
     <button class="ex-tab" role="tab" data-tab="summary" aria-selected="false">الملخص التنفيذي</button>
     <button class="ex-tab" role="tab" data-tab="weekly" aria-selected="false">التحليل الأسبوعي</button>
     <button class="ex-tab" role="tab" data-tab="monthly" aria-selected="false">التحليل الشهري</button>
+    <button class="ex-tab" role="tab" data-tab="geo" aria-selected="false">الخريطة والمأموريات</button>
     <button class="ex-tab" role="tab" data-tab="compare" aria-selected="false">مقارنة الفترات</button>
     <button class="ex-tab" role="tab" data-tab="reasons" aria-selected="false">أسباب التحويل للفحص</button>
     <button class="ex-tab" role="tab" data-tab="story" aria-selected="false">قصة الأسبوع</button>
     <button class="ex-tab" role="tab" data-tab="sim" aria-selected="false">محاكاة ماذا لو</button>
     <button class="ex-tab" role="tab" data-tab="readings" aria-selected="false">القراءة التحليلية</button>
-    <button class="ex-tab" role="tab" data-tab="geo" aria-selected="false">الخريطة والمأموريات</button>
     <!-- hidden on request (5 Nov): المديونية والتقسيمات + الجدول التفصيلي — sections kept below for later -->
     <button class="ex-tab" role="tab" data-tab="collection" aria-selected="false" hidden>المديونية والتقسيمات</button>
     <button class="ex-tab" role="tab" data-tab="detail" aria-selected="false" hidden>الجدول التفصيلي</button>
@@ -6302,7 +6302,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var oldGeo=function(){try{return JSON.parse(window.TL_DATA.geo||'null')}catch(e){return null}};
     var gsum=function(g){var s=function(k){return g.offices.reduce(function(a,o){return a+o[k]},0)};return{off:g.offices.length,n:s('n'),tax:s('tax'),pr:Object.keys(g.props).reduce(function(a,k){return a+g.props[k]},0)}};
     var showGeo=function(){if(!GEO){gout.innerHTML='';return}var a=gsum(GEO),o=oldGeo(),b=o&&o.offices?gsum(o):null;
-      gout.innerHTML='<table><tr><td></td><td><b>المنشور حالياً</b></td><td><b>الملف الجديد</b></td></tr>'+[['المأموريات',b?b.off:'—',a.off],['المتصرفين',b?fN(b.n):'—',fN(a.n)],['المطالبات الضريبية',b?fC(b.tax):'—',fC(a.tax)],['الوحدات المتصرف فيها',b?fN(b.pr):'—',fN(a.pr)]].map(function(r){return'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>'}).join('')+'</table>'+(GEO.unknown&&GEO.unknown.length?'<div class="tlx-w">⚠ محافظات مش متعرفة واتجاهلت: '+GEO.unknown.join('، ')+'</div>':'')+(hasDaily?'':'<button class="bt p" data-x="gg">نشر بيانات الخريطة بس</button><span class="gst" style="font-size:13px"></span>');
+      gout.innerHTML='<table><tr><td></td><td><b>المنشور حالياً</b></td><td><b>الملف الجديد</b></td></tr>'+[['المأموريات',b?b.off:'—',a.off],['المتصرفين',b?fN(b.n):'—',fN(a.n)],['المطالبات الضريبية',b?fC(b.tax):'—',fC(a.tax)],['عمليات البيع',b?fN(b.pr):'—',fN(a.pr)]].map(function(r){return'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>'}).join('')+'</table>'+(GEO.unknown&&GEO.unknown.length?'<div class="tlx-w">⚠ محافظات مش متعرفة واتجاهلت: '+GEO.unknown.join('، ')+'</div>':'')+(hasDaily?'':'<button class="bt p" data-x="gg">نشر بيانات الخريطة بس</button><span class="gst" style="font-size:13px"></span>');
       var gb=gout.querySelector('[data-x=gg]');if(gb)gb.onclick=function(){var s=gout.querySelector('.gst');gb.disabled=true;s.textContent=' جارٍ النشر…';var keys=(window.TL_PLATKEYS||{}).tsrf||[],payload={};keys.forEach(function(k){payload[k]=window.TL_DATA[k]});payload.geo=JSON.stringify(GEO);
         var mut=function(V){return window.TL_ENCRYPT_PLATFORM('tsrf',JSON.stringify(payload)).then(function(box){V.vault.tsrf=box;return V})};mut.__plat='tsrf';
         window.TL_PUBLISH_VAULT(mut).then(function(){window.TL_DATA.geo=payload.geo;(window.TL_PLATKEYS.tsrf||[]).indexOf('geo')<0&&window.TL_PLATKEYS.tsrf.push('geo');s.textContent=' اتنشر ✓';window.TSRF_GEO_DRAW&&window.TSRF_GEO_DRAW()}).catch(function(e){gb.disabled=false;s.textContent=' تعذر النشر: '+e.message})}};
@@ -6372,7 +6372,7 @@ var CSS='#geo .tg-top{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))
  +'#geo .tg-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}#geo .tg-ch{position:relative;height:320px}'
  +'#geo .tg-ins{margin:0;padding-inline-start:18px;line-height:2}#geo .tg-empty{padding:40px;text-align:center;color:var(--ex-slate)}'
  +'@media(max-width:900px){#geo .tg-top{grid-template-columns:repeat(2,minmax(0,1fr))}#geo .tg-main,#geo .tg-charts{grid-template-columns:1fr}}';
-var MET={props:['عدد الوحدات المتصرف فيها','وحدة',1],n:['عدد المتصرفين','متصرف',0],tax:['المطالبات الضريبية','جنيه',0],pen:['مطالبات الغرامات','جنيه',0]};
+var MET={props:['عدد عمليات البيع','عملية',1],n:['عدد المتصرفين','متصرف',0],tax:['المطالبات الضريبية','جنيه',0],pen:['مطالبات الغرامات','جنيه',0]};
 var S={m:'props',g:null,sort:'tax'},CH={};
 function data(){var raw=window.TL_DATA&&window.TL_DATA.geo;if(!raw)return null;var d;try{d=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return null}if(!d||!d.offices)return null;
   var G={};GOV27.forEach(function(g){G[g]={g:g,props:(d.props||{})[g]||0,n:0,tax:0,rem:0,pen:0,cnt:0,offices:[]}});
@@ -6386,25 +6386,25 @@ var root,built=false;
 function build(){var sec=document.getElementById('geo');if(!sec)return false;if(built)return true;built=true;
   var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
   sec.innerHTML='<div class="tg-top" id="tg-kpi"></div><div class="tg-main"><div class="ex-card"><h3 id="tg-mt"></h3><p class="ex-note" style="margin:0" id="tg-sub"></p><div class="tg-seg" id="tg-seg"></div><div class="tg-mapw"><svg class="tg-map" id="tg-map" viewBox="0 0 662 594" role="img" aria-label="خريطة محافظات مصر"></svg><div class="tg-tip" id="tg-tip"></div></div><div class="tg-leg" id="tg-leg"></div><p class="ex-note" style="margin:6px 0 0">مرّر على أي محافظة لعرض القيمة، واضغط عليها لفتح تفاصيلها ومأمورياتها.</p></div>'
-   +'<div style="display:flex;flex-direction:column;gap:14px"><div class="ex-card"><h3 id="tg-rt">الترتيب</h3><div class="tg-rk" id="tg-rk"></div></div><div class="ex-card tg-card" id="tg-card"></div></div></div>'
+   +'<div style="display:flex;flex-direction:column;gap:14px"><div class="ex-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 id="tg-rt" style="margin:0">الترتيب</h3><select id="tg-gsel" class="ex-sel" style="font:inherit;font-size:13px;padding:4px 8px;border:1px solid var(--ex-line);border-radius:8px;background:var(--ex-page);color:var(--ex-ink)"></select></div><div class="tg-rk" id="tg-rk"></div></div><div class="ex-card tg-card" id="tg-card"></div></div></div>'
    +'<div class="tg-charts"><div class="ex-card"><h3>أكبر 10 مأموريات في المطالبات الضريبية</h3><p class="ex-note" style="margin:0">في المحافظات اللي اتنشرت فيها المنظومة</p><div class="tg-ch"><canvas id="tg-c1"></canvas></div></div>'
    +'<div class="ex-card"><h3>المطالبات الضريبية والغرامات لكل محافظة</h3><p class="ex-note" style="margin:0">المحافظات اللي اتنشرت فيها المنظومة</p><div class="tg-ch"><canvas id="tg-c2"></canvas></div></div>'
-   +'<div class="ex-card"><h3>توزيع الوحدات المتصرف فيها</h3><p class="ex-note" style="margin:0">حسب مكان الوحدة</p><div class="tg-ch"><canvas id="tg-c3"></canvas></div></div>'
+   +'<div class="ex-card"><h3>توزيع عمليات البيع</h3><p class="ex-note" style="margin:0">حسب مكان الوحدة المباعة</p><div class="tg-ch"><canvas id="tg-c3"></canvas></div></div>'
    +'<div class="ex-card"><h3>قراءة سريعة</h3><ul class="tg-ins" id="tg-ins"></ul></div></div>'
    +'<div class="ex-card" style="margin-top:14px"><h3>كل المأموريات</h3><p class="ex-note" style="margin:0">اضغط على عنوان أي عمود للترتيب</p><div class="tg-scr"><table class="tg-t" id="tg-all"></table></div></div>';
   var seg=sec.querySelector('#tg-seg');seg.innerHTML=Object.keys(MET).map(function(k){return'<button data-m="'+k+'"'+(k===S.m?' class="on"':'')+'>'+MET[k][0]+'</button>'}).join('');
   seg.onclick=function(e){var b=e.target.closest('button');if(!b)return;S.m=b.dataset.m;seg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});draw()};
   var map=sec.querySelector('#tg-map'),tip=sec.querySelector('#tg-tip');
   map.onmousemove=function(e){var p=e.target.closest('path');if(!p){tip.style.display='none';return}var D=data();if(!D)return;var x=D.G[p.dataset.g],r=map.parentNode.getBoundingClientRect();
-    tip.innerHTML='<b>'+esc(x.g)+'</b><br>'+MET[S.m][0]+': '+(val(x,S.m)==null?'لسه المنظومة ما اتنشرتش فيها':fv(S.m,val(x,S.m)))+(S.m!=='props'?'<br>الوحدات: '+fN(x.props):'');
+    tip.innerHTML='<b>'+esc(x.g)+'</b><br>'+MET[S.m][0]+': '+(val(x,S.m)==null?'لسه المنظومة ما اتنشرتش فيها':fv(S.m,val(x,S.m)))+(S.m!=='props'?'<br>عمليات البيع: '+fN(x.props):'');
     tip.style.display='block';var tx=e.clientX-r.left+14,ty=e.clientY-r.top+14;if(tx+tip.offsetWidth>r.width)tx=e.clientX-r.left-tip.offsetWidth-10;tip.style.left=tx+'px';tip.style.top=ty+'px'};
   map.onmouseleave=function(){tip.style.display='none'};
   map.onclick=function(e){var p=e.target.closest('path');if(p){S.g=p.dataset.g;draw()}};
-  sec.querySelector('#tg-rk').onclick=function(e){var d=e.target.closest('[data-g]');if(d){S.g=d.dataset.g;draw()}};
+  sec.querySelector('#tg-gsel').onchange=function(){if(this.value){S.g=this.value;draw();var c=document.getElementById('tg-card');c&&c.scrollIntoView({behavior:'smooth',block:'nearest'})}};sec.querySelector('#tg-rk').onclick=function(e){var d=e.target.closest('[data-g]');if(d){S.g=d.dataset.g;draw()}};
   sec.querySelector('#tg-all').onclick=function(e){var th=e.target.closest('th[data-s]');if(th){S.sort=th.dataset.s;table()}};
   return true}
 function kpis(D){var A=GOV27.map(function(g){return D.G[g]}),s=function(k){return A.reduce(function(a,x){return a+(x[k]||0)},0)},off=D.raw.offices.length,gH=A.filter(function(x){return x.has}).length,tax=s('tax'),rem=s('rem');
-  document.getElementById('tg-kpi').innerHTML=[['الوحدات المتصرف فيها',fN(s('props')),'في '+A.filter(function(x){return x.props>0}).length+' محافظة'],['عدد المتصرفين',fN(s('n')),'في '+off+' مأمورية · '+gH+' محافظات'],['المطالبات الضريبية',fM(tax),'جنيه'],['المتبقي من المطالبات',fM(rem),'جنيه',1],['نسبة المتبقي',(tax?rem/tax*100:0).toFixed(1)+'%','من المطالبات الضريبية · الغرامات '+fM(s('pen'))+' ج']]
+  document.getElementById('tg-kpi').innerHTML=[['عمليات البيع',fN(s('props')),'في '+A.filter(function(x){return x.props>0}).length+' محافظة'],['عدد المتصرفين',fN(s('n')),'في '+off+' مأمورية · '+gH+' محافظات'],['المطالبات الضريبية',fM(tax),'جنيه'],['المتبقي من المطالبات',fM(rem),'جنيه',1],['نسبة المتبقي',(tax?rem/tax*100:0).toFixed(1)+'%','من المطالبات الضريبية · الغرامات '+fM(s('pen'))+' ج']]
    .map(function(k){return'<div class="ex-card'+(k[3]?' accent':'')+'"><div class="lbl">'+k[0]+'</div><div class="big">'+k[1]+'</div><div class="ex-note" style="margin:0">'+k[2]+'</div></div>'}).join('')}
 function draw(){if(!build())return;var D=data(),sec=document.getElementById('geo');
   if(!D){sec.querySelector('.tg-main').style.display='none';sec.querySelector('.tg-charts').style.display='none';var kk=document.getElementById('tg-kpi');kk.style.display='';kk.innerHTML='<div class="ex-card tg-empty" style="grid-column:1/-1">لسه مفيش بيانات المأموريات والمحافظات. هتظهر هنا مع أول تحديث أسبوعي فيه شيت «بيانات التصرف».</div>';return}
@@ -6420,13 +6420,13 @@ function draw(){if(!build())return;var D=data(),sec=document.getElementById('geo
   if(!S.g||!D.G[S.g])S.g=R.length?R[0].g:'القاهرة';
   document.getElementById('tg-rt').textContent='الترتيب · '+MET[m][0];
   document.getElementById('tg-rk').innerHTML=R.slice(0,m==='props'?12:27).map(function(x,i){var v=val(x,m);return'<div data-g="'+esc(x.g)+'"'+(x.g===S.g?' class="on"':'')+'><em>'+(i+1)+'</em><span>'+esc(x.g)+'<s style="width:'+(v/top*100)+'%"></s></span><b>'+fv(m,v)+(m!=='remp'&&tot?' <small style="color:var(--ex-slate);font-weight:400">· '+Math.round(v/tot*100)+'%</small>':'')+'</b></div>'}).join('')+(m==='props'&&R.length>12?'<div style="cursor:default"><em></em><span style="color:var(--ex-slate)">و'+(R.length-12)+' محافظة كمان</span><b></b></div>':'');
-  card(D);charts(D);insights(D);table()}
+  var gs=document.getElementById('tg-gsel');gs.innerHTML='<option value="">اختار محافظة…</option>'+GOV27.slice().sort(function(a,c){return a.localeCompare(c,'ar')}).map(function(g){return'<option'+(g===S.g?' selected':'')+'>'+g+'</option>'}).join('');card(D);charts(D);insights(D);table()}
 function card(D){var x=D.G[S.g],A=GOV27.map(function(g){return D.G[g]}),rp=[].concat(A).sort(function(a,b){return b.props-a.props}).findIndex(function(y){return y.g===x.g})+1,tp=A.reduce(function(a,y){return a+y.props},0);
-  var h='<h3>'+esc(x.g)+'</h3><div class="ex-note" style="margin:0">الترتيب '+rp+' من 27 في الوحدات المتصرف فيها'+(tp?' · '+(x.props/tp*100).toFixed(1)+'% من الإجمالي':'')+'</div><div class="tg-kv"><div><small>الوحدات المتصرف فيها</small><b>'+fN(x.props)+'</b></div>';
+  var h='<h3>'+esc(x.g)+'</h3><div class="ex-note" style="margin:0">الترتيب '+rp+' من 27 في عمليات البيع'+(tp?' · '+(x.props/tp*100).toFixed(1)+'% من الإجمالي':'')+'</div><div class="tg-kv"><div><small>عمليات البيع</small><b>'+fN(x.props)+'</b></div>';
   if(x.has){h+='<div><small>المتصرفين</small><b>'+fN(x.n)+'</b></div><div><small>المطالبات الضريبية</small><b>'+fM(x.tax)+' ج</b></div><div><small>الغرامات</small><b>'+fM(x.pen)+' ج</b></div><div><small>متوسط المطالبة للمتصرف</small><b>'+fN(x.n?x.tax/x.n:0)+' ج</b></div></div>';
     var O=x.offices.slice().sort(function(a,b){return b.tax-a.tax}),mt=Math.max.apply(0,O.map(function(o){return o.tax}))||1;
     h+='<b style="font-size:14px">مأموريات '+esc(x.g)+' ('+O.length+')</b><div class="tg-scr" style="max-height:300px"><table class="tg-t"><tr><th>المأمورية</th><th>متصرفين</th><th>المطالبات</th></tr>'+O.map(function(o){return'<tr><td>'+esc(o.o)+'</td><td class="n">'+fN(o.n)+'</td><td class="n">'+fM(o.tax)+'<span class="tg-bar" style="background:var(--ex-blue);width:'+Math.round(o.tax/mt*40)+'px"></span></td></tr>'}).join('')+'</table></div>'}
-  else h+='</div><p class="ex-note">'+'المنظومة اتنشرت لحد دلوقتي في القاهرة والجيزة والإسكندرية والقليوبية'+'، فبيانات المتصرفين والمطالبات لـ'+esc(x.g)+' هتظهر لما تتنشر فيها. الوحدات المتصرف فيها بتظهر لكل المحافظات.</p>';
+  else h+='</div><p class="ex-note">'+'المنظومة اتنشرت لحد دلوقتي في القاهرة والجيزة والإسكندرية والقليوبية'+'، فبيانات المتصرفين والمطالبات لـ'+esc(x.g)+' هتظهر لما تتنشر فيها. عمليات البيع بتظهر لكل المحافظات.</p>';
   document.getElementById('tg-card').innerHTML=h}
 function mk(id,cfg){if(CH[id])try{CH[id].destroy()}catch(e){}var cv=document.getElementById(id);if(!cv||!window.Chart)return;CH[id]=new Chart(cv,cfg)}
 function css(v,f){try{return getComputedStyle(document.getElementById('geo')).getPropertyValue(v).trim()||f}catch(e){return f}}
@@ -6442,10 +6442,10 @@ function charts(D){var ink=css('--ex-ink','#141413'),sl=css('--ex-slate','#4A587
   var P=GOV27.map(function(g){return D.G[g]}).filter(function(x){return x.props>0}).sort(function(a,b){return b.props-a.props}),tp=P.reduce(function(a,x){return a+x.props},0),T=P.slice(0,6),rest=P.slice(6).reduce(function(a,x){return a+x.props},0);
   var lab=T.map(function(x){return x.g}).concat(rest?['باقي المحافظات ('+(P.length-6)+')']:[]),dv=T.map(function(x){return x.props}).concat(rest?[rest]:[]);
   mk('tg-c3',{type:'doughnut',data:{labels:lab,datasets:[{data:dv,backgroundColor:['#14306A','#2F6FD0','#5B8FDF','#8DB2EA','#B9CFF1','#D6202E','#C9D1DC'],borderColor:css('--ex-page','#fff'),borderWidth:2}]},
-    options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'left',labels:{font:fnt,color:sl,boxWidth:12,generateLabels:function(c){return c.data.labels.map(function(l,i){return{text:l+'  '+fN(dv[i])+' · '+(dv[i]/tp*100).toFixed(0)+'%',fillStyle:c.data.datasets[0].backgroundColor[i],strokeStyle:'transparent',index:i,fontColor:sl}})}}},tooltip:Object.assign({},tip,{callbacks:{label:function(it){return' '+fN(it.raw)+' وحدة · '+(it.raw/tp*100).toFixed(1)+'%'}}})}}})}
+    options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'left',labels:{font:fnt,color:sl,boxWidth:12,generateLabels:function(c){return c.data.labels.map(function(l,i){return{text:l+'  '+fN(dv[i])+' · '+(dv[i]/tp*100).toFixed(0)+'%',fillStyle:c.data.datasets[0].backgroundColor[i],strokeStyle:'transparent',index:i,fontColor:sl}})}}},tooltip:Object.assign({},tip,{callbacks:{label:function(it){return' '+fN(it.raw)+' عملية بيع · '+(it.raw/tp*100).toFixed(1)+'%'}}})}}})}
 function insights(D){var A=GOV27.map(function(g){return D.G[g]}),H=A.filter(function(x){return x.has}),P=A.filter(function(x){return x.props>0}).sort(function(a,b){return b.props-a.props}),tp=P.reduce(function(a,x){return a+x.props},0),O=D.raw.offices,L=[];
-  if(P.length>=3){var t3=P[0].props+P[1].props+P[2].props;L.push(P[0].g+' و'+P[1].g+' و'+P[2].g+' فيهم '+Math.round(t3/tp*100)+'% من الوحدات المتصرف فيها.')}
-  var noOff=P.filter(function(x){return!x.has&&x.props>=100});if(noOff.length)L.push(noOff.map(function(x){return x.g+' ('+fN(x.props)+' وحدة)'}).join(' و')+' فيها وحدات كتير متصرف فيها، ولسه المنظومة ما اتنشرتش في مأمورياتها.');
+  if(P.length>=3){var t3=P[0].props+P[1].props+P[2].props;L.push(P[0].g+' و'+P[1].g+' و'+P[2].g+' فيهم '+Math.round(t3/tp*100)+'% من عمليات البيع.')}
+  var noOff=P.filter(function(x){return!x.has&&x.props>=100});if(noOff.length)L.push(noOff.map(function(x){return x.g+' ('+fN(x.props)+' عملية بيع)'}).join(' و')+' فيها عمليات بيع كتير، ولسه المنظومة ما اتنشرتش في مأمورياتها.');
   var hs=H.slice().sort(function(a,b){return b.tax-a.tax}),tt=H.reduce(function(a,x){return a+x.tax},0);if(hs.length&&tt)L.push(hs[0].g+' لوحدها عليها '+Math.round(hs[0].tax/tt*100)+'% من المطالبات الضريبية في المحافظات اللي اتنشرت فيها المنظومة.');
   var av=H.slice().sort(function(a,b){return b.tax/b.n-a.tax/a.n});if(av.length>1)L.push('متوسط المطالبة لكل متصرف أعلى في '+av[0].g+' ('+fN(av[0].tax/av[0].n)+' ج) مقابل '+fN(av[av.length-1].tax/av[av.length-1].n)+' ج في '+av[av.length-1].g+'.');
   var so=O.slice().sort(function(a,b){return b.tax-a.tax}),k=0,acc=0;while(k<so.length&&acc<tt*.5){acc+=so[k].tax;k++}if(tt)L.push('نص المطالبات متركز في '+k+(k>2&&k<11?' مأموريات':' مأمورية')+' بس من '+O.length+'.');
@@ -6467,7 +6467,7 @@ document.addEventListener('DOMContentLoaded',hook);window.addEventListener('tl-u
   if(window.TL_UI_VERSION!=='v2')return;
   var ACC={reta:'#1F4C9A',tsrf:'#0D7C77',simp:'#5B3FA8',pay:'#0E7490'},SW=['#1F4C9A','#0D7C77','#5B3FA8','#0E7490','#3949AB','#B45309','#86198F','#475569'];
   var NAME={reta:'الضرائب العقارية',tsrf:'التصرفات العقارية',simp:'التسهيلات الضريبية',pay:'منظومة المرتبات'};
-  var GROUPS={tsrf:[['نظرة عامة',['leaders','summary']],['التحليل',['weekly','monthly','compare','reasons','readings','story']],['الأدوات',['sim','collection','detail']]],
+  var GROUPS={tsrf:[['نظرة عامة',['leaders','summary']],['التحليل',['weekly','monthly','geo','compare','reasons','readings','story']],['الأدوات',['sim','collection','detail']]],
     reta:[['نظرة عامة',['p0','p1','p10','p20']],['التحليل',['p2','p13','p7','p4','p3','p5','p12']],['الأدوات',['p8','p9','p6','p11']]],
     simp:[['نظرة عامة',['s0','s1','s14']],['التحليل',['s2','s3','s4','s5','s6','s9','s12']],['المراجعة والمخاطر',['s7','s8','s10']],['الأدوات',['s11','s13']]],
     pay:[['نظرة عامة',['y0','y1','y9']],['التحليل',['y2','y3','y4','y5','y6','y10','y11']],['الأدوات',['y7','y8']]]};
