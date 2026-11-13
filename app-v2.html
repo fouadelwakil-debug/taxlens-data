@@ -7378,13 +7378,15 @@ function play(p,opts){opts=opts||{};var s=S();if(P)close();var mode=opts.mode||w
   var hideT;root.addEventListener('mousemove',function(){root.classList.add('ui');clearTimeout(hideT);hideT=setTimeout(function(){root.classList.remove('ui')},2500)});
   function key(e){if(!P)return;if(e.key==='Escape')close();else if(e.key==='ArrowLeft')seek(P.i+1);else if(e.key==='ArrowRight')seek(P.i-1);else if(e.key===' '){e.preventDefault();pb.click()}}P.key=key;document.addEventListener('keydown',key);
   if(s.music&&s.track!=='off'&&TRACKS[s.track]){var mu=new Audio(aurl(TRACKS[s.track]));mu.preload='auto';mu.volume=s.musicVol;mu.crossOrigin='anonymous';P.mu=mu;mu.addEventListener('loadedmetadata',function(){if(P&&P.mu===mu)mu.loop=P.total>mu.duration-2})}
-  preloadSfx();var prep=audioFor(p,scenes).then(function(a){if(P)P.audio=a});
+  preloadSfx();var prep=audioFor(p,scenes).then(function(a){if(P)P.audio=a;return fitAudio()});
   var go_=root.appendChild(el('div','go'));var gb=el('button',null,'▶ شغّل الحكاية');go_.append(gb);
   if(mode==='both'&&sNew){gb.textContent='▶ الحكاية الجديدة';var gb2=el('button',null,'الحكاية الكلاسيكية');gb2.style.cssText='margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,.5);font-size:15px;padding:8px 22px';
-    gb2.onclick=function(){P.scenes=sOld;P.total=sOld.reduce(function(a,x){return a+sceneLen(x)},0);prep=audioFor(p,sOld).then(function(a){if(P)P.audio=a});gb.click()};go_.append(gb2)}
+    gb2.onclick=function(){P.scenes=sOld;P.total=sOld.reduce(function(a,x){return a+sceneLen(x)},0);prep=audioFor(p,sOld).then(function(a){if(P)P.audio=a;return fitAudio()});gb.click()};go_.append(gb2)}
   go_.append(el('small',null,'الأسهم للتنقل · المسافة للإيقاف · Esc للخروج'));
   gb.onclick=function(){go_.remove();try{root.requestFullscreen&&!opts.noFs&&root.requestFullscreen()}catch(e){}prep.then(function(){start(0)})};
   if(opts.auto)setTimeout(function(){gb.click()},400);window.TL_LOG&&window.TL_LOG('story',PN[p])}
+/* وقت كل مشهد على قد صوته: الصوت بيبدأ بعد نص ثانية، ونسيب نفَس بعده */
+function fitAudio(){if(!P)return;var me=P;return Promise.all(me.scenes.map(function(sc){var u=me.audio[sc.id];if(!u)return null;return new Promise(function(r){var a=new Audio();a.preload='metadata';var done=function(){r(isFinite(a.duration)?a.duration:0)};a.onloadedmetadata=done;a.onerror=function(){r(0)};setTimeout(function(){r(0)},4000);a.src=u}).then(function(d){if(!d)return;var need=0.5+d+1.0;if(need>sceneLen(sc)){sc.$len0=sc.$len0||sc.len||0;sc.len=Math.ceil(need/BAR)}})})).then(function(){if(P!==me)return;me.total=me.scenes.reduce(function(a,x){return a+sceneLen(x)},0);if(me.mu&&me.mu.duration)me.mu.loop=me.total>me.mu.duration-2})}
 function offsetOf(i){var t=0;for(var k=0;k<i;k++)t+=sceneLen(P.scenes[k]);return t}
 function now(){if(!P)return 0;if(P.mu&&!P.mu.paused&&P.mu.currentTime>0&&!P.mu.loop)return P.mu.currentTime;return P.clock0!=null?(performance.now()-P.clock0)/1000:0}
 window.TL_STORY_DBG={p:function(){return P},go:function(i){start(i)}};function start(i){if(!P)return;var t=offsetOf(i);P.ending=0;if(P.mu){P.mu.volume=S().musicVol;try{P.mu.currentTime=P.mu.duration?t%P.mu.duration:t}catch(e){}P.mu.muted=P.muted;P.mu.play().catch(function(){})}P.clock0=performance.now()-t*1000;P.i=-1;tick()}
