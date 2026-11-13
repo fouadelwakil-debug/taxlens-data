@@ -2749,6 +2749,131 @@ dash.calc('quality', {
   root.addEventListener('change', (ev) => { if (ev.target.closest('select')) arm(1200); });
 })();
 </script>
+<script>/* TAX Lens · نظام الحركة الموحد (كل المنصات + الرئيسية)
+   1 انتقال الكارت للمنصة والعكس · 2 تسلسل بأولويات · 3 تبويبات باتجاه + مؤشر متزحلق · 4 قفلة للأرقام
+   5 رسومات متدرجة وتحوّل بدل إعادة رسم · 6 تفاعلات صغيرة · 7 هيكل تحميل · 8 إبراز الأرقام اللي اتغيّرت
+   9 الخريطة موجة من الشمال للجنوب · 10 مقاسات حركة ثابتة */
+(function(){
+if(!document.documentElement.animate)return;
+var mq=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');
+function off(){try{return (mq&&mq.matches)||localStorage.getItem('tl_motion')==='0'}catch(e){return mq&&mq.matches}}
+window.TL_MOTION={set:function(on){try{localStorage.setItem('tl_motion',on?'1':'0')}catch(e){}},on:function(){return!off()}};
+/* 10) المقاسات */
+var D={xs:150,s:300,m:600,l:900},EO='cubic-bezier(.22,1,.36,1)',EIO='cubic-bezier(.65,0,.35,1)';
+function A(el,k,o){try{return el.animate(k,o)}catch(e){return null}}
+/* 6) + 7) CSS */
+var css=document.createElement('style');css.textContent=
+ '.tlm-lift{transition:transform '+D.xs+'ms '+EO+',box-shadow '+D.s+'ms '+EO+'}'
++'#plat-reta .card:hover,#plat-simp .sp-card:hover,#plat-pay .sp-card:hover,#plat-simp .sp-k:hover,#plat-pay .sp-k:hover,#plat-tsrf .ex-card:hover,#tl-home [id^=card-]:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(20,48,106,.12)}'
++'#plat-reta .card,#plat-simp .sp-card,#plat-pay .sp-card,#plat-simp .sp-k,#plat-pay .sp-k,#plat-tsrf .ex-card,#tl-home [id^=card-]{transition:transform '+D.xs+'ms '+EO+',box-shadow '+D.s+'ms '+EO+'}'
++'.v2 button:active,.v2-top button:active,#tl-home button:active,[id^=plat-] button:active{transform:scale(.97);transition:transform 80ms}'
++'.tlm-skel{color:transparent!important;background:linear-gradient(90deg,rgba(130,150,180,.14) 25%,rgba(130,150,180,.28) 50%,rgba(130,150,180,.14) 75%);background-size:200% 100%;animation:tlmSk 1.1s linear infinite;border-radius:6px;min-width:3.5em;display:inline-block}'
++'@keyframes tlmSk{to{background-position:-200% 0}}'
++'.tlm-ind{position:absolute;inset-inline-start:0;width:3px;border-radius:3px;background:#D6202E;transition:top '+D.s+'ms '+EO+',height '+D.s+'ms '+EO+';pointer-events:none;z-index:2}'
++'.tlm-delta{display:inline-block;margin-inline-start:6px;font-size:.45em;font-weight:700;color:#16824A;background:rgba(22,130,74,.1);border-radius:999px;padding:1px 8px;vertical-align:middle;white-space:nowrap}'
++'.tlm-delta.dn{color:#D6202E;background:rgba(214,32,46,.1)}'
++'@media (prefers-reduced-motion:reduce){.tlm-skel{animation:none}}';
+document.head.appendChild(css);
+
+/* إعدادات كل منصة: hero = الأهم، kpi = الأرقام، rest = الباقي */
+var P={
+  reta:{root:'#plat-reta',tabs:'#plat-reta #tabs button[data-p]',pane:'.pane.on',hero:'.hero',kpi:'.xc,.kl',rest:'.card',big:'.xc .xk'},
+  simp:{root:'#plat-simp',tabs:'#simp-tabs button[data-p]',pane:'.spane.on',hero:'.sp-hero',kpi:'.sp-k',rest:'.sp-card,.sp-say',big:'.sp-k .b'},
+  pay:{root:'#plat-pay',tabs:'#pay-tabs button[data-p]',pane:'.spane.on',hero:'.sp-hero',kpi:'.sp-k',rest:'.sp-card,.sp-say',big:'.sp-k .b'},
+  tsrf:{root:'#plat-tsrf',tabs:'#plat-tsrf .ex-tab[data-tab]',pane:'.ex-page:not([hidden])',hero:null,kpi:null,rest:null,big:null,own:true}
+};
+/* 4) العد + القفلة */
+var NUM=/[-−]?[\d,]*\.?\d+/,busy=new WeakSet();
+function land(el){var d=getComputedStyle(el).display;if(d==='inline')return;A(el,[{transform:'scale(1)'},{transform:'scale(1.07)'},{transform:'scale(1)'}],{duration:D.s+80,easing:EO})}
+function countUp(el,delay){if(busy.has(el)||document.documentElement.lang==='en')return;var fin=el.textContent,m=fin.match(NUM);if(!m)return;
+  var raw=m[0].replace(/,/g,'').replace('−','-'),tg=parseFloat(raw);if(!isFinite(tg)||tg===0)return;var dec=(m[0].split('.')[1]||'').length,cm=m[0].indexOf(',')>=0||Math.abs(tg)>=1000;
+  var pre=fin.slice(0,m.index),post=fin.slice(m.index+m[0].length),dur=D.l,t0=performance.now()+(delay||0),w=null;
+  function fmt(v){var s=Math.abs(v).toFixed(dec);if(cm){var a=s.split('.');s=a[0].replace(/\B(?=(\d{3})+(?!\d))/g,',')+(a[1]?'.'+a[1]:'')}return(v<0?'−':'')+s}
+  busy.add(el);(function st(n){if(w!==null&&el.textContent!==w){busy.delete(el);return}var p=Math.min(1,Math.max(0,(n-t0)/dur)),e=1-Math.pow(1-p,4);w=p>=1?fin:pre+fmt(tg*e)+post;el.textContent=w;if(p<1)requestAnimationFrame(st);else{busy.delete(el);land(el)}})(performance.now())}
+/* 2) تسلسل بأولويات */
+function vis(e){return e&&e.offsetWidth>0}
+function grp(scope,sel){return sel?[].filter.call(scope.querySelectorAll(sel),vis):[]}
+function seq(cfg,pane,base,dir){base=base||0;var dx=dir?dir*28:0,used=new Set();
+  grp(pane,cfg.hero).forEach(function(el){used.add(el);A(el,[{opacity:0,transform:'translate('+dx+'px,10px) scale(.96)',filter:'brightness(1.25)'},{opacity:1,transform:'none',filter:'none'}],{duration:D.m+150,delay:base,easing:EO,fill:'backwards'})});
+  grp(pane,cfg.kpi).forEach(function(el,i){if(used.has(el))return;used.add(el);A(el,[{opacity:0,transform:'translate('+dx+'px,14px)'},{opacity:1,transform:'none'}],{duration:D.m,delay:base+180+Math.min(i,8)*55,easing:EO,fill:'backwards'})});
+  grp(pane,cfg.rest).forEach(function(el,i){if(used.has(el))return;A(el,[{opacity:0,transform:'translate('+dx+'px,18px)'},{opacity:1,transform:'none'}],{duration:D.m,delay:base+380+Math.min(i,10)*70,easing:EO,fill:'backwards'})})}
+function bars(scope,base){scope.querySelectorAll('.bar i,.tg-bar,.tg-cmp .b i,.prog>i').forEach(function(b,i){if(!vis(b))return;b.style.transformOrigin='right center';A(b,[{transform:'scaleX(0)'},{transform:'scaleX(1)'}],{duration:D.l,delay:(base||0)+450+Math.min(i,20)*45,easing:EO,fill:'backwards'})})}
+function rows(scope,base){[].slice.call(scope.querySelectorAll('table tr+tr')).filter(vis).slice(0,24).forEach(function(tr,i){A(tr,[{opacity:0,transform:'translateX(10px)'},{opacity:1,transform:'none'}],{duration:D.s+60,delay:(base||0)+520+i*26,easing:EO,fill:'backwards'})})}
+/* 9) الخريطة موجة شمال → جنوب */
+function wave(scope,base){scope.querySelectorAll('svg').forEach(function(svg){var ps=svg.querySelectorAll('path[data-g],path[data-gov],path.gov');if(ps.length<10||!vis(svg))return;var vb=(svg.viewBox&&svg.viewBox.baseVal)||{y:0,height:594};
+  ps.forEach(function(p){var y=0;try{var b=p.getBBox();y=(b.y-vb.y)/(vb.height||594)}catch(e){}A(p,[{opacity:0,filter:'brightness(1.6)'},{opacity:1,filter:'none'}],{duration:D.m,delay:(base||0)+250+Math.max(0,y)*800,easing:EO,fill:'backwards'})})})}
+function charts(pane){if(!window.Chart)return;pane.querySelectorAll('canvas').forEach(function(c){var ch=Chart.getChart(c);if(ch&&vis(c)&&!ch.$tlAnim){try{ch.reset();ch.update()}catch(e){}}})}
+function play(cfg,pane,base,dir){if(!pane||off())return;if(cfg.own){if(dir)A(pane,[{opacity:.4,transform:'translateY('+(dir*18)+'px)'},{opacity:1,transform:'none'}],{duration:D.s,easing:EO});return}
+  seq(cfg,pane,base,dir);pane.querySelectorAll(cfg.big).forEach(function(el,i){if(el.children.length||!vis(el))return;countUp(el,(base||0)+260+Math.min(i,10)*55)});bars(pane,base);rows(pane,base);wave(pane,base);charts(pane)}
+function paneOf(cfg){var r=document.querySelector(cfg.root);return r&&(r.querySelector(cfg.pane)||r)}
+
+/* 3) التبويبات: اتجاه + مؤشر الشريط الجانبي */
+var seen={},lastIdx={};
+function idxOf(cfg,btn){return [].indexOf.call(document.querySelectorAll(cfg.tabs),btn)}
+function indicator(){var s=document.querySelector('.v2-side');if(!s||!vis(s))return;var on=s.querySelector('.nv.on');var ind=s.querySelector('.tlm-ind');
+  if(!ind){if(getComputedStyle(s).position==='static')s.style.position='relative';ind=document.createElement('i');ind.className='tlm-ind';s.appendChild(ind)}
+  if(!on){ind.style.height='0';return}ind.style.top=on.offsetTop+6+'px';ind.style.height=Math.max(0,on.offsetHeight-12)+'px'}
+Object.keys(P).forEach(function(k){var cfg=P[k];seen[k]={};lastIdx[k]=0;
+  document.addEventListener('click',function(ev){var t=ev.target.closest&&ev.target.closest(cfg.tabs);if(!t)return;var id=t.dataset.p||t.dataset.tab,ni=idxOf(cfg,t),dir=ni>lastIdx[k]?1:ni<lastIdx[k]?-1:0;lastIdx[k]=ni;
+    setTimeout(indicator,30);if(off())return;
+    setTimeout(function(){var pn=paneOf(cfg);if(!pn)return;if(seen[k][id]){A(pn,[{opacity:.4,transform:'translateY('+(dir*16)+'px)'},{opacity:1,transform:'none'}],{duration:D.s,easing:EO});return}seen[k][id]=1;play(cfg,pn,0,dir)},30)},true)});
+
+/* 1) انتقال الكارت ↔ المنصة */
+var lastTile=null;
+function ghost(from,to,bg,rad,ms,fadeAt,cb){var g=document.createElement('div');g.style.cssText='position:fixed;z-index:2147480000;pointer-events:none;left:0;top:0;transform-origin:0 0;background:'+bg+';box-shadow:0 20px 60px rgba(8,22,48,.25)';
+  g.style.width=to.width+'px';g.style.height=to.height+'px';document.body.appendChild(g);
+  var sx=from.width/to.width,sy=from.height/to.height;
+  var an=A(g,[{transform:'translate('+from.left+'px,'+from.top+'px) scale('+sx+','+sy+')',borderRadius:rad+'px',opacity:1},{transform:'translate('+to.left+'px,'+to.top+'px) scale(1,1)',borderRadius:'0px',opacity:1,offset:fadeAt},{transform:'translate('+to.left+'px,'+to.top+'px) scale(1,1)',borderRadius:'0px',opacity:0}],{duration:ms,easing:EIO,fill:'forwards'});
+  if(an)an.onfinish=function(){g.remove();cb&&cb()};else{g.remove();cb&&cb()}}
+function vp(){return{left:0,top:0,width:innerWidth,height:innerHeight}}
+document.addEventListener('click',function(ev){var c=ev.target.closest&&ev.target.closest('[id^=card-]');if(!c)return;var k=c.id.slice(5),cfg=P[k];if(!cfg)return;seen[k]={};lastIdx[k]=0;lastTile=c.id;
+  if(off())return;var r=c.getBoundingClientRect(),bg=getComputedStyle(document.body).backgroundColor||'#f3f6fb';var cs=getComputedStyle(c);
+  ghost(r,vp(),cs.backgroundColor&&cs.backgroundColor!=='rgba(0, 0, 0, 0)'?cs.backgroundColor:'#fff',parseFloat(cs.borderTopLeftRadius)||14,520,.72);
+  setTimeout(function(){var root=document.querySelector(cfg.root);if(!root)return;var hd=root.querySelector('.top,.sp-head,.ex-head');hd&&A(hd,[{opacity:0,transform:'translateY(-10px)'},{opacity:1,transform:'none'}],{duration:D.m,delay:280,easing:EO,fill:'backwards'});
+    play(cfg,paneOf(cfg),340);indicator()},40)},true);
+document.addEventListener('click',function(ev){var b=ev.target.closest&&ev.target.closest('.tl-back,[data-home]');if(!b||off())return;var tile=lastTile;
+  setTimeout(function(){var t=tile&&document.getElementById(tile);if(t&&vis(t)){var r=t.getBoundingClientRect(),cs=getComputedStyle(t);
+      A(t,[{opacity:0},{opacity:1}],{duration:D.s,delay:330,fill:'backwards'});
+      var g=document.createElement('div');g.style.cssText='position:fixed;z-index:2147480000;pointer-events:none;left:0;top:0;transform-origin:0 0;background:'+(cs.backgroundColor||'#fff');g.style.width=innerWidth+'px';g.style.height=innerHeight+'px';document.body.appendChild(g);
+      var an=A(g,[{transform:'translate(0,0) scale(1,1)',borderRadius:'0px',opacity:.95},{transform:'translate('+r.left+'px,'+r.top+'px) scale('+(r.width/innerWidth)+','+(r.height/innerHeight)+')',borderRadius:(parseFloat(cs.borderTopLeftRadius)||14)+'px',opacity:.0}],{duration:460,easing:EIO,fill:'forwards'});if(an)an.onfinish=function(){g.remove()};else g.remove()}
+    home(true)},30)},true);
+
+/* 5) الرسومات: تدرّج + تحوّل */
+function tuneCharts(){var C=window.Chart&&(Chart.$base||Chart);if(!C||C.$tlm)return;C.$tlm=1;try{
+  C.defaults.animation.duration=D.l;C.defaults.animation.easing='easeOutQuart';
+  C.defaults.animation.delay=function(ctx){if(ctx.type!=='data'||ctx.mode!=='default'||off())return 0;var n=(ctx.chart.data.labels||[]).length||1;return Math.min(ctx.dataIndex,40)*Math.min(45,700/n)+ctx.datasetIndex*120};
+  if(C.defaults.transitions&&C.defaults.transitions.active)C.defaults.transitions.active.animation.duration=D.xs+50;
+  C.defaults.datasets.doughnut&&(C.defaults.datasets.doughnut.animation={animateRotate:true,animateScale:true});
+  C.defaults.datasets.line&&(C.defaults.datasets.line.animations={y:{from:function(ctx){try{return ctx.chart.scales.y.getPixelForValue(ctx.chart.scales.y.min)}catch(e){return undefined}}}});
+  /* تحويل بدل إعادة رسم: لو نفس الكانفاس اتعمل عليه رسم جديد من نفس النوع وبنفس عدد النقط تقريباً */
+  var G=window.Chart;if(G&&G.$tlGuard&&!G.$morph){G.$morph=1;window.Chart=new Proxy(G,{construct:function(T,args){var it=args[0],cfg=args[1]||{};try{var cv=typeof it==='string'?document.getElementById(it):it,old=cv&&C.getChart(cv);
+      if(old&&!off()&&cv.offsetWidth&&old.config.type===cfg.type&&!(cfg.plugins&&cfg.plugins.length)&&!(old.config.plugins&&old.config.plugins.length)&&cfg.data&&old.data&&(cfg.data.datasets||[]).length===(old.data.datasets||[]).length){
+        old.options=cfg.options||{};old.data.labels=cfg.data.labels;cfg.data.datasets.forEach(function(d,i){var o=old.data.datasets[i];Object.keys(d).forEach(function(k2){o[k2]=d[k2]})});old.update();return old}}catch(e){}
+      return Reflect.construct(T,args)}})}
+}catch(e){console.warn('tlm charts',e)}}
+tuneCharts();window.addEventListener('tl-unlocked',tuneCharts);
+
+/* 7) هيكل تحميل للأرقام الفاضية + 8) إبراز اللي اتغيّر */
+function skel(){document.querySelectorAll('#tl-home [id^=card-] *').forEach(function(e){if(e.children.length)return;var t=e.textContent.trim();if(parseFloat(getComputedStyle(e).fontSize)>=24&&(t===''||t==='—'||t==='…'))e.classList.add('tlm-skel');else e.classList.remove('tlm-skel')})}
+function bigs(h){return [].filter.call(h.querySelectorAll('[id^=card-] *'),function(e){return!e.children.length&&vis(e)&&parseFloat(getComputedStyle(e).fontSize)>=26&&NUM.test(e.textContent)})}
+function key(){return 'tlm_last_'+(window.TL_USER||'')}
+function deltas(h){var prev={};try{prev=JSON.parse(localStorage.getItem(key())||'{}')}catch(e){}var now={};
+  bigs(h).forEach(function(el,i){var tile=el.closest('[id^=card-]'),id=(tile&&tile.id)+':'+i,txt=el.textContent.trim();now[id]=txt;
+    if(prev[id]&&prev[id]!==txt){var a=parseFloat(prev[id].replace(/,/g,'').match(NUM)),b=parseFloat(txt.replace(/,/g,'').match(NUM));
+      setTimeout(function(){A(el,[{color:'inherit',textShadow:'0 0 0 rgba(214,160,40,0)'},{color:'#B8860B',textShadow:'0 0 18px rgba(214,160,40,.55)'},{color:'inherit',textShadow:'0 0 0 rgba(214,160,40,0)'}],{duration:1400,delay:900,easing:EIO});
+        if(isFinite(a)&&isFinite(b)&&a!==b&&!el.parentElement.querySelector('.tlm-delta')){var s=document.createElement('span');s.className='tlm-delta'+(b<a?' dn':'');s.textContent=(b>a?'▲ ':'▼ ')+'اتحدّث';s.title='القيمة اللي فاتت: '+prev[id];el.after(s);A(s,[{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:D.s,delay:1200,fill:'backwards'})}},0)}});
+  try{localStorage.setItem(key(),JSON.stringify(now))}catch(e){}}
+function home(back){skel();var h=document.getElementById('tl-home');if(!h||!vis(h))return;var tiles=[].filter.call(h.querySelectorAll('[id^=card-]'),vis);
+  if(!off()){tiles.forEach(function(el,i){if(back&&el.id===lastTile)return;A(el,[{opacity:0,transform:'translateY(18px) scale(.97)'},{opacity:1,transform:'none'}],{duration:D.m,delay:(back?120:80)+i*70,easing:EO,fill:'backwards'})});
+    [].filter.call(h.querySelectorAll('.tl-news,.tl-att,section,.card'),function(e){return vis(e)&&!e.closest('[id^=card-]')}).forEach(function(el,i){A(el,[{opacity:0,transform:'translateY(16px)'},{opacity:1,transform:'none'}],{duration:D.m,delay:(back?260:420)+i*90,easing:EO,fill:'backwards'})});
+    if(!back)bigs(h).forEach(function(el,i){countUp(el,300+i*60)})}
+  if(!back)setTimeout(function(){deltas(h)},D.l+700)}
+window.addEventListener('tl-unlocked',function(){skel();setTimeout(home,350)});setTimeout(skel,200);
+var iq=0;function qi(){if(iq)return;iq=requestAnimationFrame(function(){iq=0;indicator()})}try{new MutationObserver(qi).observe(document.querySelector('.v2')||document.body,{attributes:true,subtree:true,attributeFilter:['class']})}catch(e){}
+window.addEventListener('resize',function(){indicator()});
+window.TL_MOTION.home=home;window.TL_MOTION.play=function(k){var c=P[k];c&&play(c,paneOf(c),0)};
+})();
+</script>
 <script>// eTax disposals dashboard — showcase features:
 // live collection counter, animated user-journey flow, what-if simulator,
 // presentation mode, weekly share card (image) and the scroll-driven "story of the week".
