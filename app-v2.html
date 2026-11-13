@@ -7231,8 +7231,11 @@ function fetchPack(p){var R=repo(),f='story/'+p+'.json';return fetch('https://ap
 window.TL_STORY_FETCHPACK=fetchPack;
 function audioFor(p,scenes){var s=S();if(s.voice!=='el')return Promise.resolve({});var k=keyFor(p);if(!k)return Promise.resolve({});
   return fetchPack(p).then(function(pk){if(!pk||!pk.scenes)return{};return crypto.subtle.importKey('raw',ub(k),'AES-GCM',false,['decrypt']).then(function(key){
-    return Promise.all(scenes.map(function(sc){var e=pk.scenes[sc.id];if(!e)return null;return window.TL_STORY_HASH(sc.say).then(function(h){if(h!==e.h)return null;return crypto.subtle.decrypt({name:'AES-GCM',iv:ub(e.iv)},key,ub(e.ct)).then(function(b){return[sc.id,URL.createObjectURL(new Blob([b],{type:'audio/mpeg'}))]})}).catch(function(){return null})}))
+    return Promise.all(scenes.map(function(sc){var e=pk.scenes[sc.id];if(!e)return null;return window.TL_STORY_HASH(SIG(sc)).then(function(h){if(h!==e.h)return null;return crypto.subtle.decrypt({name:'AES-GCM',iv:ub(e.iv)},key,ub(e.ct)).then(function(b){return[sc.id,URL.createObjectURL(new Blob([b],{type:'audio/mpeg'}))]})}).catch(function(){return null})}))
     .then(function(a){var o={};a.forEach(function(x){if(x)o[x[0]]=x[1]});return o})})}).catch(function(){return{}})}
+/* بصمة المشهد: النص المنطوق، ولو مفيش نص فأرقام المشهد نفسها — أي تغيير في الأرقام يسكّت التسجيل القديم */
+function SIG(sc){return sc.say||JSON.stringify([sc.kind==='chapter'?'':sc.label,sc.value,sc.title,sc.items,sc.stages,sc.note,sc.text,sc.parts])}
+window.TL_STORY_SIG=SIG;
 function arVoice(){var v=(window.speechSynthesis&&speechSynthesis.getVoices())||[];return v.filter(function(x){return/^ar[-_]EG/i.test(x.lang)})[0]||v.filter(function(x){return/^ar/i.test(x.lang)})[0]||null}
 
 
