@@ -7205,7 +7205,7 @@ document.addEventListener('tl-unlocked',function(){setTimeout(tick,300)});setInt
 })();
 </script><script>/* Powered by eTax + لوجو الشركة في آخر كل صفحة (الدخول، الرئيسية، كل منصة) */
 (function(){
-var css='.tl-pwr{display:inline-flex!important;align-items:center;gap:8px;direction:ltr;font:500 12px Inter,"IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:.02em;white-space:nowrap;opacity:1!important}.tl-pwr img{height:20px;width:auto;display:block;background:#fff;border-radius:4px;padding:2px 4px}';
+var css='.v2-logo,.ex-logo,img[alt="eTax"]:not(.tl-pwr img),.tl-eyebrow{display:none!important}.tl-pwr{display:inline-flex!important;align-items:center;gap:8px;direction:ltr;font:500 12px Inter,"IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:.02em;white-space:nowrap;opacity:1!important}.tl-pwr img{height:20px;width:auto;display:block;background:#fff;border-radius:4px;padding:2px 4px}';
 function src(){return window.REP_IMG&&window.REP_IMG.etax}
 function html(){var s=src();return '<span>Powered by</span>'+(s?'<img alt="eTax" src="'+s+'">':'<b>eTax</b>')}
 function tick(){if(!document.body)return;if(!document.getElementById('tl-pwr-css')){var st=document.createElement('style');st.id='tl-pwr-css';st.textContent=css;document.head.appendChild(st)}
