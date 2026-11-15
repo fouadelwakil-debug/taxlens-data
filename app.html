@@ -6891,31 +6891,33 @@ var CSS=`
 .im-ans{font-size:13px;color:#374151;margin:4px 0 0;min-height:18px}
 .im-cmp table{width:100%;border-collapse:collapse;font-size:12.5px}.im-cmp td,.im-cmp th{padding:5px 4px;border-bottom:1px solid #F1F3F6;text-align:right}.im-cmp td.n{text-align:left;font-variant-numeric:tabular-nums}
 .im-note{font-size:12px;color:var(--im-mute);margin:8px 0 0}
-.im.present .im-side,.im.present .im-bar,.im.present .im-hd,.im.present .im-time{display:none}.im.present .im-main{grid-template-columns:1fr}.im.present .im-stage{height:100vh!important;border-radius:0;border:0}
+.im.present .im-mg,.im.present .im-side,.im.present .im-bar,.im.present .im-hd,.im.present .im-time{display:none}.im.present .im-main{grid-template-columns:1fr}.im.present .im-stage{height:100vh!important;border-radius:0;border:0}
 .im:fullscreen{background:#fff;padding:0}.im:fullscreen .im-stage{height:100vh!important}
+.im-mg{display:flex;flex-direction:column;gap:6px;margin:0 0 6px}.im-mrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.im-mrow>span{font-size:12.5px;color:var(--im-mute);min-width:48px}.im-rw{position:relative;flex:1;min-width:200px}.im-rw input{width:100%}.im-anom{position:absolute;left:0;right:0;top:-12px;height:12px;pointer-events:none}.im-x h4{margin:0 0 6px}
 @media(max-width:1000px){.im-main{grid-template-columns:1fr}.im-side{display:grid;grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.im-side{grid-template-columns:1fr}.im-date{font-size:20px}.im-legend{display:none}}
 @media (prefers-reduced-motion:reduce){.im-race .r i{transition:none}}
 `;
 var cssDone=false;function css(){if(cssDone)return;cssDone=true;var s=el('style');s.textContent=CSS;document.head.appendChild(s)}
 
-function Map3D(host,D){
+function Map3D(host,D,rebuild){
  var G=geo();var st={mode:'3d',metric:D.def,idx:D.dates.length-1,yaw:-18,tilt:52,zoom:1,panX:0,panY:0,night:false,sound:false,fcOn:false,whatif:0,sel:null,cmp:[],hl:null,playing:false,swipe:.5,swA:0,t0:performance.now()};
  addScore(D);var F=forecast(D,0);
  var root=el('div','im');host.replaceChildren(root);
- var MODES=[['3d','3D بالأعمدة'],['dots','النقط الحية'],['swipe','مقارنة بالسحب']];if(D.plat==='tsrf')MODES.push(['flow','الأقواس'],['off','المأموريات'],['frn','الأجانب']);MODES.push(['bi','مؤشرين مع بعض'],['present','وضع العرض']);
- root.innerHTML='<div class="im-hd"><div><h2>الخرائط التفاعلية</h2><p>'+esc(D.title)+' · من '+dA(D.dates[0])+' لحد '+dA(D.dates[D.dates.length-1])+' · لِف الخريطة بالسحب، وكبّر بعجلة الماوس أو بصوابعك، ودوس على أي محافظة</p></div><div class="im-modes">'+MODES.map(function(m){return'<button type="button" data-m="'+m[0]+'">'+m[1]+'</button>'}).join('')+'</div></div>'
+ var MODEN={'3d':'3D بالأعمدة',stack:'أعمدة مقسومة',carto:'الدواير على قد الرقم',hex:'سداسيات',dots:'النقط الحية',wave:'موجات الانتشار',swipe:'مقارنة بالسحب',flow:'الأقواس',flowtax:'أقواس الضريبة',off:'المأموريات',net:'شبكة المأموريات',frn:'الأجانب',present:'وضع العرض',story:'قصة الخريطة',wall:'شاشة الحائط',bi:'مؤشرين مع بعض',clus:'مجموعات المحافظات',gap:'الفجوة عن الإيقاع',goal:'الهدف',diff:'قبل وبعد',heat:'خريطة الحرارة'};
+ var GRP=[['الشكل',['3d','stack','carto','hex','dots','wave','swipe'].concat(D.plat==='tsrf'?['flow','flowtax','off','net','frn']:[])],['التحليل',['bi','clus','gap','goal','diff','heat']],['التقديم',['present','story','wall']]];
+ root.innerHTML='<div class="im-hd"><div><h2>الخرائط التفاعلية</h2><p>'+esc(D.title)+' · من '+dA(D.dates[0])+' لحد '+dA(D.dates[D.dates.length-1])+' · لِف الخريطة بالسحب، وكبّر بعجلة الماوس أو بصوابعك، ودوس على أي محافظة</p></div></div><div class="im-mg">'+GRP.map(function(gr){return'<div class="im-mrow"><span>'+gr[0]+'</span><div class="im-modes">'+gr[1].map(function(m){return'<button type="button" data-m="'+m+'">'+MODEN[m]+'</button>'}).join('')+'</div></div>'}).join('')+'</div>'
   +'<div class="im-bar"><select class="im-met">'+Object.keys(D.metrics).map(function(k){return'<option value="'+k+'">'+esc(D.metrics[k].n)+'</option>'}).join('')+'</select><select class="im-met2" hidden>'+Object.keys(D.metrics).map(function(k){return'<option value="'+k+'">'+esc(D.metrics[k].n)+'</option>'}).join('')+'</select><input type="text" class="im-ask" placeholder="اسأل الخريطة… مثلاً: أعلى 5 محافظات · المحافظات اللي نزلت · وريني الجيزة · شغّل"><button class="im-btn" data-a="ask">اسأل</button>'
   +'<button class="im-btn" data-a="night">ليل</button><button class="im-btn" data-a="sound" title="نغمة لما الإجمالي يعدّي رقم كبير">صوت</button><button class="im-btn" data-a="cmp">قارن محافظتين</button><button class="im-btn" data-a="png">صورة</button><button class="im-btn" data-a="week">صورة الأسبوع</button><button class="im-btn" data-a="vid">فيديو</button><button class="im-btn" data-a="link">رابط</button><button class="im-btn" data-a="fs">ملء الشاشة</button></div>'
   +'<div class="im-ans"></div><div class="im-main"><div><div class="im-stage"><canvas></canvas><div class="im-legend"></div><div class="im-fc">توقع</div><div class="im-cap"><div class="im-date"></div><div class="im-total"></div></div><div class="im-tip"></div></div>'
-  +'<div class="im-time"><button class="play" aria-label="تشغيل">▶</button><input type="range" class="im-rng" min="0" step="1"><button class="im-btn" data-a="speed">×1</button><label class="im-btn" style="display:flex;align-items:center;gap:6px"><input type="checkbox" class="im-fcb"> التوقع لآخر '+(D.daily?'الشهر':'4 أسابيع')+'</label><div class="im-wi">ماذا لو المعدل <input type="range" class="im-wir" min="-50" max="50" step="5" value="0"><b class="im-wiv">0%</b></div></div></div>'
-  +'<div class="im-side"><div class="im-card im-race"><h4>سباق المحافظات</h4><div class="im-rc"></div></div><div class="im-card im-sp"><h4>المحافظة</h4><div class="im-spc"><p class="im-note">دوس على أي محافظة في الخريطة.</p></div></div><div class="im-card im-cmp" hidden><h4>مقارنة محافظتين</h4><div class="im-cmpc"></div></div><div class="im-card im-al"><h4>نبضات التنبيه</h4><div class="im-alc"></div></div></div></div>';
+  +'<div class="im-time"><button class="play" aria-label="تشغيل">▶</button><div class="im-rw"><input type="range" class="im-rng" min="0" step="1"><div class="im-anom"></div></div><button class="im-btn" data-a="speed">×1</button><label class="im-btn" style="display:flex;align-items:center;gap:6px"><input type="checkbox" class="im-fcb"> التوقع لآخر '+(D.daily?'الشهر':'4 أسابيع')+'</label><div class="im-wi">ماذا لو المعدل <input type="range" class="im-wir" min="-50" max="50" step="5" value="0"><b class="im-wiv">0%</b></div></div></div>'
+  +'<div class="im-side"><div class="im-card im-x" hidden></div><div class="im-card im-race"><h4>سباق المحافظات</h4><div class="im-rc"></div></div><div class="im-card im-sp"><h4>المحافظة</h4><div class="im-spc"><p class="im-note">دوس على أي محافظة في الخريطة.</p></div></div><div class="im-card im-cmp" hidden><h4>مقارنة محافظتين</h4><div class="im-cmpc"></div></div><div class="im-card im-al"><h4>نبضات التنبيه</h4><div class="im-alc"></div></div></div></div>';
  var $=function(s){return root.querySelector(s)},stage=$('.im-stage'),cv=$('canvas'),ctx=cv.getContext('2d'),tip=$('.im-tip'),rng=$('.im-rng');
  var met=$('.im-met');met.value=st.metric;var met2=$('.im-met2');st.metric2=Object.keys(D.metrics).filter(function(k){return k!==st.metric&&!D.metrics[k].rate})[0]||'score';if(D.plat==='reta')st.metric2='dig';met2.value=st.metric2;met2.onchange=function(){st.metric2=met2.value;panels()};
  var total=D.dates.length;rng.max=total-1;rng.value=st.idx;
  /* --- حالة الرابط --- */
  try{var h=decodeURIComponent((location.hash.match(/imap=([^&]+)/)||[])[1]||'').split('|');if(h[0]===D.plat){if(h[1])st.mode=h[1];if(h[2]&&D.metrics[h[2]])st.metric=met.value=h[2];if(h[3]!=null&&h[3]!=='')st.idx=clamp(+h[3],0,total-1);if(h[4])st.yaw=+h[4];if(h[5])st.tilt=+h[5];if(h[6])st.sel=h[6]}}catch(e){}
- var W=0,H=0,DPR=1;function size(){var r=stage.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);W=Math.max(320,r.width);H=st.mode==='present'?window.innerHeight:Math.round(clamp(W*.72,420,720));stage.style.height=H+'px';cv.width=W*DPR;cv.height=H*DPR;cv.style.height=H+'px'}
+ var W=0,H=0,DPR=1;function size(){var r=stage.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);W=Math.max(320,r.width);H=(st.mode==='present'||st.mode==='wall')?window.innerHeight:Math.round(clamp(W*.72,420,720));stage.style.height=H+'px';cv.width=W*DPR;cv.height=H*DPR;cv.style.height=H+'px'}
  /* --- قيم --- */
  function series(k){k=k||st.metric;return D.S[k]}
  function valAt(g,i,k){k=k||st.metric;if(i<total)return series(k)[g][i];var j=i-total;return st.fcOn&&F.S[k]&&F.S[k][g]?F.S[k][g][Math.min(j,F.dates.length-1)]:series(k)[g][total-1]}
@@ -6928,7 +6930,7 @@ function Map3D(host,D){
  function ramp(t,night){t=clamp(t,0,1);if(night){var a=[18,32,64],b=[120,190,255];return'rgb('+a.map(function(x,i){return Math.round(x+(b[i]-x)*Math.sqrt(t))}).join(',')+')'}var c0=[226,233,244],c1=[31,76,154],c2=[11,28,72];var u=t<.6?t/.6:(t-.6)/.4,A=t<.6?c0:c1,B=t<.6?c1:c2;return'rgb('+A.map(function(x,i){return Math.round(x+(B[i]-x)*u)}).join(',')+')'}
  /* --- إسقاط --- */
  var MX=331,MY=297;
- function P(x,y,z){var yw=st.yaw*Math.PI/180,tl=(st.mode==='3d'||st.mode==='present'?st.tilt:0)*Math.PI/180;var dx=x-MX,dy=y-MY,rx=dx*Math.cos(yw)-dy*Math.sin(yw),ry=dx*Math.sin(yw)+dy*Math.cos(yw);var s=Math.min(W/700,H/640)*st.zoom;return[W/2+st.panX+rx*s,H/2+st.panY+(ry*Math.cos(tl)-(z||0)*Math.sin(tl))*s+(tl?40*s*Math.sin(tl)*.3:0),ry]}
+ function P(x,y,z){var yw=st.yaw*Math.PI/180,tl=(curMode()==='3d'||curMode()==='stack'?st.tilt:0)*Math.PI/180;var dx=x-MX,dy=y-MY,rx=dx*Math.cos(yw)-dy*Math.sin(yw),ry=dx*Math.sin(yw)+dy*Math.cos(yw);var s=Math.min(W/700,H/640)*st.zoom;return[W/2+st.panX+rx*s,H/2+st.panY+(ry*Math.cos(tl)-(z||0)*Math.sin(tl))*s+(tl?40*s*Math.sin(tl)*.3:0),ry]}
  function poly(ctx,g,z){var R=G[g].rings;ctx.beginPath();R.forEach(function(r){r.forEach(function(p,i){var q=P(p[0],p[1],z);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.closePath()})}
  var hits=[];
  /* --- نقط حية --- */
@@ -6938,19 +6940,27 @@ function Map3D(host,D){
  var flowsT=0;
  function draw(now){var night=st.night||st.mode==='present';stage.classList.toggle('night',night);ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);hits=[];
   if(night){var gr=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,Math.max(W,H)*.7);gr.addColorStop(0,'#0B1630');gr.addColorStop(1,'#030711');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H)}
-  var mode=st.mode==='present'?(st.pmode||'3d'):st.mode,k=st.metric,mx=vmax(k),M=D.metrics[k];
+  var mode=curMode(),k=st.metric,mx=vmax(k),M=D.metrics[k];
   var vals={};D.govs.forEach(function(g){vals[g]=interp(g,k)});
   if(mode==='swipe'){drawSwipe(night,k,mx);return caption(vals,k)}
   if(mode==='bi'){drawBi(night,vals);return caption(vals,k)}
+  if(mode==='carto'){drawCarto(night,vals);return caption(vals,k)}
+  if(mode==='hex'){drawHex(night,vals);return caption(vals,k)}
+  if(mode==='heat'){drawHeat(night);return caption(vals,k)}
   /* المحافظات */
   var fillV=mode==='frn'?function(g){return(D.frProps[g]||0)}:function(g){return vals[g]};var fmx=mode==='frn'?Math.max.apply(0,D.govs.map(function(g){return D.frProps[g]||0}))||1:mx;
-  var order=D.govs.slice().sort(function(a,b){return P(G[a].c[0],G[a].c[1])[2]-P(G[b].c[0],G[b].c[1])[2]});
-  order.forEach(function(g){poly(ctx,g,0);var t=fillV(g)/fmx,dim=st.sel&&st.sel!==g&&mode==='3d';ctx.globalAlpha=dim?.35:1;ctx.fillStyle=mode==='dots'?(night?'#0E1A33':'#EEF2F8'):ramp(M.rate&&mode!=='frn'?t:Math.sqrt(t),night);ctx.fill();ctx.lineWidth=st.hl&&st.hl.indexOf(g)>=0?2.2:.8;ctx.strokeStyle=st.hl&&st.hl.indexOf(g)>=0?'#F59E0B':night?'rgba(120,160,230,.35)':'#fff';ctx.stroke();ctx.globalAlpha=1;var c=P(G[g].c[0],G[g].c[1],0);hits.push({g:g,x:c[0],y:c[1],path:(function(){var p=new Path2D();G[g].rings.forEach(function(r){r.forEach(function(q,i){var s=P(q[0],q[1],0);i?p.lineTo(s[0],s[1]):p.moveTo(s[0],s[1])});p.closePath()});return p})()})});
+  var fcol=fillFn(mode,vals,night);var order=D.govs.slice().sort(function(a,b){return P(G[a].c[0],G[a].c[1])[2]-P(G[b].c[0],G[b].c[1])[2]});
+  order.forEach(function(g){poly(ctx,g,0);var t=fillV(g)/fmx,dim=st.sel&&st.sel!==g&&mode==='3d';ctx.globalAlpha=dim?.35:1;ctx.fillStyle=fcol?fcol(g):(mode==='dots'||mode==='net')?(night?'#0E1A33':'#EEF2F8'):ramp(M.rate&&mode!=='frn'?t:Math.sqrt(t),night);ctx.fill();ctx.lineWidth=st.hl&&st.hl.indexOf(g)>=0?2.2:.8;ctx.strokeStyle=st.hl&&st.hl.indexOf(g)>=0?'#F59E0B':night?'rgba(120,160,230,.35)':'#fff';ctx.stroke();ctx.globalAlpha=1;var c=P(G[g].c[0],G[g].c[1],0);hits.push({g:g,x:c[0],y:c[1],path:(function(){var p=new Path2D();G[g].rings.forEach(function(r){r.forEach(function(q,i){var s=P(q[0],q[1],0);i?p.lineTo(s[0],s[1]):p.moveTo(s[0],s[1])});p.closePath()});return p})()})});
   if(mode==='3d')columns(order,vals,mx,night,now);
   else if(mode==='dots')drawDots(vals,night,now);
   else if(mode==='flow')drawFlows(night,now);
   else if(mode==='off')drawOffices(night);
   else if(mode==='frn')drawForeign(night,now);
+  else if(mode==='stack')stackCols(order,night);
+  else if(mode==='wave')waves(now,night);
+  else if(mode==='net')drawNet(night);
+  else if(mode==='flowtax')drawFlows(night,now,true);
+  else if(mode==='gap'||mode==='goal'||mode==='diff')fillLabels(mode,night);
   pulses(now,night);caption(vals,k)}
  function columns(order,vals,mx,night,now){var H0=170,s=4.2;var items=order.map(function(g){return{g:g,c:G[g].col}});
   items.forEach(function(it){var g=it.g,v=vals[g],z=Math.max(1.5,v/mx*H0)*(st.sel===g?1.12:1),x=it.c[0],y=it.c[1],dim=st.sel&&st.sel!==g,col=night?'#7FB2FF':'#1F4C9A';
@@ -6974,8 +6984,8 @@ function Map3D(host,D){
  var dotsUnit=1;
  function arc(a,b,w,col,now,lift){var p0=P(a[0],a[1],0),p1=P(b[0],b[1],0),mx=(p0[0]+p1[0])/2,my=(p0[1]+p1[1])/2,d=Math.hypot(p1[0]-p0[0],p1[1]-p0[1]),cx=mx,cy=my-d*(lift||.35);ctx.beginPath();ctx.moveTo(p0[0],p0[1]);ctx.quadraticCurveTo(cx,cy,p1[0],p1[1]);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.stroke();
   var n=Math.max(1,Math.round(w));for(var i=0;i<n;i++){var t=((now/2600)+i/n)%1,x=(1-t)*(1-t)*p0[0]+2*(1-t)*t*cx+t*t*p1[0],y=(1-t)*(1-t)*p0[1]+2*(1-t)*t*cy+t*t*p1[1];ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,Math.max(1.6,w*.45),0,6.283);ctx.fill()}}
- function drawFlows(night,now){var L=[];Object.keys(D.flows).forEach(function(a){Object.keys(D.flows[a]).forEach(function(b){if(a!==b&&G[a]&&G[b]&&D.flows[a][b]>=5)L.push([a,b,D.flows[a][b]])})});L.sort(function(x,y){return x[2]-y[2]});var mx=L.length?L[L.length-1][2]:1;
-  L.forEach(function(f){var w=1+Math.sqrt(f[2]/mx)*9,dim=st.sel&&st.sel!==f[0]&&st.sel!==f[1];arc(G[f[0]].c,G[f[1]].c,w,dim?'rgba(150,160,180,.18)':(night?'rgba(255,190,90,.75)':'rgba(214,32,46,.55)'),now)});
+ function drawFlows(night,now,tax){var L=[];Object.keys(D.flows).forEach(function(a){Object.keys(D.flows[a]).forEach(function(b){if(a!==b&&G[a]&&G[b]&&D.flows[a][b]>=5)L.push([a,b,D.flows[a][b]])})});L.sort(function(x,y){return x[2]-y[2]});var mx=L.length?L[L.length-1][2]:1;
+  L.forEach(function(f){var w=1+Math.sqrt(f[2]/mx)*9,dim=st.sel&&st.sel!==f[0]&&st.sel!==f[1];arc(G[f[0]].c,G[f[1]].c,w,dim?'rgba(150,160,180,.18)':(tax?taxCol(f[0]):(night?'rgba(255,190,90,.75)':'rgba(214,32,46,.55)')),now)});
   Object.keys(D.flows).forEach(function(a){if(!G[a])return;var self=D.flows[a][a]||0,p=P(G[a].c[0],G[a].c[1],0);ctx.fillStyle=night?'#7FB2FF':'#1F4C9A';ctx.beginPath();ctx.arc(p[0],p[1],4+Math.sqrt(self)/4,0,6.283);ctx.fill();label(p[0],p[1]-10-Math.sqrt(self)/4,a,night)});
   L.slice(-5).forEach(function(f){var p=P(G[f[1]].c[0],G[f[1]].c[1],0);label(p[0],p[1]+16,f[1]+' ← '+fN(f[2]),night)})}
  function drawOffices(night){var by={};(D.offices||[]).forEach(function(o){(by[o.g]=by[o.g]||[]).push(o)});var mx=Math.max.apply(0,(D.offices||[]).map(function(o){return o.n}))||1;var s=Math.min(W/700,H/640)*st.zoom;
@@ -6999,6 +7009,112 @@ function Map3D(host,D){
  function terc(o){var v=D.govs.map(function(g){return o[g]}).sort(function(a,b){return a-b}),a=v[Math.floor(v.length/3)],b=v[Math.floor(v.length*2/3)];return function(x){return x<a?0:x<b?1:2}}
  function biClass(vals){var v2={};D.govs.forEach(function(g){v2[g]=interp(g,st.metric2)});var t1=terc(vals),t2=terc(v2),o={};D.govs.forEach(function(g){o[g]=[t1(vals[g]),t2(v2[g]),v2[g]]});return o}
  function drawBi(night,vals){var C=biClass(vals);D.govs.forEach(function(g){poly(ctx,g,0);var c=C[g];ctx.globalAlpha=st.sel&&st.sel!==g?.35:1;ctx.fillStyle=BIC[c[1]*3+c[0]];ctx.fill();ctx.strokeStyle=night?'rgba(120,160,230,.5)':'#fff';ctx.lineWidth=.8;ctx.stroke();ctx.globalAlpha=1;var p=P(G[g].c[0],G[g].c[1],0);hits.push({g:g,x:p[0],y:p[1],r:10});if(c[0]===2&&c[1]===2||c[0]+c[1]===2&&Math.abs(c[0]-c[1])===2)label(p[0],p[1],g,night)});st._bi=C}
+
+ /* ===== الدفعة التالتة ===== */
+ function curMode(){return st.mode==='present'?(st.pmode||'3d'):(st.mode==='story'||st.mode==='wall')?(st.sub||'3d'):st.mode}
+ function km(){return D.metrics[st.metric].rate?D.def:st.metric}
+ function idxI(){return Math.min(Math.floor(curI()),total-1)}
+ function feat(g,k){var a=D.S[k][g],n=a.length,b=a[0],e=a[n-1],d=e-b,o=[];for(var j=0;j<12;j++){var i=Math.round(j*(n-1)/11);o.push(d>0?(a[i]-b)/d:j/11)}return o}
+ function dist(a,b){var s=0;for(var i=0;i<a.length;i++)s+=(a[i]-b[i])*(a[i]-b[i]);return Math.sqrt(s)}
+ function similar(g,n){var k=km(),f=feat(g,k);return D.govs.filter(function(x){return x!==g}).map(function(x){return[x,dist(f,feat(x,k))]}).sort(function(a,b){return a[1]-b[1]}).slice(0,n||3)}
+ var CL=null,CLC=['#1F4C9A','#D97706','#0F9D8A','#B4237A'];
+ function clusters(){var k=km();if(CL&&CL.k===k)return CL;var F0={};D.govs.forEach(function(g){F0[g]=feat(g,k)});var K=4,cs=[F0[D.govs[0]].slice()];
+  while(cs.length<K){var best=null,bd=-1;D.govs.forEach(function(g){var d=Math.min.apply(0,cs.map(function(c){return dist(c,F0[g])}));if(d>bd){bd=d;best=g}});cs.push(F0[best].slice())}
+  var as={};for(var it=0;it<25;it++){D.govs.forEach(function(g){var b=0,bd=1e9;cs.forEach(function(c,i){var d=dist(c,F0[g]);if(d<bd){bd=d;b=i}});as[g]=b});cs=cs.map(function(c,i){var m=D.govs.filter(function(g){return as[g]===i});if(!m.length)return c;return c.map(function(_,j){return m.reduce(function(s,g){return s+F0[g][j]},0)/m.length})})}
+  var used={};var info=cs.map(function(c,i){var half=c[5],late=1-c[9];var nm=half>.62?'بدأت قوي وهديت':half<.38?(late>.25?'متأخرة وبتسرّع':'بطيئة ولسه بتلحق'):late>.22?'صاعدة دلوقتي':'ماشية بإيقاع ثابت';if(used[nm])nm+=' '+(i+1);used[nm]=1;return{n:nm,m:D.govs.filter(function(g){return as[g]===i})}});
+  CL={k:k,as:as,info:info};return CL}
+ function gapOf(g,k,i){var a=D.S[k][g],w=D.daily?7:2,L=4*w;if(i-w-L<0)return null;var act=a[i]-a[i-w],ex=(a[i-w]-a[i-w-L])/4;return ex>0?act/ex-1:null}
+ function divc(r){if(r==null)return'#E5E7EB';var t=Math.min(1,Math.abs(r)/.6),a=r<0?[185,28,28]:[21,128,61];return'rgb('+[0,1,2].map(function(i){return Math.round(238+(a[i]-238)*t)}).join(',')+')'}
+ function goalInfo(){var k=km(),i=total-1,Ff=forecast(D,st.whatif),tot=0,pro={};D.govs.forEach(function(g){tot+=D.S[k][g][i];var f=Ff.S[k][g];pro[g]=f[f.length-1]});
+  if(!st.goal||st.goalK!==k){st.goalK=k;st.goal=Math.round(D.govs.reduce(function(s,g){return s+pro[g]},0))}var o={};D.govs.forEach(function(g){var tg=st.goal*(D.S[k][g][i]/(tot||1));o[g]={t:tg,p:pro[g],r:tg?pro[g]/tg:1}});return o}
+ function diffOf(g,k){var B=idxI(),A=clamp(Math.round(st.swA),0,Math.max(0,B-1)),w=Math.max(1,B-A),a=D.S[k][g],pb=a[B]-a[A],pa=a[A]-a[Math.max(0,A-w)];return{pb:pb,pa:pa,r:pa>0?pb/pa-1:null}}
+ var ONS=null;function onsets(){var k=km();if(ONS&&ONS.k===k)return ONS;var o={};D.govs.forEach(function(g){var a=D.S[k][g],d=a[a.length-1]-a[0],i=0;while(i<a.length-1&&a[i]-a[0]<d*.25)i++;o[g]=i});ONS={k:k,o:o};return ONS}
+ function fillFn(mode,vals,night){var k=km(),i=idxI();
+  if(mode==='clus'){var C=clusters();return function(g){return CLC[C.as[g]]}}
+  if(mode==='gap')return function(g){return divc(gapOf(g,k,i))};
+  if(mode==='goal'){var Gi=goalInfo();st._goal=Gi;return function(g){var r=Gi[g].r;return r>=1?'#16A34A':r>=.95?'#F59E0B':'#DC2626'}}
+  if(mode==='diff')return function(g){return divc(diffOf(g,k).r)};
+  if(mode==='wave'){var O=onsets().o,mxo=Math.max.apply(0,D.govs.map(function(g){return O[g]}))||1;return function(g){return O[g]<=curI()?ramp(1-O[g]/mxo*.8,night):(night?'#0E1A33':'#EEF2F8')}}
+  return null}
+ function tipX(g){var k=km(),M=D.metrics[k],m=curMode(),i=idxI();if(m==='gap'){var r=gapOf(g,k,i);return r==null?'مفيش مقارنة':'مقارنة بإيقاعها: '+(r>0?'+':'')+Math.round(r*100)+'%'}if(m==='diff'){var d=diffOf(g,k);return'قبل: '+fC(d.pa,M.u)+' · بعد: '+fC(d.pb,M.u)}var G0=st._goal||goalInfo();return'متوقع '+fC(G0[g].p,M.u)+' من هدف '+fC(G0[g].t,M.u)}
+ function fillLabels(mode,night){var k=km(),i=idxI(),L=[];D.govs.forEach(function(g){var v=mode==='gap'?gapOf(g,k,i):mode==='diff'?diffOf(g,k).r:st._goal[g].r-1;if(v!=null)L.push([g,v])});L.sort(function(a,b){return Math.abs(b[1])-Math.abs(a[1])});
+  L.slice(0,6).forEach(function(x){var p=P(G[x[0]].c[0],G[x[0]].c[1],0);label(p[0],p[1],x[0]+' '+(x[1]>0?'+':'')+Math.round(x[1]*100)+'%',night)})}
+ /* دواير على قد الرقم */
+ var DOR={};
+ function drawCarto(night,vals){var M=D.metrics[st.metric],mx=Math.max.apply(0,D.govs.map(function(g){return vals[g]}))||1;
+  D.govs.forEach(function(g){poly(ctx,g,0);ctx.fillStyle=night?'rgba(30,50,90,.35)':'rgba(203,213,225,.35)';ctx.fill()});
+  var R={};D.govs.forEach(function(g){R[g]=3+Math.sqrt(Math.max(0,vals[g])/mx)*(M.rate?22:70);if(!DOR[g])DOR[g]={x:G[g].c[0],y:G[g].c[1]}});
+  for(var it=0;it<4;it++){D.govs.forEach(function(a,ia){var A=DOR[a];A.x+=(G[a].c[0]-A.x)*.02;A.y+=(G[a].c[1]-A.y)*.02;for(var ib=ia+1;ib<D.govs.length;ib++){var b=D.govs[ib],B=DOR[b],dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy)||.01,m=R[a]+R[b]+1.5;if(d<m){var q=(m-d)/2,ux=dx/d,uy=dy/d;A.x-=ux*q;A.y-=uy*q;B.x+=ux*q;B.y+=uy*q}}})}
+  var s=Math.min(W/700,H/640)*st.zoom;
+  D.govs.slice().sort(function(a,b){return R[b]-R[a]}).forEach(function(g){var p=P(DOR[g].x,DOR[g].y,0),r=R[g]*s;ctx.globalAlpha=st.sel&&st.sel!==g?.3:1;ctx.fillStyle=ramp(M.rate?vals[g]/mx:Math.sqrt(vals[g]/mx)*.85+.15,night);ctx.beginPath();ctx.arc(p[0],p[1],r,0,6.283);ctx.fill();ctx.strokeStyle=st.hl&&st.hl.indexOf(g)>=0?'#F59E0B':night?'#0B1630':'#fff';ctx.lineWidth=st.hl&&st.hl.indexOf(g)>=0?2.5:1.2;ctx.stroke();ctx.globalAlpha=1;hits.push({g:g,x:p[0],y:p[1],r:r});if(r>14)label(p[0],p[1]+4,g,night)})}
+ /* سداسيات */
+ var HEX=null;function hexLayout(){if(HEX)return HEX;var h=34,cells={},o={},cand=[];for(var q=-16;q<=16;q++)for(var r=-14;r<=14;r++){var x=MX+h*1.732*(q+r/2),y=MY+h*1.5*r;if(x>-10&&x<680&&y>-10&&y<610)cand.push([x,y,q+','+r])}
+  D.govs.slice().sort(function(a,b){return G[a].area-G[b].area}).forEach(function(g){var c=G[g].c,b=null,bd=1e9;cand.forEach(function(p){if(cells[p[2]])return;var d=Math.hypot(p[0]-c[0],p[1]-c[1]);if(d<bd){bd=d;b=p}});cells[b[2]]=1;o[g]=[b[0],b[1]]});HEX={o:o,h:h};return HEX}
+ function drawHex(night,vals){var L=hexLayout(),M=D.metrics[st.metric],mx=Math.max.apply(0,D.govs.map(function(g){return vals[g]}))||1,s=Math.min(W/700,H/640)*st.zoom,r=L.h*.97;
+  D.govs.forEach(function(g){var c=L.o[g];ctx.beginPath();for(var i=0;i<6;i++){var a=Math.PI/180*(60*i-30),p=P(c[0]+r*Math.cos(a),c[1]+r*Math.sin(a),0);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}ctx.closePath();var t=vals[g]/mx,tt=M.rate?t:Math.sqrt(t);
+   ctx.globalAlpha=st.sel&&st.sel!==g?.3:1;ctx.fillStyle=ramp(tt,night);ctx.fill();var on=st.hl&&st.hl.indexOf(g)>=0;ctx.strokeStyle=on?'#F59E0B':night?'#0B1630':'#fff';ctx.lineWidth=on?3:2;ctx.stroke();ctx.globalAlpha=1;var p=P(c[0],c[1],0),fs=Math.max(9,Math.min(12.5,r*s*.3));hits.push({g:g,x:p[0],y:p[1],r:r*s*.9});
+   ctx.fillStyle=(tt>.45||night)?'#fff':'#0B1220';ctx.font='600 '+fs+'px IBM Plex Sans Arabic, Cairo, sans-serif';ctx.textAlign='center';ctx.direction='rtl';ctx.fillText(g.length>9?g.replace(/^ال/,''):g,p[0],p[1]-2);ctx.font='700 '+fs+'px IBM Plex Sans Arabic, Cairo, sans-serif';ctx.fillText(fC(vals[g],M.u),p[0],p[1]+fs+1)})}
+ /* خريطة الحرارة */
+ var WD=['الحد','الاتنين','التلات','الأربع','الخميس','الجمعة','السبت'];
+ function heatData(){var k=km(),cols,rows=D.govs.slice().sort(function(a,b){return D.S[k][b][total-1]-D.S[k][a][total-1]}),m={};
+  if(D.daily){var map=[6,0,1,2,3,4,5];cols=map.map(function(d){return WD[d]});rows.forEach(function(g){var a=D.S[k][g],v=[0,0,0,0,0,0,0],c=[0,0,0,0,0,0,0];for(var i=1;i<total;i++){if(Math.round((D0(D.dates[i])-D0(D.dates[i-1]))/864e5)!==1)continue;var j=map.indexOf(D0(D.dates[i]).getUTCDay());v[j]+=a[i]-a[i-1];c[j]++}m[g]=v.map(function(x,j){return c[j]?x/c[j]:0})})}
+  else{var n=Math.min(12,total-1);cols=D.dates.slice(total-n).map(function(d){return dA(d)});rows.forEach(function(g){var a=D.S[k][g];m[g]=[];for(var i=total-n;i<total;i++)m[g].push(a[i]-a[i-1])})}
+  return{cols:cols,rows:rows,m:m}}
+ function drawHeat(night){var Hd=heatData(),nr=Hd.rows.length,nc=Hd.cols.length,top=40,nw=96,cw=(W-nw-30)/nc,ch=Math.min(22,(H-top-64)/nr);ctx.direction='rtl';
+  ctx.font=(W<560?'9.5px':'11.5px')+' IBM Plex Sans Arabic, Cairo, sans-serif';Hd.cols.forEach(function(c,j){ctx.textAlign='center';ctx.fillStyle=night?'#9FB0CF':'#6B7280';ctx.fillText(D.daily||W>700||j%2===0?c:'',W-nw-10-(j+.5)*cw,top-10)});
+  ctx.font='11.5px IBM Plex Sans Arabic, Cairo, sans-serif';Hd.rows.forEach(function(g,i){var y=top+i*ch,v=Hd.m[g],mx=Math.max.apply(0,v)||1;ctx.globalAlpha=st.sel&&st.sel!==g?.35:1;ctx.textAlign='right';ctx.fillStyle=night?'#DCE6F7':'#0B1220';ctx.fillText(g,W-12,y+ch*.7);
+   v.forEach(function(x,j){ctx.fillStyle=ramp(Math.max(0,x)/mx,night);ctx.fillRect(W-nw-10-(j+1)*cw+1,y+1,cw-2,ch-2)});ctx.globalAlpha=1;hits.push({g:g,x:W-nw/2,y:y+ch/2,r:ch/2})})}
+ /* أعمدة مقسومة */
+ function prism(x,y,s,z0,z1,col,dim){var c=[[x-s,y-s],[x+s,y-s],[x+s,y+s],[x-s,y+s]],b=c.map(function(p){return P(p[0],p[1],z0)}),t=c.map(function(p){return P(p[0],p[1],z1)});ctx.globalAlpha=dim?.25:1;
+  [[0,1],[1,2],[2,3],[3,0]].map(function(e){return{e:e,d:(b[e[0]][2]+b[e[1]][2])/2}}).sort(function(a,b){return a.d-b.d}).forEach(function(f,i){var e=f.e;ctx.beginPath();ctx.moveTo(b[e[0]][0],b[e[0]][1]);ctx.lineTo(b[e[1]][0],b[e[1]][1]);ctx.lineTo(t[e[1]][0],t[e[1]][1]);ctx.lineTo(t[e[0]][0],t[e[0]][1]);ctx.closePath();ctx.fillStyle=shade(col,i<2?-.25:-.05);ctx.fill()});
+  ctx.beginPath();t.forEach(function(p,i){i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.closePath();ctx.fillStyle=shade(col,.2);ctx.fill();ctx.globalAlpha=1;return P(x,y,z1)}
+ var SELF=null;function selfShare(g){if(!SELF){SELF={};var inn={},all={};Object.keys(D.flows).forEach(function(a){Object.keys(D.flows[a]).forEach(function(b){all[b]=(all[b]||0)+D.flows[a][b];if(a===b)inn[b]=(inn[b]||0)+D.flows[a][b]})});Object.keys(all).forEach(function(b){SELF[b]=(inn[b]||0)/all[b]})}return SELF[g]==null?1:SELF[g]}
+ function stackParts(g){if(D.plat==='reta')return[['exm','سكني معفى','#9CC3FF'],['res','سكني غير معفى','#1F4C9A'],['nres','غير سكني','#D97706']].map(function(p){return[p[1],interp(g,p[0]),p[2]]});
+  var tot=interp(g,'tx'),sh=selfShare(g);return[['بائع من نفس المحافظة',tot*sh,'#1F4C9A'],['بائع من محافظة تانية',tot*(1-sh),'#D97706']]}
+ function stackCols(order,night){var mx=Math.max.apply(0,D.govs.map(function(g){return stackParts(g).reduce(function(s,p){return s+p[1]},0)}))||1;
+  order.forEach(function(g){var c=G[g].col,z=0,top=null;stackParts(g).forEach(function(p){var h=p[1]/mx*170;if(h<=.3)return;top=prism(c[0],c[1],4.4,z,z+h,p[2],st.sel&&st.sel!==g);z+=h});if(top)hits.push({g:g,x:top[0],y:top[1],r:9})})}
+ /* موجات */
+ function waves(now,night){var O=onsets().o;D.govs.forEach(function(g){if(O[g]>curI())return;var c=P(G[g].c[0],G[g].c[1],0),age=curI()-O[g],fade=Math.max(.2,1-age/(total*.7));for(var j=0;j<3;j++){var t=((now/2200)+j/3)%1;ctx.strokeStyle=(night?'rgba(127,178,255,':'rgba(31,76,154,')+((1-t)*.6*fade).toFixed(3)+')';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(c[0],c[1],4+t*(14+Math.min(age,30)),0,6.283);ctx.stroke()}})}
+ /* شبكة المأموريات + أقواس الضريبة */
+ function drawNet(night){var deg={};Object.keys(D.flows).forEach(function(a){deg[a]=Object.keys(D.flows[a]).filter(function(b){return b!==a&&D.flows[a][b]>=3}).length});
+  Object.keys(D.flows).forEach(function(a){if(!G[a])return;Object.keys(D.flows[a]).forEach(function(b){if(b===a||!G[b]||D.flows[a][b]<3)return;var p0=P(G[a].c[0],G[a].c[1],0),p1=P(G[b].c[0],G[b].c[1],0);ctx.strokeStyle=st.sel&&st.sel!==a&&st.sel!==b?'rgba(150,160,180,.12)':(night?'rgba(127,178,255,.45)':'rgba(31,76,154,.35)');ctx.lineWidth=.6+Math.log10(D.flows[a][b]);ctx.beginPath();ctx.moveTo(p0[0],p0[1]);ctx.lineTo(p1[0],p1[1]);ctx.stroke()})});
+  drawOffices(night);var mxd=Math.max.apply(0,Object.keys(deg).map(function(a){return deg[a]}))||1;
+  Object.keys(deg).forEach(function(a){if(!G[a]||!deg[a])return;var p=P(G[a].c[0],G[a].c[1],0),r=5+deg[a]/mxd*14;ctx.fillStyle='#D97706';ctx.globalAlpha=.92;ctx.beginPath();ctx.arc(p[0],p[1],r,0,6.283);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();hits.push({g:a,x:p[0],y:p[1],r:r});if(deg[a]>=mxd*.5)label(p[0],p[1]-r-6,a+' · '+deg[a]+' محافظة',night)})}
+ var ATX=null;function avgTax(){if(ATX)return ATX;var t={},n={};(D.offices||[]).forEach(function(o){t[o.g]=(t[o.g]||0)+(o.tax||0);n[o.g]=(n[o.g]||0)+o.n});ATX={};Object.keys(t).forEach(function(g){ATX[g]=n[g]?t[g]/n[g]:0});return ATX}
+ function taxCol(g){var A=avgTax(),v=Object.keys(A).map(function(x){return A[x]}).filter(function(x){return x>0}).sort(function(a,b){return a-b}),r=v.length>1?v.indexOf(A[g])/(v.length-1):.5;r=clamp(r,0,1);return'rgba('+Math.round(40+r*190)+','+Math.round(110-r*70)+','+Math.round(200-r*160)+',.72)'}
+ /* قصة الخريطة */
+ var SC=[],SI=0;
+ function buildStory(){var k=km(),M=D.metrics[k],i=total-1,S=D.S[k],tot=D.govs.reduce(function(s,g){return s+S[g][i]},0)||1,rk=D.govs.slice().sort(function(a,b){return S[b][i]-S[a][i]}),top=rk[0];
+  var DL=['القاهرة','الجيزة','القليوبية','الإسكندرية','البحيرة','الغربية','المنوفية','الدقهلية','الشرقية','كفر الشيخ','دمياط','بورسعيد','الإسماعيلية','السويس'],UP=['الفيوم','بني سويف','المنيا','أسيوط','سوهاج','قنا','الأقصر','أسوان'];
+  var sum=function(L){return L.reduce(function(s,g){return s+(S[g]?S[g][i]:0)},0)/tot};var w=D.daily?7:1,gr=function(g){return(S[g][i]-S[g][i-w])/(S[g][i-w]||1)};var fast=D.govs.filter(function(g){return S[g][i-w]>=tot*.005}).sort(function(a,b){return gr(b)-gr(a)})[0]||top;
+  SC=[{m:'3d',t:D.title+': '+fC(tot,M.u)+' '+M.u+' لحد '+dA(D.dates[i])},{m:'3d',sel:top,t:top+' لوحدها '+Math.round(S[top][i]/tot*100)+'% من الإجمالي'},{m:'hex',hl:rk.slice(0,5),t:'أكبر 5: '+rk.slice(0,5).join('، ')},
+   {m:'carto',t:'القاهرة والدلتا والقناة '+Math.round(sum(DL)*100)+'%، والصعيد '+Math.round(sum(UP)*100)+'%'},{m:'3d',sel:fast,t:'الأسرع آخر أسبوع: '+fast+' (+'+Math.round(gr(fast)*100)+'%)'},
+   {m:'clus',t:'المحافظات '+clusters().info.filter(function(x){return x.m.length}).length+' مجموعات حسب شكل نموها'}];
+  if(D.plat==='tsrf'){var out=0,all=0;Object.keys(D.flows).forEach(function(a){Object.keys(D.flows[a]).forEach(function(b){all+=D.flows[a][b];if(a!==b)out+=D.flows[a][b]})});SC.splice(4,0,{m:'flow',t:Math.round(out/(all||1)*100)+'% من العمليات البائع فيها تبع مأمورية في محافظة غير مكان الوحدة'})}}
+ function showScene(j){SI=(j+SC.length)%SC.length;var s=SC[SI];st.sub=s.m;st.sel=s.sel||null;st.hl=s.hl||null;st.askHl=1;st.idx=total-1;rng.value=st.idx;caption2(s.t);
+  if(s.sel){var c=G[s.sel].c,sc=Math.min(W/700,H/640)*2;tweenTo({zoom:2,panX:-(c[0]-MX)*sc*.9,panY:-(c[1]-MY)*sc*.5,yaw:s.m==='3d'?-18:0})}else tweenTo({zoom:1,panX:0,panY:0,yaw:s.m==='3d'?-18:0});panels()}
+ /* شاشة الحائط */
+ var wt=0,wallIv=0;
+ function wallNext(){clearTimeout(wt);if(st.mode!=='wall')return;var ms=D.plat==='tsrf'?['3d','flow','hex','carto','stack','clus','heat']:['3d','hex','carto','stack','clus','heat','dots'];var ks=Object.keys(D.metrics).filter(function(k){return!D.metrics[k].rate});
+  st._w=(st._w||0)+1;st.sub=ms[st._w%ms.length];if(st._w>0&&st._w%ms.length===0){st.metric=ks[Math.floor(st._w/ms.length)%ks.length];met.value=st.metric}st.sel=null;st.hl=null;st.idx=st.sub==='3d'?0:total-1;rng.value=st.idx;st.playing=st.sub==='3d';
+  tweenTo({yaw:st.sub==='3d'||st.sub==='stack'?-18:0,zoom:1,panX:0,panY:0});caption2(D.metrics[st.metric].n+' · '+MODEN[st.sub]);panels();wt=setTimeout(wallNext,12000)}
+ function wallRefresh(){try{var nd=rebuild&&rebuild();if(nd&&nd.dates[nd.dates.length-1]!==D.dates[D.dates.length-1]){addScore(nd);Object.keys(nd).forEach(function(x){D[x]=nd[x]});total=D.dates.length;rng.max=total-1;F=forecast(D,st.whatif);CL=ONS=SELF=ATX=null;caption2('اتحدّثت البيانات لحد '+dA(D.dates[total-1]))}}catch(e){}}
+ /* علامات الأيام الغريبة على شريط الزمن */
+ function anomalies(){var k=km(),inc=[],L=[];for(var i=1;i<total;i++)inc[i]=D.govs.reduce(function(s,g){return s+D.S[k][g][i]-D.S[k][g][i-1]},0);var w=D.daily?14:6;
+  for(var i2=w+1;i2<total-1;i2++){var p=inc.slice(i2-w,i2),m=p.reduce(function(a,b){return a+b},0)/w,sd=Math.sqrt(p.reduce(function(a,b){return a+(b-m)*(b-m)},0)/w)||1,z=(inc[i2]-m)/sd;if(Math.abs(z)>=2.3)L.push({i:i2,z:z,v:inc[i2],m:m})}return L}
+ var anomKey='';function anomMarks(){var n=maxN()-1,k=km(),key=k+n;if(key===anomKey)return;anomKey=key;var box=$('.im-anom'),rtl=getComputedStyle(rng).direction==='rtl',M=D.metrics[k];
+  box.innerHTML=anomalies().map(function(a){var pc=a.i/n*100;return'<button type="button" data-i="'+a.i+'" title="'+esc(dA(D.dates[a.i])+': '+fC(a.v,M.u)+' مقابل متوسط '+fC(a.m,M.u))+'" aria-label="'+esc(dA(D.dates[a.i]))+'" style="position:absolute;'+(rtl?'right':'left')+':calc('+pc+'% - 5px);top:0;width:10px;height:10px;border-radius:50%;border:2px solid #fff;padding:0;cursor:pointer;pointer-events:auto;background:'+(a.z>0?'#16A34A':'#DC2626')+'"></button>'}).join('')}
+ /* الكارت الجانبي حسب النمط */
+ function rowP(g,r){return'<div style="font-size:12.5px;margin:3px 0;display:flex;justify-content:space-between;gap:8px"><span>'+esc(g)+'</span><b style="color:'+(r<0?'#B91C1C':'#15803D')+'">'+(r>0?'+':'')+Math.round(r*100)+'%</b></div>'}
+ function xPanel(){var m=curMode(),c=$('.im-x'),h='',k=km(),M=D.metrics[k],i=idxI();
+  if(st.mode==='story')h='<h4>قصة الخريطة</h4><div class="im-note" style="margin:0 0 8px">المشهد '+(SI+1)+' من '+SC.length+'</div><div style="display:flex;gap:6px"><button class="im-btn" data-sx="-1">السابق</button><button class="im-btn" data-sx="1">التالي</button></div>';
+  else if(m==='clus'){var C=clusters();h='<h4>مجموعات المحافظات</h4>'+C.info.map(function(x,j){return x.m.length?'<div style="margin:6px 0"><b style="color:'+CLC[j]+'">● '+esc(x.n)+'</b> <span class="im-note">('+x.m.length+')</span><div style="font-size:12.5px">'+esc(x.m.join('، '))+'</div></div>':''}).join('')+'<p class="im-note">متجمعين حسب شكل منحنى '+esc(M.n)+' مش حجمه.</p>'}
+  else if(m==='gap'){var L=D.govs.map(function(g){return[g,gapOf(g,k,i)]}).filter(function(x){return x[1]!=null}).sort(function(a,b){return a[1]-b[1]});h='<h4>أقل من إيقاعها</h4>'+L.slice(0,5).map(function(x){return rowP(x[0],x[1])}).join('')+'<h4 style="margin-top:10px">أعلى من إيقاعها</h4>'+L.slice(-5).reverse().map(function(x){return rowP(x[0],x[1])}).join('')+'<p class="im-note">آخر '+(D.daily?'7 أيام':'أسبوعين')+' مقارنة بمتوسط نفس المدة في الفترة اللي قبلها. مفيش بيانات سكان أو حجم سوق، فالمتوقع محسوب من إيقاع المحافظة نفسها.</p>'}
+  else if(m==='goal'){var Gi=st._goal||goalInfo(),late=D.govs.filter(function(g){return Gi[g].r<.95}).sort(function(a,b){return Gi[a].r-Gi[b].r});h='<h4>الهدف لآخر '+(D.daily?'الشهر':'4 أسابيع')+'</h4><label class="im-note">إجمالي '+esc(M.n)+'<input type="number" class="im-goal" value="'+Math.round(st.goal)+'" style="display:block;width:100%;height:34px;border:1px solid #E6EAF0;border-radius:9px;padding:0 8px;margin-top:4px;font:inherit"></label><p class="im-note">هدف كل محافظة = نصيبها الحالي من الإجمالي. المتوقع بمعدل آخر 7 '+(D.daily?'أيام':'أسابيع')+(st.whatif?' '+(st.whatif>0?'+':'')+st.whatif+'%':'')+'.</p><h4 style="margin-top:8px">متأخرة ('+late.length+')</h4>'+late.slice(0,8).map(function(g){return'<div style="font-size:12.5px;margin:3px 0">'+esc(g)+' · متوقع '+fC(Gi[g].p,M.u)+' من '+fC(Gi[g].t,M.u)+'</div>'}).join('')}
+  else if(m==='diff'){var A=clamp(Math.round(st.swA),0,Math.max(0,i-1)),L2=D.govs.map(function(g){return[g,diffOf(g,k)]}).filter(function(x){return x[1].r!=null}).sort(function(a,b){return Math.abs(b[1].r)-Math.abs(a[1].r)});
+   h='<h4>قبل وبعد</h4><label class="im-note">من تاريخ: <b class="im-raL">'+dA(D.dates[A])+'</b><input type="range" class="im-ra" min="0" max="'+Math.max(0,i-1)+'" value="'+A+'" style="display:block;width:100%;accent-color:#1F4C9A"></label><p class="im-note">الفترة لحد '+dA(D.dates[i])+' (التاريخ اللي على شريط الزمن) مقارنة بنفس المدة اللي قبلها.</p><table style="width:100%;font-size:12.5px;border-collapse:collapse"><tr><th style="text-align:right">المحافظة</th><th>قبل</th><th>بعد</th><th></th></tr>'+L2.slice(0,5).map(function(x){return'<tr><td>'+esc(x[0])+'</td><td class="n">'+fC(x[1].pa,M.u)+'</td><td class="n">'+fC(x[1].pb,M.u)+'</td><td style="color:'+(x[1].r<0?'#B91C1C':'#15803D')+';font-weight:700;text-align:left">'+(x[1].r>0?'+':'')+Math.round(x[1].r*100)+'%</td></tr>'}).join('')+'</table>'}
+  else if(m==='heat')h='<h4>خريطة الحرارة</h4><p class="im-note">'+(D.daily?'متوسط '+esc(M.n)+' الجديدة في كل يوم من أيام الأسبوع':'الجديد كل أسبوع في آخر 12 أسبوع')+'. كل صف متلوّن على أعلى خانة فيه، فبيبين نمط المحافظة مش حجمها. المحافظات مترتبة من الأكبر.</p>';
+  if(c.dataset.h===h)return;c.dataset.h=h;c.innerHTML=h;c.hidden=!h}
  /* --- نبضات التنبيه --- */
  var ALERTS=[];
  function computeAlerts(){var k=st.metric,i=Math.min(Math.floor(curI()),total-1),S=series(k),M=D.metrics[k];ALERTS=[];if(M.rate||i<6)return;
@@ -7009,20 +7125,28 @@ function Map3D(host,D){
  function caption(vals,k){var M=D.metrics[k],i=curI(),fc=st.fcOn&&i>=total;$('.im-fc').style.display=fc?'block':'none';$('.im-date').textContent=dA(dateAt(Math.round(i)))+(fc?' (توقع)':'');
   var tot=M.rate?D.govs.reduce(function(a,g){return a+vals[g]},0)/D.govs.length:D.govs.reduce(function(a,g){return a+vals[g]},0);$('.im-total').innerHTML=(M.rate?'متوسط المحافظات':'الإجمالي')+'<b>'+fC(tot,M.u)+'</b>';
   if(st.sound&&lastTot!=null&&!M.rate){var step=Math.pow(10,Math.floor(Math.log10(Math.max(tot,10))));if(Math.floor(tot/step)>Math.floor(lastTot/step))chime()}lastTot=tot}
- function legend(){var M=D.metrics[st.metric],mode=st.mode;var t={'3d':'ارتفاع العمود ولون المحافظة = '+M.n,dots:'كل نقطة = '+fN(dotsUnit)+' '+M.u+' · النقط اللي بتنبض = الجديد في آخر '+D.step,swipe:'اسحب الخط في النص: يمين = تاريخ تختاره · شمال = التاريخ الحالي',flow:'من محافظة مأمورية البائع ← لمحافظة الوحدة المتباعة · السُّمك = عدد العمليات · الدايرة = بيع جوه نفس المحافظة',off:'كل دايرة = مأمورية · الحجم = عدد العمليات · كبّر عشان تشوف الأسماء',frn:'الأعلام = جنسيات المسجلين الأجانب · لون المحافظة = عمليات الأجانب حسب مكان الوحدة',present:'وضع العرض',bi:''}[mode]||'';
+ function legend(){var M=D.metrics[st.metric],mode=curMode();var t={'3d':'ارتفاع العمود ولون المحافظة = '+M.n,dots:'كل نقطة = '+fN(dotsUnit)+' '+M.u+' · النقط اللي بتنبض = الجديد في آخر '+D.step,swipe:'اسحب الخط في النص: يمين = تاريخ تختاره · شمال = التاريخ الحالي',flow:'من محافظة مأمورية البائع ← لمحافظة الوحدة المتباعة · السُّمك = عدد العمليات · الدايرة = بيع جوه نفس المحافظة',off:'كل دايرة = مأمورية · الحجم = عدد العمليات · كبّر عشان تشوف الأسماء',frn:'الأعلام = جنسيات المسجلين الأجانب · لون المحافظة = عمليات الأجانب حسب مكان الوحدة',present:'وضع العرض',bi:'',
+   stack:D.plat==='reta'?'العمود مقسوم: سكني معفى (فاتح) · سكني غير معفى (أزرق) · غير سكني (برتقالي)':'العمود مقسوم: بائع من نفس المحافظة (أزرق) · بائع من محافظة تانية (برتقالي)',
+   carto:'حجم الدايرة = '+M.n+' · الدواير بتتزق عشان متركبش على بعض',hex:'كل محافظة خلية بنفس الحجم · اللون = '+M.n,
+   wave:'المحافظة بتنوّر لما توصل ربع الزيادة بتاعتها في الفترة · الأغمق = بدأت بدري · شغّل شريط الزمن',
+   flowtax:'لون القوس = متوسط الضريبة للعملية في مأموريات محافظة البائع · الأحمر = الأغلى',
+   net:'البرتقالي = محافظة المأموريات وحجمها = عدد المحافظات اللي بائعينها باعوا فيها · الأزرق = المأموريات',
+   clus:'اللون = مجموعة المحافظة حسب شكل منحنى النمو، والتفاصيل جنب الخريطة',gap:'أخضر = أعلى من إيقاعها المعتاد · أحمر = أقل',
+   goal:'أخضر = هتوصل هدفها · أصفر = قريبة · أحمر = متأخرة',diff:'أخضر = زاد عن الفترة اللي قبلها · أحمر = قل · اختار التاريخ جنب الخريطة'}[mode]||'';
+  $('.im-legend').style.display=(mode==='heat'||(!t&&mode!=='bi'))?'none':'';
   met2.hidden=mode!=='bi';if(mode==='bi'){var M2=D.metrics[st.metric2],g3='<div style="display:grid;grid-template-columns:repeat(3,18px);gap:2px;direction:ltr;margin:6px 0">';for(var r=2;r>=0;r--)for(var c=0;c<3;c++)g3+='<i style="width:18px;height:18px;display:block;background:'+BIC[r*3+c]+'"></i>';g3+='</div>';$('.im-legend').innerHTML='<b>'+esc(M.n)+'</b> ← يزيد يمين<br><b>'+esc(M2.n)+'</b> ↑ يزيد لفوق'+g3+'<span style="opacity:.8">كل محور 3 شرايح (قليل · متوسط · عالي) · الأسماء على المحافظات اللي عالية في الاتنين أو عالية في واحد وقليلة في التاني</span>';return}
   $('.im-legend').innerHTML=esc(t)+(M.note&&mode==='3d'?'<div style="margin-top:4px;opacity:.8">'+esc(M.note)+'</div>':'')+(st.fcOn?'<div style="margin-top:4px;color:#B45309">بعد آخر بيانات = توقع بمعدل آخر 7 '+(D.daily?'أيام':'أسابيع')+(st.whatif?' '+(st.whatif>0?'+':'')+st.whatif+'%':'')+'</div>':'')}
  function race(){var k=st.metric,M=D.metrics[k],v={};D.govs.forEach(function(g){v[g]=interp(g,k)});var L=D.govs.slice().sort(function(a,b){return v[b]-v[a]}).slice(0,10),mx=v[L[0]]||1;
   $('.im-rc').innerHTML=L.map(function(g){return'<div class="r" data-g="'+esc(g)+'"><span>'+esc(g)+'</span><i style="width:'+(v[g]/mx*100)+'%;'+(st.sel===g?'background:#D6202E':'')+'"></i><b>'+fC(v[g],M.u)+'</b></div>'}).join('')}
- function spot(){var g=st.sel,c=$('.im-spc');if(!g){c.innerHTML='<p class="im-note">دوس على أي محافظة في الخريطة.</p>';return}var i=Math.min(Math.floor(curI()),total-1);
+ function spot(){var g=st.sel,c=$('.im-spc');if(g&&st.mode!=='story'&&!st.askHl)st.hl=similar(g).map(function(x){return x[0]});st.askHl=0;if(!g){c.innerHTML='<p class="im-note">دوس على أي محافظة في الخريطة.</p>';return}var i=Math.min(Math.floor(curI()),total-1);
   var rows=Object.keys(D.metrics).map(function(k){var M=D.metrics[k],a=D.S[k][g],v=a[i],p=i?a[i]-a[i-1]:0;return'<tr><td>'+esc(M.n)+'</td><td class="n">'+fC(v,M.u)+(M.rate?'':'<div style="font-size:11px;color:#6B7280">+'+fC(p,M.u)+' آخر '+D.step+'</div>')+'</td></tr>'}).join('');
   var rk=D.govs.slice().sort(function(a,b){return D.S[st.metric][b][i]-D.S[st.metric][a][i]}).indexOf(g)+1;
-  c.innerHTML='<div style="font-size:18px;font-weight:700;margin-bottom:2px">'+esc(g)+'</div><div class="im-note" style="margin:0 0 6px">المركز '+rk+' من '+D.govs.length+' في '+esc(D.metrics[st.metric].n)+'</div>'+spark(D.S[st.metric][g])+'<table class="im-cmp" style="width:100%"><tbody>'+rows+'</tbody></table>'+(D.plat==='tsrf'&&D.flows[g]?'<p class="im-note">بائعين مأموريات '+esc(g)+' باعوا وحدات في '+Object.keys(D.flows[g]).length+' محافظة</p>':'')}
+  c.innerHTML='<div style="font-size:18px;font-weight:700;margin-bottom:2px">'+esc(g)+'</div><div class="im-note" style="margin:0 0 6px">المركز '+rk+' من '+D.govs.length+' في '+esc(D.metrics[st.metric].n)+'</div>'+spark(D.S[st.metric][g])+'<table class="im-cmp" style="width:100%"><tbody>'+rows+'</tbody></table>'+'<p class="im-note">أقرب 3 ليها في شكل النمو: <b>'+esc(similar(g).map(function(x){return x[0]}).join('، '))+'</b> (متعلمين على الخريطة)</p>'+(D.plat==='tsrf'&&D.flows[g]?'<p class="im-note">بائعين مأموريات '+esc(g)+' باعوا وحدات في '+Object.keys(D.flows[g]).length+' محافظة</p>':'')}
  function spark(a){var n=a.length,mx=Math.max.apply(0,a)||1,mn=Math.min.apply(0,a),w=260,h=44;var d=a.map(function(v,i){return(i?'L':'M')+(w-i*(w/(n-1))).toFixed(1)+' '+(h-4-(v-mn)/((mx-mn)||1)*(h-8)).toFixed(1)}).join(' ');return'<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'"><path d="'+d+'" fill="none" stroke="#1F4C9A" stroke-width="2"/></svg>'}
  function cmpPanel(){var box=$('.im-cmp'),c=$('.im-cmpc');box.hidden=!st.cmpOn;if(!st.cmpOn)return;var A=st.cmp;if(A.length<2){c.innerHTML='<p class="im-note">دوس على محافظتين في الخريطة'+(A[0]?' · اخترت '+esc(A[0]):'')+'</p>';return}var i=Math.min(Math.floor(curI()),total-1);
   c.innerHTML='<table><tr><th></th><th>'+esc(A[0])+'</th><th>'+esc(A[1])+'</th></tr>'+Object.keys(D.metrics).map(function(k){var M=D.metrics[k],a=D.S[k][A[0]][i],b=D.S[k][A[1]][i];return'<tr><td>'+esc(M.n)+'</td><td class="n"'+(a>b?' style="font-weight:700"':'')+'>'+fC(a,M.u)+'</td><td class="n"'+(b>a?' style="font-weight:700"':'')+'>'+fC(b,M.u)+'</td></tr>'}).join('')+'</table><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">'+spark(D.S[st.metric][A[0]])+spark(D.S[st.metric][A[1]])+'</div>'}
  function alertsPanel(){var M=D.metrics[st.metric];$('.im-alc').innerHTML=ALERTS.length?ALERTS.slice(0,6).map(function(a){return'<div style="font-size:12.5px;margin:4px 0"><b style="color:'+(a.z>0?'#15803D':'#B91C1C')+'">'+(a.z>0?'▲':'▼')+' '+esc(a.g)+'</b> · '+fC(a.inc,M.u)+' في آخر '+D.step+' مقابل متوسط '+fC(a.m,M.u)+'</div>'}).join(''):'<p class="im-note">مفيش تغيير غير طبيعي في آخر '+D.step+'.</p>'}
- function panels(){race();spot();cmpPanel();computeAlerts();alertsPanel();legend()}
+ function panels(){race();spot();cmpPanel();computeAlerts();alertsPanel();legend();xPanel();anomMarks()}
  /* --- صوت --- */
  var AC=null;function chime(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(880,AC.currentTime);o.frequency.exponentialRampToValueAtTime(1320,AC.currentTime+.18);g.gain.setValueAtTime(.0001,AC.currentTime);g.gain.exponentialRampToValueAtTime(.18,AC.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+.5);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.55)}catch(e){}}
  /* --- تشغيل --- */
@@ -7047,6 +7171,7 @@ function Map3D(host,D){
   Object.keys(D.metrics).forEach(function(m){var w=D.metrics[m].n.split(' ')[0];if(t.indexOf(w)>=0&&w.length>3){st.metric=m;met.value=m;k=m;S=series(k);M=D.metrics[k]}});
   var gs=D.govs.filter(function(g){return t.indexOf(g.replace(/^ال/,''))>=0});
   var n=+(t.match(/\d+/)||[0])[0]||(/أعلى|أكبر|أكتر|الأكثر|top/i.test(t)?5:0);var inc=function(g){return S[g][i]-S[g][Math.max(0,i-1)]},avg=function(g){var s=0,c=0;for(var j=Math.max(1,i-4);j<i;j++){s+=S[g][j]-S[g][j-1];c++}return c?s/c:0};
+  var KW={'مجموعات':'clus','حرارة':'heat','الحرارة':'heat','الهدف':'goal','هدف':'goal','الفجوة':'gap','فجوة':'gap','موجات':'wave','سداسي':'hex','شبكة':'net','قصة':'story','الحائط':'wall','قبل وبعد':'diff','مقسومة':'stack','الدواير':'carto'},kk=Object.keys(KW).filter(function(w){return t.indexOf(w)>=0&&root.querySelector('.im-modes button[data-m="'+KW[w]+'"]')})[0];if(kk){setMode(KW[kk]);a.textContent='فتحت «'+MODEN[KW[kk]]+'».';return}
   if(/شغ|play|ابدأ/.test(t)){st.idx=0;st.playing=true;$('.play').textContent='❚❚';a.textContent='بشغّل الخريطة من أول يوم.';return}
   if(/توقع|آخر الشهر|اخر الشهر/.test(t)){st.fcOn=true;$('.im-fcb').checked=true;F=forecast(D,st.whatif);rng.max=maxN()-1;st.idx=maxN()-1;rng.value=st.idx;panels();a.textContent='ده التوقع لآخر '+(D.daily?'الشهر':'4 أسابيع')+' بمعدل آخر 7 '+(D.daily?'أيام':'أسابيع')+'.';return}
   if(/نزل|قل|وقع|تراجع/.test(t)){var L=D.govs.filter(function(g){return inc(g)<avg(g)*.85}).sort(function(x,y){return(inc(x)/(avg(x)||1))-(inc(y)/(avg(y)||1))});st.hl=L.slice(0,n||8);a.textContent=L.length?'المحافظات اللي '+M.n+' فيها آخر '+D.step+' أقل من متوسطها: '+L.slice(0,n||8).join('، '):'مفيش محافظة نزلت عن متوسطها.';return}
@@ -7067,17 +7192,17 @@ function Map3D(host,D){
  cv.addEventListener('pointermove',function(e){var r=hit(e.offsetX,e.offsetY);if(ptrs[e.pointerId])ptrs[e.pointerId]=[e.offsetX,e.offsetY];
   if(pinch){var ks=Object.keys(ptrs);if(ks.length===2){var a=ptrs[ks[0]],b=ptrs[ks[1]];st.zoom=clamp(pinch.z*Math.hypot(a[0]-b[0],a[1]-b[1])/pinch.d,.6,6);moved=true}return}
   if(drag){var dx=e.offsetX-drag.x,dy=e.offsetY-drag.y;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;if(st.mode==='swipe'){st.swipe=clamp(e.offsetX/W,.05,.95);return}if(drag.sh||st.mode!=='3d'){st.panX=drag.px+dx;st.panY=drag.py+dy}else{st.yaw=drag.yaw+dx*.35;st.tilt=clamp(drag.tilt-dy*.3,0,75)}return}
-  if(r){var M=D.metrics[st.metric],v=r.off?r.off.n:interp(r.g,st.metric);tip.innerHTML=r.off?'<b>'+esc(r.off.o)+'</b><br>'+fN(r.off.n)+' عملية · '+esc(r.g):'<b>'+esc(r.g)+'</b><br>'+esc(M.n)+': '+fC(v,M.u)+(st.mode==='frn'?'<br>عمليات أجانب: '+fN(D.frProps[r.g]||0):'')+(st.mode==='bi'?'<br>'+esc(D.metrics[st.metric2].n)+': '+fC(interp(r.g,st.metric2),D.metrics[st.metric2].u):'')+(st.mode==='flow'&&D.flows[r.g]?'<br>بائعين مأمورياتها باعوا برّه المحافظة: '+fN(Object.keys(D.flows[r.g]).reduce(function(a,b){return a+(b!==r.g?D.flows[r.g][b]:0)},0)):'');tip.style.left=e.offsetX+'px';tip.style.top=e.offsetY+'px';tip.style.display='block'}else tip.style.display='none'});
+  if(r){var M=D.metrics[st.metric],v=r.off?r.off.n:interp(r.g,st.metric);tip.innerHTML=r.off?'<b>'+esc(r.off.o)+'</b><br>'+fN(r.off.n)+' عملية · '+esc(r.g):'<b>'+esc(r.g)+'</b><br>'+esc(M.n)+': '+fC(v,M.u)+(st.mode==='frn'?'<br>عمليات أجانب: '+fN(D.frProps[r.g]||0):'')+(curMode()==='stack'?stackParts(r.g).map(function(p){return'<br>'+esc(p[0])+': '+fC(p[1],'')}).join(''):'')+(['gap','diff','goal'].indexOf(curMode())>=0?'<br>'+tipX(r.g):'')+(st.mode==='bi'?'<br>'+esc(D.metrics[st.metric2].n)+': '+fC(interp(r.g,st.metric2),D.metrics[st.metric2].u):'')+(st.mode==='flow'&&D.flows[r.g]?'<br>بائعين مأمورياتها باعوا برّه المحافظة: '+fN(Object.keys(D.flows[r.g]).reduce(function(a,b){return a+(b!==r.g?D.flows[r.g][b]:0)},0)):'');tip.style.left=e.offsetX+'px';tip.style.top=e.offsetY+'px';tip.style.display='block'}else tip.style.display='none'});
  cv.addEventListener('pointerup',function(e){delete ptrs[e.pointerId];if(Object.keys(ptrs).length<2)pinch=null;cv.style.cursor='grab';if(drag&&!moved){var r=hit(e.offsetX,e.offsetY);if(r){if(st.cmpOn){if(st.cmp.indexOf(r.g)<0){st.cmp.push(r.g);if(st.cmp.length>2)st.cmp.shift()}}st.sel=st.sel===r.g&&!st.cmpOn?null:r.g;st.hl=null}else{st.sel=null;st.hl=null}panels()}drag=null});
  cv.addEventListener('pointerleave',function(){tip.style.display='none'});cv.addEventListener('contextmenu',function(e){e.preventDefault()});
  cv.addEventListener('wheel',function(e){e.preventDefault();var f=e.deltaY<0?1.12:1/1.12,z=clamp(st.zoom*f,.6,6),k=z/st.zoom;st.panX=(st.panX-(e.offsetX-W/2))*k+(e.offsetX-W/2);st.panY=(st.panY-(e.offsetY-H/2))*k+(e.offsetY-H/2);st.zoom=z},{passive:false});
  root.querySelectorAll('.im-modes button').forEach(function(b){b.onclick=function(){setMode(b.dataset.m)}});
- function setMode(m){if(st.mode==='present'&&m!=='present')exitPresent();st.mode=m;root.querySelectorAll('.im-modes button').forEach(function(x){x.classList.toggle('on',x.dataset.m===m)});st.hl=null;
-  if(m==='swipe'){st.swA=Math.max(0,total-1-(D.daily?30:6));tweenTo({zoom:1,panX:0,panY:0,yaw:0})}else if(m==='3d')tweenTo({yaw:-18,tilt:52});else if(m!=='present')tweenTo({yaw:0,zoom:m==='off'?1.6:1,panX:0,panY:0});
-  if(m==='present'){root.classList.add('present');(root.requestFullscreen?root.requestFullscreen():Promise.resolve()).catch(function(){});size();PSTEP=0;presentNext()}panels()}
- function exitPresent(){root.classList.remove('present');clearTimeout(ptimer);st.playing=false;var c=stage.querySelector('.im-pc');if(c)c.remove();if(document.fullscreenElement)document.exitFullscreen().catch(function(){});setTimeout(size,100)}
- document.addEventListener('fullscreenchange',function(){if(!document.fullscreenElement&&st.mode==='present')setMode('3d');setTimeout(size,60)});
- document.addEventListener('keydown',function(e){if(e.key==='Escape'&&st.mode==='present')setMode('3d')});
+ function setMode(m){if((st.mode==='present'||st.mode==='wall')&&m!==st.mode)exitPresent();if(['present','wall','story'].indexOf(m)<0){var pc0=stage.querySelector('.im-pc');if(pc0)pc0.remove()}if(m==='diff')st.swA=Math.max(0,total-1-(D.daily?14:4));st.mode=m;root.querySelectorAll('.im-modes button').forEach(function(x){x.classList.toggle('on',x.dataset.m===m)});st.hl=null;
+  if(m==='swipe'){st.swA=Math.max(0,total-1-(D.daily?30:6));tweenTo({zoom:1,panX:0,panY:0,yaw:0})}else if(m==='3d'||m==='stack')tweenTo({yaw:-18,tilt:52});else if(['present','story','wall'].indexOf(m)<0)tweenTo({yaw:0,zoom:m==='off'?1.6:1,panX:0,panY:0});
+  if(m==='wall'){root.classList.add('present');(root.requestFullscreen?root.requestFullscreen():Promise.resolve()).catch(function(){});size();st._w=-1;wallNext();clearInterval(wallIv);wallIv=setInterval(wallRefresh,300000)}if(m==='story'){buildStory();showScene(0)}if(m==='present'){root.classList.add('present');(root.requestFullscreen?root.requestFullscreen():Promise.resolve()).catch(function(){});size();PSTEP=0;presentNext()}panels()}
+ function exitPresent(){root.classList.remove('present');clearTimeout(ptimer);clearTimeout(wt);clearInterval(wallIv);st.playing=false;var c=stage.querySelector('.im-pc');if(c)c.remove();if(document.fullscreenElement)document.exitFullscreen().catch(function(){});setTimeout(size,100)}
+ document.addEventListener('fullscreenchange',function(){if(!document.fullscreenElement&&(st.mode==='present'||st.mode==='wall'))setMode('3d');setTimeout(size,60)});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&(st.mode==='present'||st.mode==='wall'))setMode('3d')});
  met.onchange=function(){st.metric=met.value;lastTot=null;panels()};
  rng.oninput=function(){st.idx=+rng.value;st.playing=false;$('.play').textContent='▶';panels()};
  $('.play').onclick=play;
@@ -7088,6 +7213,10 @@ function Map3D(host,D){
   if(a==='ask')ask($('.im-ask').value);else if(a==='night'){st.night=!st.night;b.classList.toggle('on',st.night)}else if(a==='sound'){st.sound=!st.sound;b.classList.toggle('on',st.sound);if(st.sound)chime()}
   else if(a==='cmp'){st.cmpOn=!st.cmpOn;st.cmp=[];b.classList.toggle('on',st.cmpOn);panels()}else if(a==='png')snapshot(D.title).toBlob(function(x){dl(x,'TAXLens_map_'+D.plat+'_'+dateAt(Math.round(curI()))+'.png')});else if(a==='week')weekImage();else if(a==='vid')video();else if(a==='link')link();
   else if(a==='fs'){var f=document.fullscreenElement?document.exitFullscreen():root.requestFullscreen&&root.requestFullscreen();if(f&&f.catch)f.catch(function(){})}else if(a==='speed'){speed=speed===1?2:speed===2?4:1;b.textContent='×'+speed}}});
+ $('.im-anom').addEventListener('click',function(e){var b=e.target.closest('[data-i]');if(b){st.idx=+b.dataset.i;st.playing=false;rng.value=st.idx;panels()}});
+ $('.im-x').addEventListener('click',function(e){var b=e.target.closest('[data-sx]');if(b)showScene(SI+(+b.dataset.sx))});
+ $('.im-x').addEventListener('input',function(e){if(e.target.classList.contains('im-ra')){st.swA=+e.target.value;var l=$('.im-raL');if(l)l.textContent=dA(D.dates[st.swA])}});
+ $('.im-x').addEventListener('change',function(e){if(e.target.classList.contains('im-goal')){st.goal=+e.target.value||st.goal;st._goal=null;panels()}else if(e.target.classList.contains('im-ra'))panels()});
  root.querySelector('.im-rc').addEventListener('click',function(e){var r=e.target.closest('[data-g]');if(r){st.sel=r.dataset.g;panels()}});
  window.addEventListener('resize',function(){if(document.body.contains(cv))size()});
  size();setMode(st.mode);panels();raf=requestAnimationFrame(loop);
@@ -7097,8 +7226,8 @@ function Map3D(host,D){
 function mountReta(){var tabs=document.querySelector('#plat-reta #tabs');var root=document.querySelector('#plat-reta .reta-root')||document.getElementById('plat-reta');if(!tabs||!root)return;
  if(!tabs.querySelector('button[data-p=p14]')){var b=el('button',null,'الخرائط التفاعلية');b.dataset.p='p14';var after=tabs.querySelector('button[data-p=p12]')||tabs.querySelector('button[data-p=p5]');if(after&&after.nextSibling)tabs.insertBefore(b,after.nextSibling);else tabs.appendChild(b)}
  var pane=document.getElementById('p14');if(!pane){var ref=document.getElementById('p12')||document.getElementById('p10');pane=el('section','pane');pane.id='p14';(ref&&ref.parentNode?ref.parentNode:root).appendChild(pane)}
- if(!pane.classList.contains('on')||pane.__im)return;var D=retaData();if(!D){pane.innerHTML='<p style="padding:20px">مفيش بيانات محافظات كفاية لسه.</p>';return}pane.__im=1;css();Map3D(pane,D)}
-function mountTsrf(){var sec=document.getElementById('imap');if(!sec||sec.hidden||sec.__im)return;var D=tsrfData();if(!D){sec.innerHTML='<p style="padding:20px">ارفع شيتي «عمليات التصرف» و«المسجلين» من «تحديث البيانات» عشان الخرائط تشتغل.</p>';return}sec.__im=1;css();Map3D(sec,D)}
+ if(!pane.classList.contains('on')||pane.__im)return;var D=retaData();if(!D){pane.innerHTML='<p style="padding:20px">مفيش بيانات محافظات كفاية لسه.</p>';return}pane.__im=1;css();Map3D(pane,D,retaData)}
+function mountTsrf(){var sec=document.getElementById('imap');if(!sec||sec.hidden||sec.__im)return;var D=tsrfData();if(!D){sec.innerHTML='<p style="padding:20px">ارفع شيتي «عمليات التصرف» و«المسجلين» من «تحديث البيانات» عشان الخرائط تشتغل.</p>';return}sec.__im=1;css();Map3D(sec,D,tsrfData)}
 setInterval(function(){try{if(geo()){mountReta();mountTsrf()}}catch(e){console.warn('imap',e)}},700);
 window.TL_IMAP_RESET=function(){['p14','imap'].forEach(function(id){var s=document.getElementById(id);if(s){s.__im=0}})};
 })();
