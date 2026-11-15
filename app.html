@@ -7203,6 +7203,20 @@ function tick(){if(!on())return;css1();charts();icons();empty();skel()}
 var t=null;new MutationObserver(function(){if(t)return;t=setTimeout(function(){t=null;tick()},250)}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
 document.addEventListener('tl-unlocked',function(){setTimeout(tick,300)});setInterval(tick,1500);
 })();
+</script><script>/* Powered by eTax + لوجو الشركة في آخر كل صفحة (الدخول، الرئيسية، كل منصة) */
+(function(){
+var css='.tl-pwr{display:inline-flex!important;align-items:center;gap:8px;direction:ltr;font:500 12px Inter,"IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:.02em;white-space:nowrap;opacity:1!important}.tl-pwr img{height:20px;width:auto;display:block;background:#fff;border-radius:4px;padding:2px 4px}';
+function src(){return window.REP_IMG&&window.REP_IMG.etax}
+function html(){var s=src();return '<span>Powered by</span>'+(s?'<img alt="eTax" src="'+s+'">':'<b>eTax</b>')}
+function tick(){if(!document.body)return;if(!document.getElementById('tl-pwr-css')){var st=document.createElement('style');st.id='tl-pwr-css';st.textContent=css;document.head.appendChild(st)}
+ var feet=document.querySelectorAll('.tl-foot, footer.ex-foot, footer, .sp-foot');
+ [].forEach.call(feet,function(f){if(f.id==='tl-pwr')return;var tgt=f.querySelector('.tl-pwr');if(tgt){if(src()&&!tgt.querySelector('img'))tgt.innerHTML=html();return}
+  var kids=[].filter.call(f.children,function(c){return /^\s*eTax\b/.test(c.textContent)&&c.textContent.trim().length<20});
+  var c=kids[0];if(c){c.className=(c.className?c.className+' ':'')+'tl-pwr';c.innerHTML=html()}
+  else if(f.matches('.tl-foot,footer.ex-foot')){var sp=document.createElement('span');sp.className='tl-pwr';sp.innerHTML=html();f.appendChild(sp)}})}
+if(document.readyState!=='loading')tick();else document.addEventListener('DOMContentLoaded',tick);
+window.addEventListener('tl-unlocked',function(){setTimeout(tick,300)});setInterval(tick,1500);
+})();
 </script>
 <script>;(function(){/* Phase 7: اسأل عن بياناتك — محرك محلي لكل منصة على حدة، كتابةً وصوتاً */
 var M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
