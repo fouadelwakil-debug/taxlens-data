@@ -6511,14 +6511,14 @@ var CSS='#geo .tg-ctl{display:flex;gap:14px;margin-bottom:12px}#geo .tg-ctl labe
  +'#geo .tg-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}#geo .tg-ch{position:relative;height:320px}'
  +'#geo .tg-ins{margin:0;padding-inline-start:18px;line-height:2}#geo .tg-empty{padding:40px;text-align:center;color:var(--ex-slate)}'
  +'@media(max-width:900px){#geo .tg-top{grid-template-columns:repeat(2,minmax(0,1fr))}#geo .tg-main,#geo .tg-charts{grid-template-columns:1fr}}';
-var MET={props:['عدد عمليات البيع','عملية',1],n:['عدد المتصرفين','متصرف',0],tax:['الضريبة المستحقة','جنيه',0],reg:['المسجلين','مسجل',0]};
+var MET={props:['عدد عمليات البيع','عملية',1],n:['عدد المتصرفين','متصرف',0],tax:['الضريبة المستحقة','جنيه',0],reg:['المسجلين (حسب محافظة المسجل)','مسجل',0]};
 var S={m:'props',g:null,sort:'tax'},CH={};
 function data(){var raw=window.TL_DATA&&window.TL_DATA.geo;if(!raw)return null;var d;try{d=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return null}if(!d||!d.offices)return null;
   var G={};GOV27.forEach(function(g){G[g]={g:g,props:(d.props||{})[g]||0,n:0,tax:0,rem:0,reg:0,fr:0,cnt:0,offices:[]}});
   d.offices.forEach(function(o){var x=G[o.g];if(!x)return;x.n+=o.n;x.tax+=o.tax;x.reg+=o.reg||0;x.fr+=o.fr||0;x.cnt++;x.offices.push(o)});
-  GOV27.forEach(function(g){var x=G[g];x.has=x.cnt>0});return{G:G,raw:d}}
+  GOV27.forEach(function(g){var x=G[g];x.has=x.cnt>0;if(d.regGov)x.regG=d.regGov[g]||0});return{G:G,raw:d}}
 function lastDate(){try{var r=window.dash&&dash.__rows?dash.__rows('daily'):null}catch(e){}var csv=window.TL_DATA&&window.TL_DATA.daily;if(typeof csv==='string'){var L=csv.trim().split(/\r?\n/),i=L.length-1;while(i>0&&!/^\d{4}-/.test(L[i]))i--;return i>0?L[i].slice(0,10):''}return''}
-function val(x,m){return m==='props'?x.props:x.has?x[m]:null}
+function val(x,m){return m==='props'?x.props:m==='reg'&&x.regG!=null?x.regG:x.has?x[m]:null}
 function fv(m,v){if(v==null)return'—';return m==='remp'?v.toFixed(1)+'%':MET[m][1]==='جنيه'?fM(v)+' ج':fN(v)}
 function ramp(t){var a=[226,232,240],b=[20,48,106];return'rgb('+a.map(function(x,i){return Math.round(x+(b[i]-x)*Math.pow(t,.75))}).join(',')+')'}
 var root,built=false;
@@ -6550,9 +6550,9 @@ function draw(){if(!build())return;var D=data(),sec=document.getElementById('geo
   sec.querySelector('.tg-main').style.display='';sec.querySelector('.tg-charts').style.display='';
   document.getElementById('tg-kpi').style.display='none';var m=S.m,PA=window.TL_EG_PATHS||window.TL_EG_PATHS_FB||{},A=GOV27.map(function(g){return D.G[g]}),vs=A.map(function(x){return val(x,m)}).filter(function(v){return v!=null}),mn=Math.min.apply(0,vs),mx=Math.max.apply(0,vs);
   var dt=lastDate();document.getElementById('tg-mt').textContent=MET[m][0]+' حسب المحافظة';
-  document.getElementById('tg-sub').textContent=(m==='props'?'حسب مكان الوحدة المباعة':'حسب محافظة المأمورية · نطاق النشر: القاهرة والجيزة والإسكندرية والقليوبية')+(dt?' · البيانات لحد '+dA(dt):'');
+  document.getElementById('tg-sub').textContent=(m==='props'?'حسب مكان الوحدة المباعة':m==='reg'?'حسب المحافظة اللي المسجل كاتبها في التسجيل · '+(D.raw.regUnk?(D.raw.regUnk).toLocaleString('en-US')+' مسجل من غير محافظة':''):'حسب محافظة المأمورية · نطاق النشر: القاهرة والجيزة والإسكندرية والقليوبية')+(dt?' · البيانات لحد '+dA(dt):'');
   var map=document.getElementById('tg-map');map.innerHTML='<defs><pattern id="tgh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#E9EDF3"/><rect width="3" height="6" fill="#D5DCE6"/></pattern></defs>'+A.map(function(x){var v=val(x,m),t=mx>mn?(v-mn)/(mx-mn):1;
-    return'<path d="'+(PA[x.g]||'')+'" data-g="'+esc(x.g)+'" fill="'+(v==null?'url(#tgh)':v===0?'#EEF1F5':ramp(m==='props'?Math.sqrt(t):t))+'" stroke="'+(x.g===S.g?'#D6202E':'#fff')+'" stroke-width="'+(x.g===S.g?2.4:.8)+'"/>'}).join('');
+    return'<path d="'+(PA[x.g]||'')+'" data-g="'+esc(x.g)+'" fill="'+(v==null?'url(#tgh)':v===0?'#EEF1F5':ramp(m==='props'||m==='reg'?Math.sqrt(t):t))+'" stroke="'+(x.g===S.g?'#D6202E':'#fff')+'" stroke-width="'+(x.g===S.g?2.4:.8)+'"/>'}).join('');
   var sel=map.querySelector('path[data-g="'+S.g+'"]');if(sel)map.appendChild(sel);
   document.getElementById('tg-leg').innerHTML='<span>'+fv(m,mn)+'</span><i></i><span>'+fv(m,mx)+'</span>'+(m!=='props'?'<em><b></b>خارج نطاق النشر</em>':'');
   var R=A.filter(function(x){return val(x,m)!=null&&val(x,m)>0}).sort(function(a,b){return val(b,m)-val(a,m)}),tot=R.reduce(function(a,x){return a+val(x,m)},0),top=R.length?val(R[0],m):1;
