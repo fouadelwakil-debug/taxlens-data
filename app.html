@@ -8950,7 +8950,7 @@ var NAVY='#14306A',BLUE='#2F6FD0',RED='#D6202E',SOFT='#9FBBEA',GREEN='#1E7B45';
 function steps(){var L=snaps();if(!L||L.length<10)return null;var b=L[L.length-1],r7=L.slice().reverse().find(function(s){return(D0(b.date)-D0(s.date))/864e5>=7})||L[0],r14=L.slice().reverse().find(function(s){return(D0(b.date)-D0(s.date))/864e5>=14})||L[0];
   var dW=b.decl.total-r7.decl.total,dP=r7.decl.total-r14.decl.total,cW=coll(b)-coll(r7),cP=coll(r7)-coll(r14),day=inc(L,function(s){return s.decl.total},30),wk=inc(L,function(s){return s.decl.total},7);
   var avg=day.reduce(function(a,x){return a+x.v},0)/day.length,best=day.slice().sort(function(a,b){return b.v-a.v})[0];
-  var G=govs(b),G7={};govs(r7).forEach(function(x){G7[x.g]=x.t});var gr=G.filter(function(x){return G7[x.g]>500}).map(function(x){return{g:x.g,p:pct(x.t,G7[x.g])}}).sort(function(a,b){return b.p-a.p});
+  var hasG=function(s){return s.man&&Object.keys(s.man).length>=3},bG=L.slice().reverse().find(hasG)||b,rG=L.slice().reverse().find(function(s){return hasG(s)&&(D0(bG.date)-D0(s.date))/864e5>=7})||r7;var G=govs(bG),G7={};govs(rG).forEach(function(x){G7[x.g]=x.t});while(G.length<3)G.push({g:'—',t:0});var gr=G.filter(function(x){return G7[x.g]>500}).map(function(x){return{g:x.g,p:pct(x.t,G7[x.g])}}).sort(function(a,b){return b.p-a.p});
   var d=b.decl,dt=d.total||1,mob=((d.android||0)+(d.ios||0))/dt*100,d7=r7.decl,mob7=((d7.android||0)+(d7.ios||0))/(d7.total||1)*100;
   var ap=(b.paid||{}).amount||0,ao=(b.onacc||{}).amount||0,cd=inc(L,coll,14);
   var rate=inc(L,coll,7).reduce(function(a,x){return a+x.v},0)/7,bd=D0(b.date),eom=new Date(bd.getFullYear(),bd.getMonth()+1,0),rem=Math.max(1,Math.round((eom-bd)/864e5)),proj=coll(b)+rate*rem,hist=L.slice(-21);
