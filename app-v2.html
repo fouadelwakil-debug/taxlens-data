@@ -6482,15 +6482,15 @@ function partOf(S){var out=null;S.forEach(function(sh){if(out)return;var R=sh.ro
    if(io>=0&&ig>=0){var off={},props={},bad=[],dmax='';
      R.slice(h+1).forEach(function(x){if(!x||!x[io])return;var o=String(x[io]).trim(),t=parseFloat(x[it])||0;var k=off[o]||(off[o]={n:0,tax:0,pg:{}});k.n++;k.tax+=t;var g=canon(x[ig]);if(g){props[g]=(props[g]||0)+1;k.pg[g]=(k.pg[g]||0)+1}else if(x[ig]&&x[ig]!=='#')bad.push(x[ig])});
      out={kind:'tx',off:off,props:props,bad:bad};return}
-   var ro=hidx(r,/^المأمورية$/),rg=hidx(r,/^المحافظة$/),rt=hidx(r,/نوع التسجيل/),rm=hidx(r,/طريقة التسجيل/);
-   if(ro>=0&&rg>=0&&rt>=0){var oc={},gc={},unk=0,tot=0,ty={},mt={};
-     R.slice(h+1).forEach(function(x){if(!x||!x[ro])return;tot++;var o=String(x[ro]).trim(),g=canon(x[rg]);var k=oc[o]||(oc[o]={n:0,g:{}});k.n++;if(g){k.g[g]=(k.g[g]||0)+1;gc[g]=(gc[g]||0)+1}else unk++;var a=String(x[rt]||'').trim();ty[a]=(ty[a]||0)+1;var b=String(x[rm]||'').trim();mt[b]=(mt[b]||0)+1});
-     out={kind:'reg',off:oc,gov:gc,unk:unk,tot:tot,type:ty,method:mt};return}}});return out}
+   var ro=hidx(r,/^المأمورية$/),rg=hidx(r,/^المحافظة$/),rt=hidx(r,/نوع التسجيل/),rm=hidx(r,/طريقة التسجيل/),rn=hidx(r,/^الجنسية/);
+   if(ro>=0&&rg>=0&&rt>=0){var oc={},gc={},unk=0,tot=0,ty={},mt={},nat={},sell={eg:[0,0],fr:[0,0]};
+     R.slice(h+1).forEach(function(x){if(!x||!x[ro])return;tot++;var o=String(x[ro]).trim(),g=canon(x[rg]);var na=rn>=0?String(x[rn]||'').trim():'',eg=!na||na==='#'||/^مصر/.test(na);if(!eg)nat[na]=(nat[na]||0)+1;var sk2=eg?'eg':'fr';sell[sk2][1]++;if(/seller/i.test(String(x[rt]||'')))sell[sk2][0]++;var k=oc[o]||(oc[o]={n:0,fr:0,g:{}});k.n++;if(!eg)k.fr++;if(g){k.g[g]=(k.g[g]||0)+1;gc[g]=(gc[g]||0)+1}else unk++;var a=String(x[rt]||'').trim();ty[a]=(ty[a]||0)+1;var b=String(x[rm]||'').trim();mt[b]=(mt[b]||0)+1});
+     out={kind:'reg',off:oc,gov:gc,unk:unk,tot:tot,type:ty,method:mt,nat:nat,sell:sell};return}}});return out}
 function top1(o){var b=null,v=-1;for(var k in o)if(o[k]>v){v=o[k];b=k}return b}
 function mergeGeo(parts){var T=parts.filter(function(p){return p&&p.kind==='tx'})[0],G=parts.filter(function(p){return p&&p.kind==='reg'})[0];
   if(!T)throw new Error('ارفع شيت «عمليات التصرف» (فيه Tax office code و Governorate)');if(!G)throw new Error('ارفع شيت «المسجلين» كمان مع شيت العمليات');
-  var offices=[],miss=[];Object.keys(T.off).forEach(function(o){var t=T.off[o],r=G.off[o],g=r?top1(r.g):null;if(!g)g=top1(t.pg);if(!g){miss.push(o);return}offices.push({g:g,o:o,n:t.n,tax:Math.round(t.tax),reg:r?r.n:0})});
-  return{v:2,offices:offices,props:T.props,regGov:G.gov,regUnk:G.unk,regTot:G.tot,regType:G.type,regMethod:G.method,unknown:T.bad.slice(0,10).concat(miss.slice(0,5))}}
+  var offices=[],miss=[];Object.keys(T.off).forEach(function(o){var t=T.off[o],r=G.off[o],g=r?top1(r.g):null;if(!g)g=top1(t.pg);if(!g){miss.push(o);return}offices.push({g:g,o:o,n:t.n,tax:Math.round(t.tax),reg:r?r.n:0,fr:r?r.fr:0})});
+  return{v:2,offices:offices,props:T.props,regGov:G.gov,regUnk:G.unk,regTot:G.tot,regType:G.type,regMethod:G.method,regNat:G.nat,regSell:G.sell,regFor:Object.keys(G.nat).reduce(function(a,k){return a+G.nat[k]},0),unknown:T.bad.slice(0,10).concat(miss.slice(0,5))}}
 function parseGeo(buf){return sheets(buf).then(function(S){var p=partOf(S);return p?p:null})}
 window.TSRF_GEO_MERGE=mergeGeo;
 window.TSRF_GEO_PARSE=parseGeo;
@@ -6514,8 +6514,8 @@ var CSS='#geo .tg-ctl{display:flex;gap:14px;margin-bottom:12px}#geo .tg-ctl labe
 var MET={props:['عدد عمليات البيع','عملية',1],n:['عدد المتصرفين','متصرف',0],tax:['الضريبة المستحقة','جنيه',0],reg:['المسجلين','مسجل',0]};
 var S={m:'props',g:null,sort:'tax'},CH={};
 function data(){var raw=window.TL_DATA&&window.TL_DATA.geo;if(!raw)return null;var d;try{d=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return null}if(!d||!d.offices)return null;
-  var G={};GOV27.forEach(function(g){G[g]={g:g,props:(d.props||{})[g]||0,n:0,tax:0,rem:0,reg:0,cnt:0,offices:[]}});
-  d.offices.forEach(function(o){var x=G[o.g];if(!x)return;x.n+=o.n;x.tax+=o.tax;x.reg+=o.reg||0;x.cnt++;x.offices.push(o)});
+  var G={};GOV27.forEach(function(g){G[g]={g:g,props:(d.props||{})[g]||0,n:0,tax:0,rem:0,reg:0,fr:0,cnt:0,offices:[]}});
+  d.offices.forEach(function(o){var x=G[o.g];if(!x)return;x.n+=o.n;x.tax+=o.tax;x.reg+=o.reg||0;x.fr+=o.fr||0;x.cnt++;x.offices.push(o)});
   GOV27.forEach(function(g){var x=G[g];x.has=x.cnt>0});return{G:G,raw:d}}
 function lastDate(){try{var r=window.dash&&dash.__rows?dash.__rows('daily'):null}catch(e){}var csv=window.TL_DATA&&window.TL_DATA.daily;if(typeof csv==='string'){var L=csv.trim().split(/\r?\n/),i=L.length-1;while(i>0&&!/^\d{4}-/.test(L[i]))i--;return i>0?L[i].slice(0,10):''}return''}
 function val(x,m){return m==='props'?x.props:x.has?x[m]:null}
@@ -6530,7 +6530,7 @@ function build(){var sec=document.getElementById('geo');if(!sec)return false;if(
    +'<div class="ex-card"><h3>المسجلين والمتصرفين لكل محافظة</h3><p class="ex-note" style="margin:0">المحافظات اللي اتنشرت فيها المنظومة</p><div class="tg-ch"><canvas id="tg-c2"></canvas></div></div>'
    +'<div class="ex-card"><h3>توزيع عمليات البيع</h3><p class="ex-note" style="margin:0">حسب مكان الوحدة المباعة</p><div class="tg-ch"><canvas id="tg-c3"></canvas></div></div>'
    +'<div class="ex-card"><h3>قراءة سريعة</h3><ul class="tg-ins" id="tg-ins"></ul></div></div>'
-   +'<div class="ex-card" style="margin-top:14px" id="tg-trk"></div>'+'<div class="ex-card" style="margin-top:14px"><h3>كل المأموريات</h3><p class="ex-note" style="margin:0">اضغط على عنوان أي عمود للترتيب</p><div class="tg-scr"><table class="tg-t" id="tg-all"></table></div></div>';
+   +'<div class="ex-card" style="margin-top:14px" id="tg-nat"></div>'+'<div class="ex-card" style="margin-top:14px" id="tg-trk"></div>'+'<div class="ex-card" style="margin-top:14px"><h3>كل المأموريات</h3><p class="ex-note" style="margin:0">اضغط على عنوان أي عمود للترتيب</p><div class="tg-scr"><table class="tg-t" id="tg-all"></table></div></div>';
   var ms=sec.querySelector('#tg-msel');ms.innerHTML=Object.keys(MET).map(function(k){return'<option value="'+k+'">'+MET[k][0]+'</option>'}).join('');ms.value=S.m;
   ms.onchange=function(){S.m=ms.value;draw()};var VB=[0,0,662,594];function setVB(){document.getElementById('tg-map').setAttribute('viewBox',VB.join(' '))}function zoom(f,cx,cy){cx=cx==null?VB[0]+VB[2]/2:cx;cy=cy==null?VB[1]+VB[3]/2:cy;var w=Math.max(80,Math.min(662,VB[2]*f)),h=w*594/662;VB=[cx-(cx-VB[0])*w/VB[2],cy-(cy-VB[1])*h/VB[3],w,h];if(w>=662)VB=[0,0,662,594];setVB()}sec.querySelector('.tg-zm').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.z==='in')zoom(.7);else if(b.dataset.z==='out')zoom(1/.7);else{VB=[0,0,662,594];setVB()}};sec.querySelector('#tg-print').onclick=printCard;window.__tgZoomTo=function(bb){var w=Math.max(220,Math.max(bb.width,bb.height*662/594)*3.2),h=w*594/662;VB=[bb.x+bb.width/2-w/2,bb.y+bb.height/2-h/2,w,h];setVB()};
   var map=sec.querySelector('#tg-map'),tip=sec.querySelector('#tg-tip');
@@ -6559,11 +6559,11 @@ function draw(){if(!build())return;var D=data(),sec=document.getElementById('geo
   if(!S.g||!D.G[S.g])S.g=R.length?R[0].g:'القاهرة';
   document.getElementById('tg-rt').textContent='الترتيب · '+MET[m][0];
   document.getElementById('tg-rk').innerHTML=R.slice(0,m==='props'?12:27).map(function(x,i){var v=val(x,m);return'<div data-g="'+esc(x.g)+'"'+(x.g===S.g?' class="on"':'')+'><em>'+(i+1)+'</em><span>'+esc(x.g)+'<s style="width:'+(v/top*100)+'%"></s></span><b>'+fv(m,v)+(m!=='remp'&&tot?' <small style="color:var(--ex-slate);font-weight:400">· '+Math.round(v/tot*100)+'%</small>':'')+'</b></div>'}).join('')+(m==='props'&&R.length>12?'<div style="cursor:default"><em></em><span style="color:var(--ex-slate)">و'+(R.length-12)+' محافظة كمان</span><b></b></div>':'');
-  var gs=document.getElementById('tg-gsel');gs.innerHTML='<option value="">اختار محافظة…</option>'+GOV27.slice().sort(function(a,c){return a.localeCompare(c,'ar')}).map(function(g){return'<option'+(g===S.g?' selected':'')+'>'+g+'</option>'}).join('');card(D);charts(D);insights(D);try{track(D)}catch(e){console.warn(e)};table()}
+  var gs=document.getElementById('tg-gsel');gs.innerHTML='<option value="">اختار محافظة…</option>'+GOV27.slice().sort(function(a,c){return a.localeCompare(c,'ar')}).map(function(g){return'<option'+(g===S.g?' selected':'')+'>'+g+'</option>'}).join('');card(D);charts(D);insights(D);try{natCard(D)}catch(e){console.warn(e)}try{track(D)}catch(e){console.warn(e)};table()}
 function card(D){var x=D.G[S.g],A=GOV27.map(function(g){return D.G[g]}),H=A.filter(function(y){return y.has}),rp=[].concat(A).sort(function(a,b){return b.props-a.props}).findIndex(function(y){return y.g===x.g})+1,tp=A.reduce(function(a,y){return a+y.props},0);
   var I=function(t){return' <i class="tg-i" title="'+esc(t)+'">i</i>'},kv=function(l,v,t){return'<div><small>'+l+(t?I(t):'')+'</small><b>'+v+'</b></div>'};
   var h='<div class="tg-hd"><small>بطاقة أداء · '+(x.has?'داخل نطاق النشر':'خارج نطاق النشر')+'</small><h2>'+esc(x.g)+'</h2><div>الترتيب '+rp+' من 27 في عمليات البيع'+(tp?' · '+(x.props/tp*100).toFixed(1)+'% من الإجمالي':'')+'</div></div><div class="tg-kv3">'+kv('عمليات البيع',fN(x.props),'عدد الوحدات المباعة اللي مكانها في المحافظة');
-  if(x.has){h+=kv('المتصرفين',fN(x.n),'عدد المتصرفين في مأموريات المحافظة')+kv('المأموريات',fN(x.cnt))+kv('الضريبة المستحقة (ج)',fM(x.tax))+kv('المسجلين',fN(x.reg),'المسجلين في مأموريات المحافظة')+kv('متوسط الضريبة للمتصرف (ج)',fN(x.n?x.tax/x.n:0))+'</div>';
+  if(x.has){h+=kv('المتصرفين',fN(x.n),'عدد المتصرفين في مأموريات المحافظة')+kv('المأموريات',fN(x.cnt))+kv('الضريبة المستحقة (ج)',fM(x.tax))+kv('المسجلين',fN(x.reg),'المسجلين في مأموريات المحافظة')+kv('المسجلين الأجانب',fN(x.fr),'من غير المصريين في مأموريات المحافظة')+kv('متوسط الضريبة للمتصرف (ج)',fN(x.n?x.tax/x.n:0))+'</div>';
     var avg=function(f){var v=H.map(f).filter(function(z){return isFinite(z)});return v.reduce(function(a,b){return a+b},0)/(v.length||1)},
       M=[['الضريبة/متصرف',function(y){return y.n?y.tax/y.n:0},function(v){return fN(v)+' ج'}],['المتصرفين من المسجلين',function(y){return y.reg?y.n/y.reg*100:0},function(v){return v.toFixed(1)+'%'}],['متصرفين/مأمورية',function(y){return y.cnt?y.n/y.cnt:0},function(v){return fN(v)}]];
     h+='<h4 class="tg-h4">مقارنة بمتوسط محافظات النشر</h4><div class="tg-cmp">'+M.map(function(m){var v=m[1](x),a=avg(m[1]),mx=Math.max.apply(0,H.map(m[1]))||1,d=a?((v/a-1)*100):0;
@@ -6607,7 +6607,14 @@ window.TSRF_SCOPE_W=function(){var D=data();if(!D)return null;var w={};GOV27.for
 window.TSRF_GEO_HIST=function(nw,old,date){if(!nw)return nw;date=String(date||lastDate()||new Date().toISOString()).slice(0,10);var o=old||{},h=(o.hist||[]).filter(function(r){return r.d!==date}),since=Object.assign({},o.since||{}),n={};
   nw.offices.forEach(function(x){n[x.g]=(n[x.g]||0)+x.n});Object.keys(n).forEach(function(g){if(!since[g])since[g]=o.offices&&!o.hist?(o.offices.some(function(x){return x.g===g})?'base':date):date});
   if(old&&old.offices&&!(o.hist||[]).length){var pn={};old.offices.forEach(function(x){pn[x.g]=(pn[x.g]||0)+x.n});var pd=old.d||'';if(pd&&pd<date)h.push({d:pd,n:pn})}
-  h.push({d:date,n:n});h.sort(function(a,b){return a.d<b.d?-1:1});nw.hist=h.slice(-80);nw.since=since;nw.d=date;return nw};
+  h.push({d:date,n:n,rt:nw.regTot||0,fr:nw.regFor||0});h.sort(function(a,b){return a.d<b.d?-1:1});nw.hist=h.slice(-80);nw.since=since;nw.d=date;return nw};
+function natCard(D){var el=document.getElementById('tg-nat');if(!el)return;var d=D.raw;if(!d.regNat){el.style.display='none';return}el.style.display='';
+  var K2=function(l,v,t){return'<div><small>'+l+'</small><b>'+v+'</b>'+(t?'<div style="font-size:12px;color:#6B7280;margin-top:2px">'+t+'</div>':'')+'</div>'};var tot=d.regTot||0,fr=d.regFor||0,eg=tot-fr,S2=d.regSell||{eg:[0,0],fr:[0,0]},pc=function(a,b){return b?Math.round(a/b*100):0};
+  var L=Object.keys(d.regNat).map(function(k){return[k,d.regNat[k]]}).sort(function(a,b){return b[1]-a[1]}),T=L.slice(0,10),rest=L.slice(10).reduce(function(a,x){return a+x[1]},0),mx=T.length?T[0][1]:1;
+  var h=d.hist||[],prev=h.length>1?h[h.length-2]:null,dl=prev&&prev.fr!=null?fr-prev.fr:null;
+  el.innerHTML='<h3>جنسية المسجلين</h3><p class="ex-note" style="margin:0 0 12px">أعداد ونسب بس · المسجل بيتحسب على الخريطة في محافظة مأموريته أياً كانت جنسيته</p>'
+   +'<div class="tg-kv3">'+K2('مصريين',fN(eg),pc(eg,tot)+'% من المسجلين')+K2('أجانب',fN(fr),pc(fr,tot)+'% · من '+L.length+' دولة'+(dl!=null?' · '+(dl>=0?'+':'')+fN(dl)+' عن التحديث اللي فات':''))+K2('البائعين',pc(S2.fr[0],S2.fr[1])+'% أجانب · '+pc(S2.eg[0],S2.eg[1])+'% مصريين','نسبة البائعين من مسجلين كل فئة')+'</div>'
+   +'<div style="margin-top:12px">'+T.map(function(x){return'<div style="display:grid;grid-template-columns:110px 1fr 60px;gap:10px;align-items:center;padding:5px 0;font-size:13.5px"><span>'+esc(x[0])+'</span><span style="height:8px;border-radius:4px;background:#EEF1F5;position:relative"><i style="position:absolute;top:0;bottom:0;right:0;width:'+(x[1]/mx*100)+'%;background:#1F4C9A;border-radius:4px"></i></span><b style="text-align:left">'+fN(x[1])+'</b></div>'}).join('')+(rest?'<div style="font-size:13px;color:#6B7280;padding-top:4px">دول تانية ('+(L.length-10)+'): '+fN(rest)+'</div>':'')+'</div>'}
 function track(D){var el=document.getElementById('tg-trk');if(!el)return;var d=D.raw,h=d.hist||[],since=d.since||{},sc=GOV27.filter(function(g){return D.G[g].has});
   var BASE=['القاهرة','الجيزة','القليوبية','الإسكندرية'],nwG=sc.filter(function(g){return since[g]&&since[g]!=='base'&&BASE.indexOf(g)<0}),wk=function(a,b){return Math.round((new Date(b)-new Date(a))/6048e5)};
   var ser=function(g){return h.filter(function(r){return r.n[g]!=null}).map(function(r){return[r.d,r.n[g]]})};
