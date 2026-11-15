@@ -107,7 +107,7 @@
                return (g.platforms||[]).indexOf('*')>=0&&!(me.platforms||[]).length?Object.keys(all):(me.platforms||[])}):Promise.resolve(Object.keys(all));
            return want.then(function(ps){ps.forEach(function(pl){if(!body.k[pl]&&all[pl]&&window.TL_VAULT[pl])body.k[pl]=all[pl]});return body})})
          .catch(function(){return body})})
-     .then(function(body){window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_UIPREF=body.ui||'';window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_LOGKEY=body.lk||'';window.TL_EL_KEY=body.el||'';window.TL_USER=u;
+     .then(function(body){/* منصات مخفية للكل لحد إشعار تاني */['pay'].forEach(function(h){if(body.k)delete body.k[h]});window.TL_ACCESS.users[u]={name:body.name,group:body.group,platforms:Object.keys(body.k)};window.TL_KEYS=body.k;window.TL_ADMINKEY=body.a||null;window.TL_UPLOAD=!!body.t;window.TL_UIPREF=body.ui||'';window.TL_SCREENS=body.s||null;window.TL_NOFEAT=body.x||[];window.TL_REPORTS=!!body.r;window.TL_GH_TOKEN=body.t||'';window.TL_LOGKEY=body.lk||'';window.TL_EL_KEY=body.el||'';window.TL_USER=u;
         return Promise.all(Object.keys(body.k).map(function(pl){var v=window.TL_VAULT[pl];
           return S.importKey('raw',ub(body.k[pl]),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(v.iv)},k,ub(v.ct))})
            .then(function(b){var d=JSON.parse(new TextDecoder().decode(b));(window.TL_PLATKEYS=window.TL_PLATKEYS||{})[pl]=Object.keys(d);Object.keys(d).forEach(function(id){window.TL_DATA[id]=d[id]})})}))
