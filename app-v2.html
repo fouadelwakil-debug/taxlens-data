@@ -131,7 +131,7 @@
       .then(function(done){window.TL_VAULT=v.vault;window.TL_BUILT=v.built;
         if(done.indexOf('reta')>=0&&window.RETA_RELOAD){var rp=document.getElementById('plat-reta');if(rp&&!rp.hidden)window.RETA_RELOAD();else window.__retaStale=1}
         if(done.indexOf('tsrf')>=0&&window.TSRF_REPLAY)setTimeout(window.TSRF_REPLAY,200);
-        var last=(v.notices||[]).filter(function(n){return done.indexOf(n.plat)>=0}).pop();toast(last?last.text:'تحديث جديد على بيانات '+done.map(function(p){return NM[p]}).join(' و')+'.');
+        var last=(v.notices||[]).filter(function(n){return done.indexOf(n.plat)>=0&&Date.now()-new Date(n.at)<6*36e5}).pop();if(window.__tlLastToast&&Date.now()-window.__tlLastToast<15*6e4)return;window.__tlLastToast=Date.now();toast(last?last.text:'تحديث جديد على بيانات '+done.map(function(p){return NM[p]}).join(' و')+'.');
         window.TL_LOG&&window.TL_LOG('live_refresh',done.map(function(p){return NM[p]}).join('، '))}).catch(function(){})}
   function toast(t){var x=document.createElement('div');x.className='tl-live';x.setAttribute('dir','rtl');x.innerHTML='<span>🔄</span><div><b>البيانات اتحدثت دلوقتي</b><p></p></div>';x.querySelector('p').textContent=t;document.body.appendChild(x);
     setTimeout(function(){x.classList.add('out')},7000);setTimeout(function(){x.remove()},7600)}
@@ -4801,7 +4801,7 @@ Chart.defaults.animation={duration:900,easing:'easeOutQuart',delay:c=>c.type==='
 Chart.defaults.datasets.line.animations={y:{from:c=>{const s=c.chart.scales.y;return s?s.getPixelForValue(s.min||0):undefined},duration:900,easing:'easeOutCubic'}};
 Chart.defaults.plugins.tooltip.animation={duration:150};
 Chart.defaults.transitions.active={animation:{duration:200}};
-const replay=p=>{if(!p)return;Object.values(charts).forEach(c=>{if(c.canvas&&p.contains(c.canvas)){c.reset();c.update()}})};
+const replay=p=>{if(!p)return;Object.values(charts).forEach(c=>{if(c.canvas&&p.contains(c.canvas)){try{c.reset();c.update()}catch(e){}}})};
 document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-p]');if(b)setTimeout(()=>replay(document.getElementById(b.dataset.p)),60)});
 // map: staggered reveal when the map tab opens or the metric changes
 const egy=document.getElementById('egy');
@@ -6651,7 +6651,7 @@ var RS={'Below Guidance Value':'أقل من القيمة الاسترشادية'
 var CSS='#frn .fr-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}#frn .fr-kpi>div{background:var(--ex-card,#fff);border:1px solid var(--ex-line,#E6EAF0);border-radius:14px;padding:16px 18px}#frn .fr-kpi small{display:block;color:#6B7280;font-size:12.5px}#frn .fr-kpi b{display:block;font-size:28px;line-height:1.2;margin:6px 0 2px;color:#0B1220;font-variant-numeric:tabular-nums}#frn .fr-kpi em{font-style:normal;font-size:12.5px;color:#4B5563}'
 +'#frn .fr-g2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;margin-top:14px}#frn .fr-g2b{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}#frn h3{margin:0 0 2px}#frn .ex-note{margin:0 0 10px}'
 +'#frn .fr-map{position:relative}#frn .fr-map svg{width:100%;height:auto;display:block}#frn .fr-map .pin{cursor:default}#frn .fr-tip{position:absolute;pointer-events:none;background:#0B1220;color:#fff;font-size:12.5px;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-120%);display:none;z-index:3}'
-+'#frn .fr-list{max-height:520px;overflow:auto}#frn .fr-list table{width:100%;border-collapse:collapse;font-size:13.5px}#frn .fr-list th{position:sticky;top:0;background:var(--ex-card,#fff);text-align:right;color:#6B7280;font-weight:500;font-size:12px;padding:6px 6px;border-bottom:1px solid #ECEEF2}#frn .fr-list td{padding:7px 6px;border-bottom:1px solid #F1F3F6}#frn .fr-list td.n{text-align:left;font-variant-numeric:tabular-nums}#frn .fr-list img{width:24px;height:18px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08);vertical-align:middle;margin-inline-end:8px}'
++'#frn .fr-list{max-height:560px;overflow:auto;border:1px solid #F1F3F6;border-radius:10px}#frn .fr-nt{table-layout:fixed}#frn .fr-nt td.rk{color:#9CA3AF;font-size:12px;text-align:center}#frn .fr-nt .cn{display:flex;align-items:center;gap:8px;min-width:0}#frn .fr-nt .cn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#frn .fr-nt .cn img,#frn .fr-nt .nf{flex:none;margin:0!important}#frn .fr-nt .nf{display:inline-block;width:24px;height:18px;border-radius:3px;background:#E5E7EB}#frn .fr-nt .cv{display:flex;align-items:center;gap:8px}#frn .fr-nt .cv b{min-width:30px;font-weight:600;font-variant-numeric:tabular-nums}#frn .fr-nt .cv i{display:block;height:6px;border-radius:3px;background:#1F4C9A;opacity:.75}#frn .fr-nt th{text-align:right}#frn .fr-nt th:first-child{text-align:center}#frn .fr-nt tfoot td{position:sticky;bottom:0;background:#F8FAFC;font-weight:600;border-top:1px solid #E5E7EB}#frn .fr-nt td.n{text-align:center}#frn .fr-nt th:last-child{text-align:center}#frn .fr-list table{width:100%;border-collapse:collapse;font-size:13.5px}#frn .fr-list th{position:sticky;top:0;background:var(--ex-card,#fff);text-align:right;color:#6B7280;font-weight:500;font-size:12px;padding:6px 6px;border-bottom:1px solid #ECEEF2}#frn .fr-list td{padding:7px 6px;border-bottom:1px solid #F1F3F6}#frn .fr-list td.n{text-align:left;font-variant-numeric:tabular-nums}#frn .fr-list img{width:24px;height:18px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08);vertical-align:middle;margin-inline-end:8px}'
 +'#frn .fr-cmp{width:100%;border-collapse:collapse;font-size:13.5px}#frn .fr-cmp th,#frn .fr-cmp td{padding:9px 8px;border-bottom:1px solid #F1F3F6;text-align:right}#frn .fr-cmp th{color:#6B7280;font-weight:500;font-size:12.5px}#frn .fr-cmp td.n{font-variant-numeric:tabular-nums}#frn .fr-cmp .hi{color:#B42318;font-weight:600}#frn .fr-cmp .lo{color:#067647;font-weight:600}'
 +'#frn .seg .ex-act{background:#fff!important;color:#374151!important;border:1px solid #E3E6EB!important}#frn .seg .ex-act.fr-on{background:#1F4C9A!important;color:#fff!important;border-color:#1F4C9A!important}#frn .fr-ch{position:relative;height:300px}#frn .fr-mini{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:#374151}#frn .fr-mini b{font-size:18px;color:#0B1220;display:block}'
 +'@media(max-width:900px){#frn .fr-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}#frn .fr-g2,#frn .fr-g2b{grid-template-columns:1fr}}';
@@ -6702,8 +6702,8 @@ function map(G){var W=window.TL_WORLD,el=document.getElementById('fr-map');if(!W
  svg.addEventListener('pointerup',function(){if(drag){drag=null;map(G)}});
  var tip=document.getElementById('fr-tip');svg.addEventListener('mousemove',function(e){if(drag)return;var t=e.target.closest('[data-n]');if(!t){tip.style.display='none';return}var n=t.getAttribute('data-n'),d=N[n],r=el.getBoundingClientRect();tip.innerHTML='<b>'+esc(n)+'</b> · '+fN(d.n)+' مسجل · '+Math.round(pc(d.s,d.n))+'% بائعين';tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';tip.style.display='block'});
  svg.addEventListener('mouseleave',function(){tip.style.display='none'})}
-function list(G){var W=window.TL_WORLD||{C:{}},N=G.frn.natD||{},L=Object.keys(N).sort(function(a,b){return N[b].n-N[a].n});
- document.getElementById('fr-list').innerHTML='<table><tr><th>الدولة</th><th>المسجلين</th><th>بائعين</th></tr>'+L.map(function(n){var d=N[n],c=W.C[n]||{};return'<tr><td>'+(c.flag?'<img alt="" src="'+c.flag+'">':'')+esc(n)+'</td><td class="n">'+fN(d.n)+'</td><td class="n">'+Math.round(pc(d.s,d.n))+'%</td></tr>'}).join('')+'</table>'}
+function list(G){var W=window.TL_WORLD||{C:{}},N=G.frn.natD||{},L=Object.keys(N).sort(function(a,b){return N[b].n-N[a].n||a.localeCompare(b,'ar')}),tot=L.reduce(function(a,n){return a+N[n].n},0),mx=L.length?N[L[0]].n:1;
+ document.getElementById('fr-list').innerHTML='<table class="fr-nt"><colgroup><col style="width:34px"><col><col style="width:30%"><col style="width:64px"></colgroup><thead><tr><th>#</th><th>الدولة</th><th>التسجيلات</th><th>بائعين</th></tr></thead><tbody>'+L.map(function(n,i){var d=N[n],c=W.C[n]||{};return'<tr><td class="rk">'+(i+1)+'</td><td><span class="cn">'+(c.flag?'<img alt="" src="'+c.flag+'">':'<i class="nf"></i>')+'<span>'+esc(n)+'</span></span></td><td><span class="cv"><b>'+fN(d.n)+'</b><i style="width:'+Math.max(3,d.n/mx*100)+'%"></i></span></td><td class="n">'+Math.round(pc(d.s,d.n))+'%</td></tr>'}).join('')+'</tbody><tfoot><tr><td></td><td>الإجمالي · '+L.length+' جنسية</td><td><b>'+fN(tot)+'</b></td><td></td></tr></tfoot></table>'}
 function render(){var sec=document.getElementById('frn');if(!sec)return;shell(sec);var G=data();
  if(!G){document.getElementById('fr-kpi').innerHTML='<div style="grid-column:1/-1">لسه مفيش بيانات للأجانب. ارفع شيتي «عمليات التصرف» و«المسجلين» من «تحديث البيانات».</div>';return}
  var F=G.frn,T=F.tx,fr=T.fr,eg=T.eg,all=fr.n+eg.n,P=G.frTx||{people:0},h=G.hist||[],prev=h.length>1?h[h.length-2]:null;
@@ -6738,7 +6738,7 @@ function render(){var sec=document.getElementById('frn');if(!sec)return;shell(se
  // bins + repeat
  var BL=['أقل من 5 مليون','من 5 لـ 20 مليون','أكتر من 20 مليون'];
  mk('fr-c4',{type:'bar',data:{labels:BL,datasets:[{label:'الأجانب',data:fr.bins.map(function(v){return+pc(v,fr.n).toFixed(1)}),backgroundColor:NV,borderRadius:4},{label:'المصريين',data:eg.bins.map(function(v){return+pc(v,eg.n).toFixed(1)}),backgroundColor:GR,borderRadius:4}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:fnt}}},scales:{x:{ticks:{font:fnt}},y:{ticks:{font:fnt,callback:function(v){return v+'%'}}}}}});
- document.getElementById('fr-rep').innerHTML='<div><b>'+fN(fr.multi)+'</b>أجنبي عمل أكتر من عملية</div><div><b>'+fN(fr.max)+'</b>أكبر عدد عمليات لشخص واحد</div><div><b>'+fM((fr.top||[])[0]||0)+' ج</b>أكبر ضريبة على عملية واحدة</div><div><b>'+fM((fr.top||[]).reduce(function(a,b){return a+b},0))+' ج</b>ضريبة أكبر 10 عمليات</div>'}
+ document.getElementById('fr-rep').innerHTML='<div><b>'+fN(fr.multi)+'</b>أجنبي عمل أكتر من عملية</div><div><b>'+fN(fr.max)+'</b>أكبر عدد عمليات لشخص واحد</div><div><b>'+fM((fr.top||[]).reduce(function(a,b){return a+b},0))+' ج</b>ضريبة أكبر 10 عمليات</div>'}
 window.TSRF_FRN_DRAW=render;
 function hook(){var t=document.querySelector('#plat-tsrf .ex-tab[data-tab="frn"]');if(t&&!t.__fr){t.__fr=1;t.addEventListener('click',function(){setTimeout(render,40)})}var s=document.getElementById('frn');if(s&&!s.hidden&&!s.__drawn){s.__drawn=1;render()}}
 setInterval(hook,800);
@@ -7383,7 +7383,7 @@ document.addEventListener('tl-unlocked',function(){setTimeout(tick,300)});setInt
 })();
 </script><script>/* Powered by eTax + لوجو الشركة في آخر كل صفحة (الدخول، الرئيسية، كل منصة) */
 (function(){
-var css='.v2-logo,.ex-logo,img[alt="eTax"]:not(.tl-pwr img),.tl-eyebrow{display:none!important}.tl-pwr{display:inline-flex!important;align-items:center;gap:8px;direction:ltr;font:500 12px Inter,"IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:.02em;white-space:nowrap;opacity:1!important}.tl-pwr img{height:20px;width:auto;display:block;background:#fff;border-radius:4px;padding:2px 4px}';
+var css='footer.ex-foot{margin-left:0!important;margin-right:0!important;max-width:100%;box-sizing:border-box}#geo .tg-ch1{flex-wrap:wrap}#geo select{max-width:100%}#chn #ch-gov,#chn #ch-nat,#frn #fr-off{overflow-x:auto}@media(max-width:760px){#geo .tg-main>*,#geo .tg-card{min-width:0;max-width:100%;overflow-x:auto}#geo #tg-gsel{min-width:0!important;flex:1}#geo table{display:block;overflow-x:auto;max-width:100%}#geo .tg-kv3,#geo .tg-cmp{grid-template-columns:1fr 1fr!important}}.v2-logo,.ex-logo,img[alt="eTax"]:not(.tl-pwr img),.tl-eyebrow{display:none!important}.tl-pwr{display:inline-flex!important;align-items:center;gap:8px;direction:ltr;font:500 12px Inter,"IBM Plex Sans Arabic",system-ui,sans-serif!important;letter-spacing:.02em;white-space:nowrap;opacity:1!important}.tl-pwr img{height:20px;width:auto;display:block;background:#fff;border-radius:4px;padding:2px 4px}';
 function src(){return window.REP_IMG&&window.REP_IMG.etax}
 function html(){var s=src();return '<span>Powered by</span>'+(s?'<img alt="eTax" src="'+s+'">':'<b>eTax</b>')}
 function tick(){if(!document.body)return;if(!document.getElementById('tl-pwr-css')){var st=document.createElement('style');st.id='tl-pwr-css';st.textContent=css;document.head.appendChild(st)}
@@ -7394,6 +7394,17 @@ function tick(){if(!document.body)return;if(!document.getElementById('tl-pwr-css
   else if(f.matches('.tl-foot,footer.ex-foot')){var sp=document.createElement('span');sp.className='tl-pwr';sp.innerHTML=html();f.appendChild(sp)}})}
 if(document.readyState!=='loading')tick();else document.addEventListener('DOMContentLoaded',tick);
 window.addEventListener('tl-unlocked',function(){setTimeout(tick,300)});setInterval(tick,1500);
+})();
+</script><script>/* انتقال موحّد بين الصفحات: الصفحة الجديدة بتظهر بفيد خفيف وحركة لفوق (220ms) — نفس الحركة في كل المنصات والرئيسية */
+(function(){
+var css='.tl-enter{animation:tlEnter .24s cubic-bezier(.2,.7,.2,1) both}@keyframes tlEnter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.tl-enter{animation:none}}';
+var st=document.createElement('style');st.textContent=css;(document.head||document.documentElement).appendChild(st);
+var SEL='[id^="plat-"],#tl-home,#tl-radmin,.ex-page,.spane,.sp-page,.sp-pane,[data-page]';
+function vis(e){return!e.hidden&&getComputedStyle(e).display!=='none'}
+var last=new WeakMap();
+function enter(e){if(!e.isConnected)return;e.classList.remove('tl-enter');void e.offsetWidth;e.classList.add('tl-enter');clearTimeout(e.__tlE);e.__tlE=setTimeout(function(){e.classList.remove('tl-enter')},320)}
+new MutationObserver(function(ms){var seen=new Set();ms.forEach(function(m){var t=m.target;if(!(t instanceof Element)||!t.matches(SEL)||seen.has(t))return;seen.add(t);var v=vis(t),was=last.get(t);last.set(t,v);if(v&&was!==true&&!(t.classList.contains("tl-enter")))enter(t)})}).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['hidden','class','style']});
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll(SEL).forEach(function(e){last.set(e,vis(e))})});
 })();
 </script>
 <script>;(function(){/* Phase 7: اسأل عن بياناتك — محرك محلي لكل منصة على حدة، كتابةً وصوتاً */
