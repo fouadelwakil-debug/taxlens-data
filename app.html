@@ -6665,28 +6665,39 @@ function shell(sec){if(sec.__fr)return;sec.__fr=1;var st=document.createElement(
  +'<div class="ex-card"><h3>شرايح القيمة والتكرار</h3><p class="ex-note">قيمة التصرف · وكام أجنبي عمل أكتر من عملية</p><div class="fr-ch" style="height:220px"><canvas id="fr-c4"></canvas></div><div class="fr-mini" id="fr-rep"></div></div></div>'}
 function mk(id,cfg){if(CH[id]){try{CH[id].destroy()}catch(e){}}var c=document.getElementById(id);if(!c||!window.Chart)return;CH[id]=new Chart(c,cfg)}
 var NV='#1F4C9A',LT='#9DB3D8',GR='#C9D3E3',fnt={family:'IBM Plex Sans Arabic, Cairo, sans-serif',size:12};
-var VIEW='mena';
+var VIEW='mena',VB=null;
 function map(G){var W=window.TL_WORLD,el=document.getElementById('fr-map');if(!W||!el)return;var N=G.frn.natD||{},names=Object.keys(N).filter(function(n){return W.C[n]}),mx=names.reduce(function(a,n){return Math.max(a,N[n].n)},1);
- var V=(W.views||{})[VIEW]||[0,0,W.W,W.H],k=V[2]/W.W*1.9,ink=function(x){return(x*k).toFixed(2)};if(VIEW==='world')k=1;
+ var base=(W.views||{})[VIEW]||[0,0,W.W,W.H];if(!VB)VB=base.slice();var V=VB,k=V[2]/W.W*1.9,ink=function(x){return+(x*k).toFixed(3)};
  var byNum={};names.forEach(function(n){var c=W.C[n];if(c.num)byNum[c.num]=n});
  var shade=function(v){var t=Math.sqrt(v/mx);var a=[226,232,242],b=[20,48,106];return'rgb('+a.map(function(x,i){return Math.round(x+(b[i]-x)*t)}).join(',')+')'};
- var s='<div class="seg" style="display:flex;gap:4px;margin:0 0 8px">'+[['mena','الشرق الأوسط'],['europe','أوروبا'],['world','العالم']].map(function(v){return'<button type="button" data-v="'+v[0]+'" class="ex-act'+(v[0]===VIEW?' fr-on':'')+'">'+v[1]+'</button>'}).join('')+'</div>';
- s+='<svg viewBox="'+V.join(' ')+'" role="img" aria-label="خريطة جنسيات المسجلين" style="aspect-ratio:'+(V[2]/V[3]).toFixed(3)+'"><path d="'+W.sphere+'" fill="#F7F9FC" stroke="#E6EAF0" stroke-width="'+ink(1)+'"/>';
+ var s='<div style="display:flex;gap:6px;align-items:center;margin:0 0 8px;flex-wrap:wrap"><div class="seg" style="display:flex;gap:4px">'+[['mena','الشرق الأوسط'],['europe','أوروبا'],['world','العالم']].map(function(v){return'<button type="button" data-v="'+v[0]+'" class="ex-act'+(v[0]===VIEW?' fr-on':'')+'">'+v[1]+'</button>'}).join('')+'</div><div class="seg" style="display:flex;gap:4px;margin-inline-start:auto"><button type="button" class="ex-act" data-z="in" aria-label="تكبير">+</button><button type="button" class="ex-act" data-z="out" aria-label="تصغير">−</button><button type="button" class="ex-act" data-z="reset">رجوع</button></div></div>';
+ s+='<svg viewBox="'+V.join(' ')+'" role="img" aria-label="خريطة جنسيات المسجلين" style="aspect-ratio:'+(base[2]/base[3]).toFixed(3)+';touch-action:none;cursor:grab"><path d="'+W.sphere+'" fill="#F7F9FC" stroke="#E6EAF0" stroke-width="'+ink(1)+'"/>';
  Object.keys(W.shapes).forEach(function(id){var n=byNum[id],eg=+id===818;s+='<path d="'+W.shapes[id]+'" fill="'+(n?shade(N[n].n):eg?'#FDECEC':'#EEF1F5')+'" stroke="'+(eg?'#D6202E':'#fff')+'" stroke-width="'+ink(eg?1.4:.6)+'"'+(n?' data-n="'+esc(n)+'"':'')+'/>'});
- var inV=function(c){return c.x>=V[0]-2&&c.x<=V[0]+V[2]+2&&c.y>=V[1]-2&&c.y<=V[1]+V[3]+2};
- var srt=names.filter(function(n){return inV(W.C[n])}).sort(function(a,b){return N[b].n-N[a].n}),boxes=[],lab=[],fs=11*k,fw=24*k,fh=fw*.75;
- var hit=function(b){return boxes.some(function(o){return!(b[0]+b[2]<o[0]||o[0]+o[2]<b[0]||b[1]+b[3]<o[1]||o[1]+o[3]<b[1])})};
- srt.forEach(function(n){var c=W.C[n];boxes.push([c.x-fw/2,c.y-fh/2,fw,fh])});
- srt.forEach(function(n){var c=W.C[n],t=n+' '+fN(N[n].n),tw=t.length*fs*.55,th=fs*1.2,cand=[[c.x,c.y+fh/2+th*.85,'middle',[c.x-tw/2,c.y+fh/2+1,tw,th]],[c.x,c.y-fh/2-3,'middle',[c.x-tw/2,c.y-fh/2-th-2,tw,th]],[c.x+fw/2+2,c.y+th*.3,'start',[c.x+fw/2+2,c.y-th/2,tw,th]],[c.x-fw/2-2,c.y+th*.3,'end',[c.x-fw/2-2-tw,c.y-th/2,tw,th]]];
-  for(var i=0;i<cand.length;i++){var b=cand[i][3];if(b[0]<V[0]||b[0]+b[2]>V[0]+V[2]||b[1]<V[1]||b[1]+b[3]>V[1]+V[3])continue;if(!hit(b)){boxes.push(b);lab.push([n,t,cand[i]]);break}}});
- srt.slice().reverse().forEach(function(n){var c=W.C[n];s+='<g class="pin" data-n="'+esc(n)+'" transform="translate('+c.x+' '+c.y+')">'+(c.flag?'<image href="'+c.flag+'" x="'+(-fw/2)+'" y="'+(-fh/2)+'" width="'+fw+'" height="'+fh+'" preserveAspectRatio="none"/>':'')+'<rect x="'+(-fw/2)+'" y="'+(-fh/2)+'" width="'+fw+'" height="'+fh+'" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="'+ink(.6)+'" rx="'+ink(1.5)+'"/></g>'});
- lab.forEach(function(l){s+='<text x="'+l[2][0]+'" y="'+l[2][1]+'" text-anchor="'+l[2][2]+'" direction="rtl" font-size="'+fs+'" font-weight="600" fill="#0B1220" stroke="#fff" stroke-width="'+ink(3)+'" paint-order="stroke" font-family="IBM Plex Sans Arabic,Cairo,sans-serif" data-n="'+esc(l[0])+'">'+esc(l[1])+'</text>'});
+ var inV=function(c){return c.x>=V[0]&&c.x<=V[0]+V[2]&&c.y>=V[1]&&c.y<=V[1]+V[3]};
+ var srt=names.filter(function(n){return inV(W.C[n])}).sort(function(a,b){return N[b].n-N[a].n}),fs=11*k,fw=22*k,fh=fw*.75,th=fs*1.25;
+ /* كل دولة = علم + اسمها تحته في صندوق واحد؛ بنزقّ الصناديق بعيد عن بعض لحد ما مفيش تداخل، ونوصّل بخط للمكان الحقيقي */
+ var wide=V[2]>380;var B=srt.map(function(n,ri){var c=W.C[n],lab=!wide||ri<8,t=lab?n+' '+fN(N[n].n):'',sc=lab?1:.7,w=lab?Math.max(fw,t.length*fs*.56)+2*k:fw*sc+1*k,h=lab?fh+th+2*k:fh*sc+1*k;return{n:n,t:t,x0:c.x,y0:c.y,x:c.x,y:c.y+h/2-fh/2,w:w,h:h}});
+ var EG=W.C['مصر'];if(EG&&inV(EG))B.push({fixed:1,x:EG.x,y:EG.y-3*k,w:22*k,h:16*k});var anchors=srt.map(function(n){var c=W.C[n];return{x:c.x,y:c.y,w:4*k,h:4*k}});
+ for(var it=0;it<900;it++){var moved=false;for(var i=0;i<B.length;i++){for(var j=i+1;j<B.length;j++){var a=B[i],b=B[j],dx=b.x-a.x,dy=b.y-a.y,ox=(a.w+b.w)/2-Math.abs(dx),oy=(a.h+b.h)/2-Math.abs(dy);if(ox>0&&oy>0){moved=true;var fa=a.fixed?0:b.fixed?2:1,fb=b.fixed?0:a.fixed?2:1;if(ox<oy){var m=ox/2+.1*k,sx=dx>=0?1:-1;a.x-=sx*m*fa;b.x+=sx*m*fb}else{var m2=oy/2+.1*k,sy=dy>=0?1:-1;a.y-=sy*m2*fa;b.y+=sy*m2*fb}}}
+   var q=B[i];if(q.fixed)continue;q.x=Math.min(Math.max(q.x,V[0]+q.w/2),V[0]+V[2]-q.w/2);q.y=Math.min(Math.max(q.y,V[1]+q.h/2),V[1]+V[3]-q.h/2)}if(!moved&&it>20)break}
+ B=B.filter(function(q){return!q.fixed});B.forEach(function(q){var fx=q.x,fy=q.y-q.h/2+fh/2,far=Math.hypot(fx-q.x0,fy-q.y0)>fh*.9;
+  if(far)s+='<line x1="'+q.x0+'" y1="'+q.y0+'" x2="'+fx+'" y2="'+fy+'" stroke="#0B1220" stroke-opacity=".45" stroke-width="'+ink(.7)+'"/><circle cx="'+q.x0+'" cy="'+q.y0+'" r="'+ink(1.8)+'" fill="#0B1220"/>'});
+ B.forEach(function(q){var fw0=fw,fh0=fh;if(!q.t){fw=fw0*.7;fh=fh0*.7}var fx=q.x,fy=q.y-q.h/2+fh/2;s+='<g class="pin" data-n="'+esc(q.n)+'"><rect x="'+(q.x-q.w/2)+'" y="'+(q.y-q.h/2)+'" width="'+q.w+'" height="'+q.h+'" fill="#fff" fill-opacity=".001"/>'+(W.C[q.n].flag?'<image href="'+W.C[q.n].flag+'" x="'+(fx-fw/2)+'" y="'+(fy-fh/2)+'" width="'+fw+'" height="'+fh+'" preserveAspectRatio="none"/>':'')+'<rect x="'+(fx-fw/2)+'" y="'+(fy-fh/2)+'" width="'+fw+'" height="'+fh+'" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="'+ink(.6)+'" rx="'+ink(1.5)+'"/><text x="'+fx+'" y="'+(fy+fh/2+th*.85)+'" text-anchor="middle" direction="rtl" font-size="'+fs+'" font-weight="600" fill="#0B1220" stroke="#fff" stroke-width="'+ink(3)+'" paint-order="stroke" font-family="IBM Plex Sans Arabic,Cairo,sans-serif">'+esc(q.t)+'</text></g>';fw=fw0;fh=fh0});
  var eg=W.C['مصر'];if(eg&&inV(eg))s+='<g transform="translate('+eg.x+' '+eg.y+')"><circle r="'+ink(4)+'" fill="#D6202E" stroke="#fff" stroke-width="'+ink(1.5)+'"/><text y="'+ink(-7)+'" text-anchor="middle" font-size="'+(fs*1.1)+'" font-weight="700" fill="#D6202E" stroke="#fff" stroke-width="'+ink(3)+'" paint-order="stroke" font-family="IBM Plex Sans Arabic,Cairo,sans-serif">مصر</text></g>';
  var out=names.filter(function(n){return!inV(W.C[n])}).length;
- el.innerHTML=s+'</svg>'+(out?'<p class="ex-note" style="margin:6px 0 0">'+out+' دولة تانية برّه الجزء ده من الخريطة · شوفهم من «العالم» أو من القايمة</p>':'')+'<div class="fr-tip" id="fr-tip"></div>';
- el.querySelectorAll('.seg button').forEach(function(b){b.onclick=function(){VIEW=b.dataset.v;map(G)}});
- var tip=document.getElementById('fr-tip');el.querySelector('svg').addEventListener('mousemove',function(e){var t=e.target.closest('[data-n]');if(!t){tip.style.display='none';return}var n=t.getAttribute('data-n'),d=N[n],r=el.getBoundingClientRect();tip.innerHTML='<b>'+esc(n)+'</b> · '+fN(d.n)+' مسجل · '+Math.round(pc(d.s,d.n))+'% بائعين';tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';tip.style.display='block'});
- el.querySelector('svg').addEventListener('mouseleave',function(){tip.style.display='none'})}
+ el.innerHTML=s+'</svg><p class="ex-note" style="margin:6px 0 0">كبّر بعجلة الماوس أو بالأزرار، واسحب الخريطة عشان تتحرك'+(out?' · '+out+' دولة برّه الجزء الظاهر':'')+'</p><div class="fr-tip" id="fr-tip"></div>';
+ var svg=el.querySelector('svg');
+ var zoom=function(f,cx,cy){var w=Math.min(Math.max(V[2]*f,W.W*.04),W.W),h=w*base[3]/base[2];if(cx==null){cx=V[0]+V[2]/2;cy=V[1]+V[3]/2}var rx=(cx-V[0])/V[2],ry=(cy-V[1])/V[3];VB=[cx-rx*w,cy-ry*h,w,h];clamp();map(G)};
+ var clamp=function(){VB[0]=Math.min(Math.max(VB[0],0),W.W-VB[2]);VB[1]=Math.min(Math.max(VB[1],0),W.H-VB[3])};
+ var toSvg=function(e){var r=svg.getBoundingClientRect();return[V[0]+(e.clientX-r.left)/r.width*V[2],V[1]+(e.clientY-r.top)/r.height*V[3]]};
+ el.querySelectorAll('[data-v]').forEach(function(b){b.onclick=function(){VIEW=b.dataset.v;VB=null;map(G)}});
+ el.querySelectorAll('[data-z]').forEach(function(b){b.onclick=function(){var z=b.dataset.z;if(z==='reset'){VB=null;map(G)}else zoom(z==='in'?.7:1/.7)}});
+ svg.addEventListener('wheel',function(e){e.preventDefault();var p=toSvg(e);zoom(e.deltaY<0?.8:1.25,p[0],p[1])},{passive:false});
+ var drag=null;svg.addEventListener('pointerdown',function(e){drag={x:e.clientX,y:e.clientY,v:V.slice()};svg.setPointerCapture(e.pointerId);svg.style.cursor='grabbing'});
+ svg.addEventListener('pointermove',function(e){if(!drag)return;var r=svg.getBoundingClientRect();VB=[drag.v[0]-(e.clientX-drag.x)/r.width*drag.v[2],drag.v[1]-(e.clientY-drag.y)/r.height*drag.v[3],drag.v[2],drag.v[3]];clamp();svg.setAttribute('viewBox',VB.join(' '))});
+ svg.addEventListener('pointerup',function(){if(drag){drag=null;map(G)}});
+ var tip=document.getElementById('fr-tip');svg.addEventListener('mousemove',function(e){if(drag)return;var t=e.target.closest('[data-n]');if(!t){tip.style.display='none';return}var n=t.getAttribute('data-n'),d=N[n],r=el.getBoundingClientRect();tip.innerHTML='<b>'+esc(n)+'</b> · '+fN(d.n)+' مسجل · '+Math.round(pc(d.s,d.n))+'% بائعين';tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';tip.style.display='block'});
+ svg.addEventListener('mouseleave',function(){tip.style.display='none'})}
 function list(G){var W=window.TL_WORLD||{C:{}},N=G.frn.natD||{},L=Object.keys(N).sort(function(a,b){return N[b].n-N[a].n}),ML={Android:'أندرويد',Ios:'آيفون',Web:'الموقع'};
  document.getElementById('fr-list').innerHTML='<table><tr><th>الدولة</th><th>المسجلين</th><th>بائعين</th><th>التسجيل</th></tr>'+L.map(function(n){var d=N[n],c=W.C[n]||{},m=Object.keys(d.m).sort(function(a,b){return d.m[b]-d.m[a]})[0];return'<tr><td>'+(c.flag?'<img alt="" src="'+c.flag+'">':'')+esc(n)+'</td><td class="n">'+fN(d.n)+'</td><td class="n">'+Math.round(pc(d.s,d.n))+'%</td><td>'+(ML[m]||esc(m)||'—')+'</td></tr>'}).join('')+'</table>'}
 function render(){var sec=document.getElementById('frn');if(!sec)return;shell(sec);var G=data();
@@ -6715,7 +6726,7 @@ function render(){var sec=document.getElementById('frn');if(!sec)return;shell(se
  var PG=Object.keys(fr.props||{}).sort(function(a,b){return fr.props[b]-fr.props[a]}).slice(0,10);
  mk('fr-c2',{type:'bar',data:{labels:PG,datasets:[{label:'عمليات أجانب',data:PG.map(function(g){return fr.props[g]}),backgroundColor:NV,borderRadius:4,yAxisID:'y'},{type:'line',label:'نسبة الأجانب في المحافظة %',data:PG.map(function(g){return+pc(fr.props[g],(fr.props[g]||0)+((eg.props||{})[g]||0)).toFixed(1)}),borderColor:'#D6202E',backgroundColor:'#D6202E',yAxisID:'y1',pointRadius:3}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:fnt}}},scales:{x:{ticks:{font:fnt}},y:{beginAtZero:true,ticks:{font:fnt}},y1:{position:'right',beginAtZero:true,grid:{display:false},ticks:{font:fnt,callback:function(v){return v+'%'}}}}}});
  // reasons
- var RK=['Below Guidance Value','Ownership Percentage','Inherited Property','Installment','No Guidance Value','none'];
+ var RK=['Below Guidance Value','Ownership Percentage','Inherited Property','Installment','No Guidance Value'];
  mk('fr-c3',{type:'bar',data:{labels:RK.map(function(k){return RS[k]}),datasets:[{label:'الأجانب',data:RK.map(function(k){return+pc(fr.rs[k]||0,fr.n).toFixed(1)}),backgroundColor:NV,borderRadius:4},{label:'المصريين',data:RK.map(function(k){return+pc(eg.rs[k]||0,eg.n).toFixed(1)}),backgroundColor:GR,borderRadius:4}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:fnt}}},scales:{x:{ticks:{font:fnt,callback:function(v){return v+'%'}}},y:{ticks:{font:fnt}}}}});
  // offices
  var OF=Object.keys(fr.off||{}).sort(function(a,b){return fr.off[b]-fr.off[a]}).slice(0,8),om=OF.length?fr.off[OF[0]]:1;
@@ -6846,7 +6857,7 @@ window.TL_MOF_BRAND=function(on){try{localStorage.setItem('tl_mof_brand',on?'1':
   if(window.TL_UI_VERSION!=='v2')return;
   var ACC={reta:'#1F4C9A',tsrf:'#0D7C77',simp:'#5B3FA8',pay:'#0E7490'},SW=['#1F4C9A','#0D7C77','#5B3FA8','#0E7490','#3949AB','#B45309','#86198F','#475569'];
   var NAME={reta:'الضرائب العقارية',tsrf:'التصرفات العقارية',simp:'التسهيلات الضريبية',pay:'منظومة المرتبات'};
-  var GROUPS={tsrf:[['نظرة عامة',['leaders','summary']],['التحليل',['weekly','monthly','geo','compare','reasons','readings','story']],['الأدوات',['sim','collection','detail']]],
+  var GROUPS={tsrf:[['نظرة عامة',['leaders','summary']],['التحليل',['weekly','monthly','geo','frn','compare','reasons','readings','story']],['الأدوات',['sim','collection','detail']]],
     reta:[['نظرة عامة',['p0','p1','p10','p20']],['التحليل',['p2','p13','p7','p4','p3','p5','p12']],['الأدوات',['p8','p9','p6','p11']]],
     simp:[['نظرة عامة',['s0','s1','s14']],['التحليل',['s2','s3','s4','s5','s6','s9','s12']],['المراجعة والمخاطر',['s7','s8','s10']],['الأدوات',['s11','s13']]],
     pay:[['نظرة عامة',['y0','y1','y9']],['التحليل',['y2','y3','y4','y5','y6','y10','y11']],['الأدوات',['y7','y8']]]};
