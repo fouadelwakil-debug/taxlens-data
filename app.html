@@ -321,29 +321,6 @@ if(false)window.addEventListener('tl-unlocked',function(){var b=document.createE
   if(hand){var go=function(){var u=document.getElementById('tl-u'),p=document.getElementById('tl-p'),b=document.getElementById('tl-go');if(!u||!b)return setTimeout(go,200);u.value=hand.u;p.value=hand.p;(window.TL_READY||Promise.resolve()).then(function(){b.click();setTimeout(function(){p.value=''},3000)})};
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go()}
 })();
-
-/* TAX Lens · افتتاحية اللوجو قبل صفحة الدخول: صامتة، 10 ثواني، مرة في اليوم، فيها «تخطّي». */
-(function(){
- 'use strict';
- var URL_='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/intro/logo.mp4',K='tl_intro_day',BG='linear-gradient(#C2BCB0,#BAB3A7)';
- try{if(navigator.webdriver||/[?&]nointro/.test(location.search))return;if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  var d=new Date().toISOString().slice(0,10);if(localStorage.getItem(K)===d)return}catch(e){}
- var st=document.createElement('style');st.textContent='#tl-intro{position:fixed;inset:0;z-index:2147483000;background:'+BG+';display:flex;align-items:center;justify-content:center;transition:opacity .6s ease}#tl-intro.out{opacity:0;pointer-events:none}#tl-intro video{width:100%;height:100%;object-fit:contain;background:transparent;opacity:0;transition:opacity .4s}#tl-intro video.on{opacity:1}#tl-intro button{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:18px;height:36px;padding:0 16px;border-radius:18px;border:1px solid rgba(20,48,106,.25);background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#14306A;font:500 13.5px inherit;font-family:inherit;cursor:pointer}#tl-intro button:focus-visible{outline:2px solid #14306A;outline-offset:2px}';
- document.head.appendChild(st);
- var ov=document.createElement('div');ov.id='tl-intro';ov.setAttribute('role','presentation');
- var v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';
- var sk=document.createElement('button');sk.type='button';sk.textContent='تخطّي';
- ov.appendChild(v);ov.appendChild(sk);
- var done=false,url=null;
- function end(){if(done)return;done=true;try{localStorage.setItem(K,new Date().toISOString().slice(0,10))}catch(e){}ov.classList.add('out');setTimeout(function(){ov.remove();if(url)URL.revokeObjectURL(url);var u=document.getElementById('tl-u');if(u&&!u.value)try{u.focus({preventScroll:true})}catch(e){}},650)}
- function bail(){if(done)return;done=true;ov.remove()}
- sk.onclick=end;document.addEventListener('keydown',function k(e){if(e.key==='Escape'&&!done){end();document.removeEventListener('keydown',k)}});
- function mount(){(document.body||document.documentElement).appendChild(ov)}
- if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);
- var t=setTimeout(bail,3000);
- fetch(URL_,{cache:'force-cache'}).then(function(r){if(!r.ok)throw 0;return r.blob()}).then(function(b){if(done)return;url=URL.createObjectURL(new Blob([b],{type:'video/mp4'}));v.src=url;
-  v.onended=end;v.onerror=bail;var p=v.play();var go=function(){clearTimeout(t);v.classList.add('on');setTimeout(end,10600)};if(p&&p.then)p.then(go).catch(bail);else go()}).catch(bail);
-})();
 </script>
 <style>/* TAX Lens v2: unified shell (top bar, side navigation, tokens, light/dark) */
 :root{--v2-navy:#14306A;--v2-navy-2:#14254A;--v2-red:#D6202E;--v2-bg:#EEF3FA;--v2-surface:#FFFFFF;--v2-tint:#F2F6FC;--v2-ink:#141413;--v2-muted:#4A5875;--v2-line:#D8DDE3;--v2-ok:#1E7B45;--v2-warn:#C2410C;--acc:#1F4C9A;--acc-soft:#E8EFFA;--v2-top:64px;--v2-side:248px;--v2-font:"Cairo","Segoe UI",Tahoma,sans-serif}
