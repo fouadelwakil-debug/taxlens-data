@@ -7837,25 +7837,26 @@ function devs(){return '<span class="et">'+img(etax(),'شعار eTax')+'</span>'
 var L1='الجهات صاحبة البيانات',L2='تطوير وتشغيل';
 function row(mini){if(mini)return '<div class="pt-seals">'+seals()+'</div><div class="pt-by">'+devs()+'</div>';
  return '<div class="pg"><div class="pl">'+devs()+'</div></div><div class="pg pg1"><div class="pl">'+seals()+'</div></div>'}
-var CSS='.pt-band,.pt-home{background:linear-gradient(180deg,#16336F,#0F2556);color:#C9D6EE}'+
-'.pt-band .og,.pt-home .og{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap}'+
-'.pg{display:flex;flex-direction:column;align-items:center;gap:clamp(4px,.8vh,8px);padding:0 clamp(14px,2.2vw,34px)}.pg+.pg{border-inline-start:1px solid rgba(255,255,255,.18)}'+
-'.pc{font:600 clamp(10.5px,1.25vh,12.5px) "IBM Plex Sans Arabic",Cairo,sans-serif;color:#AFC0E2;letter-spacing:.2px;white-space:nowrap}'+
-'.pl{display:flex;align-items:center;justify-content:center;gap:clamp(12px,1.6vw,24px);flex:1}.pl img{display:block;width:auto}.et{display:flex;align-items:center}'+
-'.pt-band{flex:none;padding:clamp(8px,1.4vh,14px) 12px clamp(9px,1.6vh,16px);box-shadow:0 -6px 24px rgba(20,48,106,.12)}'+
-'.pt-band .sl{height:clamp(46px,7.4vh,80px)}.pt-band .ef{height:clamp(22px,3.3vh,36px)}.pt-band .et img{height:clamp(14px,2vh,22px);background:#fff;border-radius:8px;padding:clamp(4px,.6vh,6px) 9px}'+
-'#tl-login .tl-foot{display:none!important}'+
-'@media(max-width:640px){.pt-band{padding:7px 6px 9px}.pg{padding:0 8px}.pc{font-size:9.5px}.pl{gap:7px}.pt-band .sl{height:clamp(36px,5.4vh,46px)}.pt-band .ef{height:clamp(16px,2.4vh,21px)}.pt-band .et img{height:clamp(10px,1.5vh,13px);padding:3px 5px;border-radius:5px}}'+
+var CSS='.pt-band,.pt-home{--h:clamp(46px,7.4vh,78px);background:radial-gradient(120% 140% at 50% 0%,#1D3F84 0%,#14306A 45%,#0C1F4A 100%);color:#C9D6EE;position:relative}'+
+'.pt-band:before,.pt-home:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent,#D6202E 30%,#D6202E 70%,transparent);opacity:.85}'+
+'.pt-band .og,.pt-home .og{display:flex;align-items:center;justify-content:center;gap:clamp(18px,2.6vw,44px);padding:clamp(12px,2vh,20px) 16px;flex-wrap:nowrap}'+
+'.pg{display:flex;align-items:center;gap:clamp(18px,2.6vw,44px)}.pl{display:contents}.pl img{display:block;width:auto}'+
+'.og .sl{height:var(--h)}.og .ef{height:calc(var(--h)*.86)}'+
+'.og .et{display:flex;align-items:center;justify-content:center;height:var(--h);padding:0 calc(var(--h)*.28);background:#fff;border-radius:calc(var(--h)*.22);box-shadow:0 4px 14px rgba(0,0,0,.18)}.og .et img{height:calc(var(--h)*.46)}'+
+'.pg+.pg:before{content:"";width:1px;align-self:stretch;margin-inline-end:clamp(0px,.4vw,6px);background:linear-gradient(180deg,transparent,rgba(255,255,255,.28),transparent)}'+
+'.pt-band{flex:none}#tl-login .tl-foot,#tl-home .tl-foot{display:none!important}'+
+'.pt-cr{border-top:1px solid rgba(255,255,255,.08);padding:7px 16px 9px;text-align:center;font:500 11.5px "IBM Plex Sans Arabic",Cairo,sans-serif;color:#8FA3C9;letter-spacing:.2px}'+
+'.pt-home{--h:64px;margin-top:28px}'+
+'@media(max-width:700px){.pt-band,.pt-home{--h:clamp(34px,5.2vh,44px)}.pt-band .og,.pt-home .og{gap:10px;padding:10px 8px;flex-wrap:wrap;row-gap:10px}.pg{gap:10px}.pg+.pg:before{display:none}.pt-home .og{flex-direction:column-reverse}}'+
+'@media(max-width:380px){.pt-band,.pt-home{--h:32px}}'+
 '@media(max-height:520px){#tl-login{height:auto!important;min-height:100vh!important;overflow:visible!important}}'+
-'.pt-home{margin:26px 0 0;padding:14px 12px 16px;border-radius:18px}.pt-home .sl{height:60px}.pt-home .ef{height:28px}.pt-home .et img{height:17px;background:#fff;border-radius:6px;padding:4px 8px}.pt-home .pc{font-size:12px}'+
-'@media(max-width:640px){.pt-home .og{flex-direction:column-reverse;align-items:center;gap:12px}.pt-home .pg{padding:0}.pt-home .pg+.pg{border:0}.pt-home .sl{height:50px}.pt-home .ef{height:24px}.pt-home .et img{height:15px}}'+
-'.pt-mini{margin:14px 10px 6px;padding:12px 8px 6px;border-top:1px solid rgba(127,140,170,.22);text-align:center}.pt-cap{font:600 10.5px "IBM Plex Sans Arabic",sans-serif;color:#7A869C;margin-bottom:6px}.pt-mini .pt-seals{display:flex;justify-content:center;gap:8px}.pt-mini .sl{height:36px;width:auto}'+
-'.pt-mini .pt-by{margin-top:10px;font:500 10.5px "IBM Plex Sans Arabic",sans-serif;color:#7A869C;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}.pt-mini .ef{height:16px;background:#14306A;border-radius:4px;padding:2px 5px}.pt-mini .et img{height:13px;background:#fff;border-radius:3px;padding:1px 3px}'+
+'.pt-mini{margin:14px 10px 6px;padding:12px 8px 6px;border-top:1px solid rgba(127,140,170,.22);text-align:center}.pt-mini .pt-seals{display:flex;justify-content:center;gap:8px}.pt-mini .sl{height:36px;width:auto}'+
+'.pt-mini .pt-by{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px}.pt-mini .ef{height:30px;background:#14306A;border-radius:6px;padding:3px 6px}.pt-mini .et{display:flex;align-items:center;height:36px;padding:0 8px;background:#fff;border:1px solid #E3E8F2;border-radius:8px}.pt-mini .et img{height:17px}'+
 '.v2-side.pt-has{display:flex;flex-direction:column}.v2-side .pt-mini{margin-top:auto}';
 function css(){if(document.getElementById('pt-css'))return;var s=document.createElement('style');s.id='pt-css';s.textContent=CSS;document.head.appendChild(s)}
 function tick(){if(!document.body)return;css();
  var lg=document.getElementById('tl-login');if(lg&&!lg.querySelector('.pt-band')){var d=document.createElement('div');d.className='pt-band';d.innerHTML='<div class="og">'+row()+'</div>';var ft=lg.querySelector('.tl-foot');if(ft)ft.parentNode.insertBefore(d,ft);else lg.appendChild(d)}
- var hm=document.getElementById('tl-home');if(hm&&!hm.querySelector('.pt-home')){var f=hm.querySelector('.tl-foot'),h=document.createElement('div');h.className='pt-home';h.innerHTML='<div class="og">'+row()+'</div>';if(f)f.parentNode.insertBefore(h,f);else hm.appendChild(h)}
+ var hm=document.getElementById('tl-home');if(hm&&!hm.querySelector('.pt-home')){var f=hm.querySelector('.tl-foot'),h=document.createElement('div');h.className='pt-home';h.innerHTML='<div class="og">'+row()+'</div><div class="pt-cr">TAX Lens · منصة تحليل البيانات الضريبية</div>';if(f)f.parentNode.insertBefore(h,f);else hm.appendChild(h)}
  [].forEach.call(document.querySelectorAll('.v2-side'),function(sd){if(!sd.querySelector('.pt-mini')){var m=document.createElement('div');m.className='pt-mini';m.innerHTML=row(true);sd.appendChild(m);sd.classList.add('pt-has')}});
  var pn=document.querySelector('.mg-sh .pn');if(pn&&!pn.querySelector('.pt-mini')){var m2=document.createElement('div');m2.className='pt-mini';m2.innerHTML=row(true);pn.appendChild(m2)}}
 if(document.readyState!=='loading')tick();else document.addEventListener('DOMContentLoaded',tick);
