@@ -5286,10 +5286,10 @@ var box=el('div','tlst-grid');c.appendChild(box);
     Object.keys(WORK).sort().forEach(function(u){var r=WORK[u],tr=el('tr');var g=GROUPS[r.group]||{},lead=(g.platforms||[]).indexOf('*')>=0&&!g.admin;
       [r.name||u,(g.name||r.group)+(lead?' ★':'')].forEach(function(v){var c=el('td',null,v);c.style.cssText='padding:7px 8px;border-bottom:1px solid #E1E7F0;white-space:nowrap';tr.appendChild(c)});
       cols.forEach(function(c){var cell=el('td');cell.style.cssText='text-align:center;border-bottom:1px solid #E1E7F0';var x=el('input');x.type='checkbox';
-        x.checked=c[2]==='p'?(r.platforms||[]).indexOf(c[0])>=0:!!r[c[0]];x.disabled=EDIT!=null||(lead&&c[0]!=='disabled');
+        x.checked=c[2]==='p'?(r.platforms||[]).indexOf(c[0])>=0:!!r[c[0]];x.disabled=EDIT!=null||(lead&&c[2]!=='p'&&c[0]!=='disabled');
         x.addEventListener('change',function(){if(c[2]==='p'){var ps=(r.platforms||[]).filter(function(p){return p!==c[0]});if(x.checked)ps.push(c[0]);r.platforms=ps;if(!ps.length)r.upload=false}else{if(c[0]==='upload'&&x.checked&&!(r.platforms||[]).length){x.checked=false;alert('رفع البيانات محتاج منصة واحدة على الأقل');return}r[c[0]]=x.checked}render()});
         cell.appendChild(x);tr.appendChild(cell)});t.appendChild(tr)});
-    wrap.appendChild(t);m.appendChild(wrap);var lg=el('div','sub','★ مجموعة القيادة العليا: كل المنصات (وأي منصة تتضاف بعدين) مع التقارير، من غير إدارة ولا رفع بيانات.');lg.style.marginTop='8px';m.appendChild(lg)}
+    wrap.appendChild(t);m.appendChild(wrap);var lg=el('div','sub','★ مجموعة القيادة العليا: التقارير من غير إدارة ولا رفع بيانات. المنصات بتختارها لكل شخص زي باقي المستخدمين.');lg.style.marginTop='8px';m.appendChild(lg)}
   var AUTOPUB=null,PUBBING=false;function render(){render0();try{drawMatrix()}catch(e){console.warn(e)}clearTimeout(AUTOPUB);if(!EDIT&&!PUBBING&&(diffCount()||state.groupsChanged))AUTOPUB=setTimeout(function(){if(!EDIT&&!PUBBING&&(diffCount()||state.groupsChanged))publish()},500)}
   function render0(){
     var tb=R('users');tb.replaceChildren();
@@ -5354,7 +5354,7 @@ var box=el('div','tlst-grid');c.appendChild(box);
       if(!ps.length&&!q('admin').checked)return say('اختار منصة واحدة على الأقل');
       if(u===window.TL_USER&&(!q('admin').checked||q('dis').checked))return say('ما ينفعش تشيل الإدارة أو توقف حسابك إنت');
       var w=WORK[u];if(q('upload').checked&&!ps.length)return say('تحديث البيانات محتاج منصة واحدة على الأقل');
-      var o={_orig:w._orig||u,name:nm,group:gg,platforms:ps,admin:q('admin').checked,upload:q('upload').checked,reports:q('reports').checked,disabled:q('dis').checked,pw:np||w.pw,phone:q('phone').value.trim(),email:q('email').value.trim()};if((GROUPS[gg]||{}).platforms&&GROUPS[gg].platforms.indexOf('*')>=0&&!GROUPS[gg].admin){o.platforms=PLATS.map(function(P){return P.id});o.admin=false;o.upload=false;o.reports=true}o.ui=(q('ui')&&q('ui').value)||'';if(!o.ui)delete o.ui;if(!o.phone)delete o.phone;if(!o.email)delete o.email;
+      var o={_orig:w._orig||u,name:nm,group:gg,platforms:ps,admin:q('admin').checked,upload:q('upload').checked,reports:q('reports').checked,disabled:q('dis').checked,pw:np||w.pw,phone:q('phone').value.trim(),email:q('email').value.trim()};if((GROUPS[gg]||{}).platforms&&GROUPS[gg].platforms.indexOf('*')>=0&&!GROUPS[gg].admin){o.admin=false;o.upload=false;o.reports=true}o.ui=(q('ui')&&q('ui').value)||'';if(!o.ui)delete o.ui;if(!o.phone)delete o.phone;if(!o.email)delete o.email;
       var scr={},anyLim=false;Object.keys(SCR).forEach(function(p){if(ps.indexOf(p)<0)return;var on=[].filter.call(tr.querySelectorAll('[data-e="scr"][data-p="'+p+'"]'),function(x){return x.checked}).map(function(x){return x.value});if(!on.length)anyLim='none:'+p;else if(on.length<SCR[p].length){scr[p]=on;anyLim=anyLim||true}});
       if(typeof anyLim==='string')return say('لازم تسيب شاشة واحدة على الأقل في كل منصة مختارة');if(anyLim)o.scr=scr;
       var nof=[].filter.call(tr.querySelectorAll('[data-e="feat"]'),function(x){return !x.checked}).map(function(x){return x.value});if(nof.length)o.nof=nof;
@@ -5370,10 +5370,18 @@ var box=el('div','tlst-grid');c.appendChild(box);
     if(a==='pub')publish();
   });
 
-  var PUB_TOKEN='';
+  var PUB_TOKEN='',ALLK=null;
+  function loadAllKeys(){if(!window.TL_PK_BOX||!window.TL_ADMINKEY)return;S.importKey('raw',ub(window.TL_ADMINKEY),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(window.TL_PK_BOX.iv)},k,ub(window.TL_PK_BOX.ct))}).then(function(b){ALLK=JSON.parse(new TextDecoder().decode(b))}).catch(function(){})}
+  function decDir(V){var b=V&&V.admin;if(!b||!window.TL_ADMINKEY)return Promise.resolve(null);return S.importKey('raw',ub(window.TL_ADMINKEY),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(b.iv)},k,ub(b.ct))}).then(function(d){return JSON.parse(new TextDecoder().decode(d))})}
+  function normDir(D){Object.keys(D||{}).forEach(function(u){var r=D[u];if(!r.platforms)r.platforms=[];if(r.admin==null)r.admin=false;if(r.pw==null)r.pw=''});return D||{}}
+  /* أول ما تفتح الشاشة: نجيب آخر نسخة منشورة عشان متشتغلش على بيانات قديمة */
+  function refreshDir(){if(diffCount()||EDIT||state.groupsChanged)return Promise.resolve(false);var tok=lsGet('tl_gh_token')||window.TL_GH_TOKEN||'';
+    var get=tok?gh('GET',null,tok).then(function(j){return ghRaw(tok,j.sha)}):fetch((window.TL_REMOTE||'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/main/'+FILE)+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()});
+    return get.then(function(V){return decDir(V).then(function(d){if(!d||diffCount()||EDIT)return false;DIR=normDir(d);WORK=clone(DIR);if(V.access&&V.access.groups){GROUPS=clone(V.access.groups);window.TL_ACCESS.groups=clone(V.access.groups)}if(V.pk)window.TL_PK_BOX=V.pk;loadAllKeys();render();return true})}).catch(function(){return false})}
+
   function entryFor(pw,info){
     var salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
-    var body={k:{},name:info.name,group:info.group};(info.platforms||[]).forEach(function(p){if(window.TL_KEYS[p])body.k[p]=window.TL_KEYS[p]});
+    var body={k:{},name:info.name,group:info.group},KS=Object.assign({},ALLK||{},window.TL_KEYS||{});(info.platforms||[]).forEach(function(p){if(KS[p])body.k[p]=KS[p]});
     if(info.admin)body.a=window.TL_ADMINKEY;
     if((info.upload||info.admin)&&PUB_TOKEN)body.t=PUB_TOKEN;if(info.admin&&(lsGet('tl_log_key')||window.TL_LOGKEY))body.lk=lsGet('tl_log_key')||window.TL_LOGKEY;
     if(info.reports)body.r=1;if(info.admin&&(lsGet('tl_el_key')||window.TL_EL_KEY))body.el=lsGet('tl_el_key')||window.TL_EL_KEY;
@@ -5390,15 +5398,27 @@ var box=el('div','tlst-grid');c.appendChild(box);
     var tok=R('tok').value.trim()||lsGet('tl_gh_token')||window.TL_GH_TOKEN||'';if(!tok)return say('اكتب مفتاح GitHub الأول');lsSet('tl_gh_token',tok);PUB_TOKEN=tok;
     var missing=Object.keys(WORK).filter(function(u){return!WORK[u].disabled&&!WORK[u].pw});if(missing.length)return say('المستخدمين دول محتاجين كلمة سر: '+missing.join('، '));
     var btn=sec.querySelector('[data-a="pub"]');btn.disabled=true;PUBBING=true;setTimeout(function(){PUBBING=false},60000);say('جارٍ النشر…',true);
-    var fileSha,V,users={},dir={};
+    var fileSha,V,users={},dir={},touched={},deleted={},conflicts=[];
+    Object.keys(WORK).forEach(function(u){if(changed(u)){touched[u]=1;var o=WORK[u]._orig;if(o&&o!==u)deleted[o]=1}});
+    Object.keys(DIR).forEach(function(u){if(!Object.keys(WORK).some(function(k){return(WORK[k]._orig||k)===u}))deleted[u]=1});
     gh('GET',null,tok).then(function(j){fileSha=j.sha;return ghRaw(tok,j.sha)})
-    .then(function(v){V=v;V.logUrl=(R('logu').value||'').trim();V.uiAll='v2';return Promise.all(Object.keys(WORK).map(function(u){var o=DIR[WORK[u]._orig||u],ch=changed(u),w=strip(WORK[u]);delete w.kick;w.rev=((o&&o.rev)||0)+(ch?1:0);dir[u]=w;if(w.disabled)return null;
-        return Promise.all([uhash(u),entryFor(w.pw,w)]).then(function(x){x[1].rev=w.rev;users[x[0]]=x[1]})}))})
-    .then(function(){V.access={groups:GROUPS,users:users};var iv=crypto.getRandomValues(new Uint8Array(12));
+    .then(function(v){V=v;V.logUrl=(R('logu').value||'').trim();V.uiAll='v2';return decDir(V)})
+    .then(function(theirs){theirs=normDir(theirs||clone(DIR));var oldUsers=(V.access&&V.access.users)||{};
+      /* دمج: اللي غيّرته انت بيتطبق، والباقي بيفضل زي آخر نسخة منشورة (حتى لو أدمن تاني غيّرها) */
+      Object.keys(theirs).forEach(function(u){if(!deleted[u])dir[u]=theirs[u]});
+      Object.keys(touched).forEach(function(u){var w=strip(WORK[u]),orig=WORK[u]._orig||u,base=DIR[orig],th=theirs[orig];delete w.kick;
+        if(base&&th&&cmp(th)!==cmp(base))conflicts.push(u);w.rev=Math.max((th&&th.rev)||0,(base&&base.rev)||0)+1;dir[u]=w});
+      var missing=Object.keys(dir).filter(function(u){return!dir[u].disabled&&!dir[u].pw});if(missing.length)throw new Error('المستخدمين دول محتاجين كلمة سر: '+missing.join('، '));
+      return Promise.all(Object.keys(dir).map(function(u){var w=dir[u];if(w.disabled)return null;return uhash(u).then(function(h){
+        if(!touched[u]&&oldUsers[h]&&(oldUsers[h].rev||0)===(w.rev||0)){users[h]=oldUsers[h];return}
+        return entryFor(w.pw,w).then(function(e){e.rev=w.rev||0;users[h]=e})})}))})
+    .then(function(){V.access={groups:state.groupsChanged?GROUPS:((V.access&&V.access.groups)||GROUPS),users:users};var iv=crypto.getRandomValues(new Uint8Array(12));
       return S.importKey('raw',ub(window.TL_ADMINKEY),'AES-GCM',false,['encrypt']).then(function(k){return S.encrypt({name:'AES-GCM',iv:iv},k,enc(JSON.stringify(dir)))})
        .then(function(ct){V.admin={iv:b64(iv),ct:b64(ct)};return ensurePwKeys(V)}).then(function(){V.built=new Date().toISOString();
          return gh('PUT',{message:'Update users from TAX Lens ('+window.TL_USER+')',content:b64(enc(JSON.stringify(V))),sha:fileSha},tok).then(function(r){window.TL_SET_MY_ENTRY&&window.TL_SET_MY_ENTRY(V);return r})})})
-    .then(function(){var n=diffCount()+(state.groupsChanged?1:0);DIR=clone(dir);WORK=clone(dir);window.TL_ACCESS.groups=clone(GROUPS);window.TL_LOG_URL=V.logUrl;window.TL_UIALL=V.uiAll;window.TL_LOG&&window.TL_LOG('users_published',n+' تعديل');syncRecipients();pwDone();state.groupsChanged=false;render();say('اتنشر ('+n+' تعديل). التعديلات بتوصل على طول؛ اللي فاتح الملف دلوقتي هيتطلب منه يسجل دخول تاني خلال دقيقتين.',true)})
+    /* تأكيد: نقرا اللي اتنشر ونقارنه باللي غيّرته */
+    .then(function(){return gh('GET',null,tok).then(function(j){return ghRaw(tok,j.sha)}).then(decDir).then(function(chk){var bad=Object.keys(touched).filter(function(u){return!chk||!chk[u]||cmp(chk[u])!==cmp(dir[u])});if(bad.length)throw new Error('النشر اتعمل بس التعديل ما اتحفظش صح لـ: '+bad.join('، ')+'. جرّب تاني');})})
+    .then(function(){var n=diffCount()+(state.groupsChanged?1:0);if(state.groupsChanged)window.TL_ACCESS.groups=clone(GROUPS);else{GROUPS=clone(V.access.groups||GROUPS)}DIR=clone(dir);WORK=clone(dir);window.TL_ACCESS.groups=clone(GROUPS);window.TL_LOG_URL=V.logUrl;window.TL_UIALL=V.uiAll;window.TL_LOG&&window.TL_LOG('users_published',n+' تعديل');syncRecipients();pwDone();state.groupsChanged=false;render();say('اتنشر واتأكدنا إنه اتحفظ ('+n+' تعديل)'+(conflicts.length?'. خلي بالك: '+conflicts.join('، ')+' كان اتعدّل من أدمن تاني قبلك، واتطبق تعديلك انت':'')+'. التعديلات بتوصل على طول؛ اللي فاتح الملف دلوقتي هيتطلب منه يسجل دخول تاني خلال دقيقتين.',true)})
     .catch(function(e){say('تعذر النشر: '+e.message+'. اتأكد من مفتاح GitHub وصلاحياته.')})
     .then(function(){btn.disabled=false;PUBBING=false});
   }
@@ -5411,7 +5431,7 @@ var box=el('div','tlst-grid');c.appendChild(box);
     return gh('GET',null,tok).then(function(j){sha=j.sha;return ghRaw(tok,j.sha)})
      .then(function(V){return mutate(V)}).then(function(V){V.built=new Date().toISOString();return gh('PUT',{message:'Update data from TAX Lens ('+window.TL_USER+')',content:b64(enc(JSON.stringify(V))),sha:sha},tok)})
      .catch(function(e){throw new Error(/Bad credentials|401/.test(e.message)?'مفتاح GitHub غير صالح':e.message)})};
-  function open(){var h=$('#tl-home');if(h)h.hidden=true;sec.hidden=false;var lc=R('logcard'),uc=R('users').closest('.card');if(lc&&uc&&lc.nextSibling!==uc)uc.parentNode.insertBefore(lc,uc);window.TLA_LOADLOG&&window.TLA_LOADLOG();window.TLA_NT&&window.TLA_NT();window.TLA_PW&&window.TLA_PW();var nc=R('ntcard'),lc2=R('logcard');if(nc&&lc2&&nc.nextSibling!==lc2)lc2.parentNode.insertBefore(nc,lc2);window.scrollTo&&window.scrollTo(0,0)}
+  function open(){var h=$('#tl-home');if(h)h.hidden=true;sec.hidden=false;refreshDir();var lc=R('logcard'),uc=R('users').closest('.card');if(lc&&uc&&lc.nextSibling!==uc)uc.parentNode.insertBefore(lc,uc);window.TLA_LOADLOG&&window.TLA_LOADLOG();window.TLA_NT&&window.TLA_NT();window.TLA_PW&&window.TLA_PW();var nc=R('ntcard'),lc2=R('logcard');if(nc&&lc2&&nc.nextSibling!==lc2)lc2.parentNode.insertBefore(nc,lc2);window.scrollTo&&window.scrollTo(0,0)}
   window.addEventListener('tl-unlocked',function(){
     if(!window.TL_ADMINKEY||!window.TL_VAULT_ADMIN&&!(window.TL_ADMIN_BOX))return;
   });
@@ -5419,7 +5439,7 @@ var box=el('div','tlst-grid');c.appendChild(box);
   window.addEventListener('tl-unlocked',function(){
     if(!window.TL_ADMINKEY||!window.TL_ADMIN_BOX)return;
     S.importKey('raw',ub(window.TL_ADMINKEY),'AES-GCM',false,['decrypt']).then(function(k){return S.decrypt({name:'AES-GCM',iv:ub(window.TL_ADMIN_BOX.iv)},k,ub(window.TL_ADMIN_BOX.ct))})
-     .then(function(b){DIR=JSON.parse(new TextDecoder().decode(b));Object.keys(DIR).forEach(function(u){var r=DIR[u];if(!r.platforms)r.platforms=[];if(r.admin==null)r.admin=false;if(r.pw==null)r.pw=''});GROUPS=clone(window.TL_ACCESS.groups||{});Object.keys(DIR).forEach(function(u){var g=GROUPS[DIR[u].group];if(g&&(g.platforms||[]).indexOf('*')>=0&&!DIR[u].disabled){var all=PLATS.map(function(P){return P.id});if(all.some(function(p){return DIR[u].platforms.indexOf(p)<0})){DIR[u]=Object.assign({},DIR[u]);DIR[u].__wantAll=1}}});WORK=clone(DIR);Object.keys(WORK).forEach(function(u){if(WORK[u].__wantAll){WORK[u].platforms=PLATS.map(function(P){return P.id});delete WORK[u].__wantAll;delete DIR[u].__wantAll}});render();
+     .then(function(b){DIR=JSON.parse(new TextDecoder().decode(b));Object.keys(DIR).forEach(function(u){var r=DIR[u];if(!r.platforms)r.platforms=[];if(r.admin==null)r.admin=false;if(r.pw==null)r.pw=''});GROUPS=clone(window.TL_ACCESS.groups||{});WORK=clone(DIR);render();loadAllKeys();
        var host=$('#tl-hello');if(host&&!$('#tl-radm')){var p=el('p');var bt=el('button','tl-adm','⚙ إدارة المستخدمين');bt.id='tl-radm';bt.type='button';bt.addEventListener('click',open);p.appendChild(bt);host.parentNode.insertBefore(p,host.nextSibling)}})
      .catch(function(e){console.error(e)});
   });
