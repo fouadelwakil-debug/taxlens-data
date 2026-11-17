@@ -8044,7 +8044,7 @@ function miles(){if(ss('tlp_mile_chk'))return;var L=rowsOf('reta_snapshots');if(
  var b=el('div','tlp-mile');b.setAttribute('role','status');b.innerHTML='<span class="st">✦</span><span>الضرائب العقارية عدّت <b></b></span>';b.querySelector('b').textContent=m[1];b.onclick=function(){b.remove()};document.body.appendChild(b);setTimeout(function(){b.style.transition='opacity .5s';b.style.opacity=0;setTimeout(function(){b.remove()},520)},6500)}
 
 /* ---------- 7) ترحيب بعد الدخول ---------- */
-function hour(){var h=new Date().getHours();return h<12?'صباح الخير':h<17?'نهارك سعيد':'مساء الخير'}
+function hour(){return 'أهلاً'}
 var welDone=0,welEl=null;
 function welcome(brief){if(welDone)return;if(!brief&&ss('tlp_wel'))return;if(brief){welDone=1;if(welEl){welEl.remove();welEl=null}}else if(welEl)return;ss('tlp_wel','1');var I=window.TLX_INFO&&TLX_INFO();if(!I)return;var ks=[];
  if(I.reta&&I.reta.k){ks.push([I.reta.k[2]&&I.reta.k[2][1],'المحصّل في العقارية (جنيه)']);ks.push([I.reta.k[1]&&I.reta.k[1][1],'إقرار عقاري'])}
@@ -8565,7 +8565,7 @@ function on(){return H.classList.contains('tlc')}
 function spark(a,c){if(!a||a.length<3)return'';a=a.filter(function(v){return v!=null&&isFinite(v)});if(a.length<3)return'';var W=300,h=44,mx=Math.max.apply(0,a),mn=Math.min.apply(0,a),r=mx-mn||1;
  var pts=a.map(function(v,i){return[W-i*(W/(a.length-1)),h-4-(v-mn)/r*(h-10)]}),d=pts.map(function(p,i){return(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' '),l=pts[pts.length-1];
  return '<svg class="sp" viewBox="0 0 '+W+' '+h+'" preserveAspectRatio="none"><path d="'+d+' L'+l[0]+' '+h+' L'+W+' '+h+'Z" fill="'+c+'" opacity=".06"/><path d="'+d+'" fill="none" stroke="#A3ABB8" stroke-width="1.5" vector-effect="non-scaling-stroke"/><path d="'+pts.slice(-2).map(function(p,i){return(i?'L':'M')+p[0]+' '+p[1]}).join(' ')+'" fill="none" stroke="'+c+'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>'}
-function hello(){var h=new Date().getHours();return h<12?'صباح الخير':'مساء الخير'}
+function hello(){return 'أهلاً'}
 function fname(){var u=(window.TL_ACCESS&&TL_ACCESS.users&&TL_ACCESS.users[window.TL_USER])||{};return String(u.name||window.TL_USER||'').split(' ')[0]}
 var AR_D=['الأحد','الاتنين','التلات','الأربع','الخميس','الجمعة','السبت'],AR_M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 function today(){var d=new Date();return AR_D[d.getDay()]+' '+d.getDate()+' '+AR_M[d.getMonth()]+' '+d.getFullYear()}
@@ -8943,7 +8943,7 @@ function FA(t){return String(t);return String(t).replace(/اللي فات/g,'ا�
 /* ١. ملخص الصباح — مرة واحدة في اليوم عند أول دخول */
 function morning(n){n=n||0;var k='tlx2_brief_'+window.TL_USER,today=new Date().toISOString().slice(0,10),sh=function(){window.__tlxMD=1;if(window.TL_WELCOME_SHORT)try{TL_WELCOME_SHORT()}catch(e){}};if(ls(k)===today||ls(k)==='9999'||!window.TLX_INFO)return sh();var I=window.TLX_INFO();if(!I.reta&&!I.tsrf)return sh();
   var p=document.querySelector('#tlv2-lead p');var txt=p?p.textContent:'';if(!txt){if(n<8)return setTimeout(function(){morning(n+1)},400);return sh()}ls(k,today);
-  var al=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[]);var h=new Date().getHours(),g=h<12?'صباح الخير':'مساء الخير';
+  var al=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[]);var g='أهلاً';
   window.__tlxMD=1;if(window.TL_WELCOME_BRIEF){try{TL_WELCOME_BRIEF({txt:txt,al:al.map(FA),stop:function(){ls(k,'9999')}});return}catch(e){}}
   modal('ملخص اليوم',' <b>'+g+'</b>، دي أهم الأخبار:<br>'+txt+al.map(function(a){return'<div class="al">'+FA(a)+'</div>'}).join(''),[['تمام',function(m){m.remove()}],['وقّف الملخص اليومي',function(m){ls(k,'9999');m.remove()},1]])}
 /* ٢. لوحتي — تثبيت أسئلة «اسأل عن بياناتك» وإعادة حسابها تلقائياً */
