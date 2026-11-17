@@ -7950,6 +7950,8 @@ var CSS=[
 /* سحب للتحديث */
 '#tlp-ptr{position:fixed;top:0;left:50%;z-index:99992;width:44px;height:44px;margin-left:-22px;border-radius:50%;background:#fff;box-shadow:var(--tlp-sh2);display:grid;place-items:center;transform:translateY(-60px);pointer-events:none}',
 '#tlp-ptr svg{width:24px;height:24px}#tlp-ptr.go svg{animation:tlpSpin .8s linear infinite}@keyframes tlpSpin{to{transform:rotate(360deg)}}',
+/* شريطين تمرير واضحين: شريط الصفحة جنب المحتوى، وشريط القايمة في أقصى اليمين */
+'@media screen and (min-width:1000px){html:has(body.v2-has-side){overflow:hidden!important;height:100%!important}body.v2-has-side{height:100vh!important;overflow-y:auto!important;overflow-x:hidden!important;box-sizing:border-box;margin-right:var(--tlp-sw,248px)!important;padding-right:0!important;direction:ltr;scrollbar-gutter:stable}body.v2-has-side>*{direction:rtl}body.v2-has-side .v2-side{direction:ltr}body.v2-has-side .v2-side>*{direction:rtl}}',
 /* ربط الخريطة */
 'path.tlp-ghl{stroke:#D6202E!important;stroke-width:2.6!important;paint-order:stroke;filter:drop-shadow(0 0 6px rgba(214,32,46,.45))}tr.tlp-hl>td{background:rgba(47,111,228,.10)!important;transition:background .2s}',
 /* أيقونات موحّدة */
@@ -7964,6 +7966,13 @@ var CSS=[
 '@media (prefers-reduced-motion:reduce){.tlp-ind,#tlp-bub,.tlp-spot{transition:none}.tlp-t,.tlp-mile,#tl-login .tl-lbox,#tl-login .tl-hero,.tlp-wel *{animation:none!important;opacity:1!important;transform:none!important}}'
 ].join('\n');
 function css(){if(document.getElementById('tlp-css'))return;var s=el('style');s.id='tlp-css';s.textContent=CSS;document.head.appendChild(s)}
+
+/* ---------- لما المحتوى بيتمرر جوه body بدل الصفحة: نخلي window.scrollY وscrollTo شغالين زي الأول ---------- */
+(function(){var B=function(){var b=document.body;return b&&b.classList.contains('v2-has-side')&&getComputedStyle(b).overflowY==='auto'?b:null};
+ function sy(){var b=B();return b?b.scrollTop:(document.scrollingElement||H).scrollTop}
+ try{Object.defineProperty(window,'scrollY',{configurable:true,get:sy});Object.defineProperty(window,'pageYOffset',{configurable:true,get:sy})}catch(e){}
+ ['scrollTo','scroll','scrollBy'].forEach(function(fn){var o=window[fn].bind(window);window[fn]=function(a,y){var b=B();if(!b)return o.apply(null,arguments);var opt=typeof a==='object'&&a?a:{left:a,top:y};if(fn==='scrollBy')b.scrollBy(opt);else b.scrollTo(opt)}});
+ var lk=0;document.addEventListener('scroll',function(e){if(e.target===document.body&&B()&&!lk){lk=1;try{window.dispatchEvent(new Event('scroll'))}finally{lk=0}}},true)})();
 
 /* ---------- رسوم Chart.js: خط موحّد وتلميحات غنية ---------- */
 function charts(){var C=window.Chart;if(!C||C.__tlp)return;C.__tlp=1;try{var d=C.defaults;d.font=d.font||{};d.font.family='Cairo,Tahoma,sans-serif';
@@ -8162,13 +8171,14 @@ function themeColor(){var m=document.querySelector('meta[name=theme-color]');if(
 
 /* ---------- الدورة ---------- */
 function admTabs(){var t=document.querySelector('#tl-radmin .tla-tabs');if(!t||!vis(t))return;var hd=[].slice.call(document.querySelectorAll('#v2-top,.v2-top,.mg-top')).filter(function(e){var cs=getComputedStyle(e);return vis(e)&&(cs.position==='fixed'||cs.position==='sticky')}),top=0;hd.forEach(function(e){top=Math.max(top,e.getBoundingClientRect().bottom)});var v=Math.round(top)+'px';if(t.style.getPropertyValue('--tla-top')!==v)t.style.setProperty('--tla-top',v);var st=Math.abs(t.getBoundingClientRect().top-top)<2;if(t.classList.contains('stuck')!==st)t.classList.toggle('stuck',st)}
+function sideW(){var b=document.body,sd=b&&b.classList.contains('v2-has-side')&&document.querySelector('.v2-side:not([hidden])');if(!sd)return;var w=Math.round(sd.getBoundingClientRect().width)+'px';if(H.style.getPropertyValue('--tlp-sw')!==w)H.style.setProperty('--tlp-sw',w)}
 function setTitle(){var p=window.TL_USER?curPlat():null,t=p?PN[p]+' · منصة متابعة تشغيل المنظومات الضريبية':'منصة متابعة تشغيل المنظومات الضريبية';if(document.title!==t)document.title=t}
-var tk=0;function tick(){if(!document.body)return;css();charts();themeColor();setTitle();
+var tk=0;function tick(){if(!document.body)return;css();charts();themeColor();setTitle();sideW();
  if(!window.TL_USER){loginSky();return}
  sideInd();barBub();crumb();admTabs();if(tk%2===0)icons();if(++tk%3===0){chartFs();empties();a11y();printFrame();homeSparks()}}
 if(document.readyState!=='loading')tick();else document.addEventListener('DOMContentLoaded',tick);
 setInterval(function(){try{if(!document.hidden)tick()}catch(e){}},500);
-var bq=0;addEventListener('scroll',function(){if(bq)return;bq=requestAnimationFrame(function(){bq=0;try{barBub();admTabs()}catch(e){}})},{passive:true,capture:true});document.addEventListener('click',function(){setTimeout(function(){try{barBub();sideInd()}catch(e){}},30)},true);
+var bq=0;addEventListener('scroll',function(){if(bq)return;bq=requestAnimationFrame(function(){bq=0;try{barBub();admTabs()}catch(e){}})},{passive:true,capture:true});document.addEventListener('click',function(){setTimeout(function(){try{barBub();sideInd();sideW()}catch(e){}},30);setTimeout(function(){try{sideW()}catch(e){}},400)},true);
 window.addEventListener('resize',function(){[].forEach.call(document.querySelectorAll('.tlp-ind,#tlp-bub'),function(x){x.$y=x.$k=null})});
 window.addEventListener('tl-unlocked',function(){welDone=0;setTimeout(function(){try{welcome()}catch(e){}},12000);setTimeout(function(){try{miles()}catch(e){}},5200)});
 window.TL_PREMIUM={palette:palette,keys:keys,toast:toast};
