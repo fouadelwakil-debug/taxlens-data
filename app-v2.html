@@ -7819,7 +7819,8 @@ var CSS=`
 .tl-uchip .tx{display:flex;flex-direction:column;min-width:0;line-height:1.25}
 .tl-uchip small{font-size:12.5px;color:#6B7280;font-weight:600}
 .tl-uchip b{font-size:clamp(19px,1.7vw,24px);font-weight:800;color:#14306A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl-uchip .av.seal{background:#fff;padding:3px;box-shadow:0 4px 12px rgba(20,48,106,.18)}.tl-uchip .av.seal img{width:100%;height:100%;object-fit:contain;display:block}
+.tl-uchip .av.seal{background:#fff;padding:5px;box-sizing:border-box;border:1px solid #E3E8F2;border-radius:14px;box-shadow:0 4px 14px rgba(20,48,106,.16)}
+#v2-user .v2-av.seal{background:#fff!important;color:transparent;padding:3px;box-sizing:border-box;border:1px solid #E3E8F2;border-radius:10px!important;box-shadow:0 3px 10px rgba(0,0,0,.18);overflow:hidden}#v2-user .v2-av.seal img{width:100%;height:100%;object-fit:contain;display:block}.tl-uchip .av.seal img{width:100%;height:100%;object-fit:contain;display:block}
 .tl-uchip b.long{white-space:normal;font-size:clamp(16px,1.35vw,20px);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-width:min(320px,62vw)}
 .tl-uchip span{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#374151;font-weight:600;margin-top:2px}
 .tl-uchip span::before{content:"";width:7px;height:7px;border-radius:50%;background:#D6202E}
@@ -8342,7 +8343,7 @@ window.TL_MOF_BRAND=function(on){try{localStorage.setItem('tl_mof_brand',on?'1':
   var M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];function fd(s){var d=new Date(String(s).slice(0,10)+'T12:00:00');return d.getDate()+' '+M[d.getMonth()]}
   function sync(){if(!document.getElementById('v2-swl'))return;var p=cur();[].forEach.call(document.querySelectorAll('body > div'),function(d){if(d.textContent==='الواجهة الجديدة · تجريبية')d.remove()});var swl=document.getElementById('v2-swl'),swt=p?NAME[p]:'الرئيسية';if(swl.textContent!==swt)swl.textContent=swt;applyAcc();drawSide();asOf();
     var bb=document.querySelector('.tl-bar .tl-bell')||document.querySelector('#tl-acts .tl-bell'),h=document.getElementById('v2-bell');if(bb&&bb.parentNode!==h){h.replaceChildren(bb)}
-    var av=document.querySelector('#v2-user .v2-av'),u=window.TL_USER||'',nm=(((window.TL_ACCESS||{}).users||{})[u]||{}).name||u;if(av){var PP=window.TL_PERSON?TL_PERSON(nm):{initial:(nm||'؟').trim().charAt(0)};if(PP.seal){if(av.dataset.seal!==PP.seal){av.dataset.seal=PP.seal;av.innerHTML='<img alt="" src="'+PP.seal+'" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff">';av.title=nm}}else if(av.textContent!==PP.initial){delete av.dataset.seal;av.textContent=PP.initial}}}
+    var av=document.querySelector('#v2-user .v2-av'),u=window.TL_USER||'',nm=(((window.TL_ACCESS||{}).users||{})[u]||{}).name||u;if(av){var PP=window.TL_PERSON?TL_PERSON(nm):{initial:(nm||'؟').trim().charAt(0)};if(PP.seal){if(av.dataset.seal!==PP.seal){av.dataset.seal=PP.seal;av.innerHTML='<img alt="" src="'+PP.seal+'">';av.classList.add('seal');av.title=nm}}else if(av.textContent!==PP.initial){delete av.dataset.seal;av.classList.remove('seal');av.textContent=PP.initial}}}
   // formal Arabic for shell messages (platform texts follow in the next phases)
   var FORMAL=[];
   function formal(root){var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),n;while((n=w.nextNode())){var t=n.nodeValue.trim();if(!t)continue;for(var i=0;i<FORMAL.length;i++){if(t===FORMAL[i][0]){n.nodeValue=n.nodeValue.replace(FORMAL[i][0],FORMAL[i][1]);break}}}}
