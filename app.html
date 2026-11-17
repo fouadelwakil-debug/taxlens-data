@@ -8151,13 +8151,14 @@ function printFrame(){var p=curPlat();if(!p)return;var pane=document.getElementB
 function themeColor(){var m=document.querySelector('meta[name=theme-color]');if(!m){m=el('meta');m.name='theme-color';document.head.appendChild(m)}var c=H.getAttribute('data-theme')==='dark'?'#0B1530':'#14306A';if(m.content!==c)m.content=c}
 
 /* ---------- الدورة ---------- */
+function admTabs(){var t=document.querySelector('#tl-radmin .tla-tabs');if(!t||!vis(t))return;var hd=[].slice.call(document.querySelectorAll('#v2-top,.v2-top,.mg-top')).filter(function(e){var cs=getComputedStyle(e);return vis(e)&&(cs.position==='fixed'||cs.position==='sticky')}),top=0;hd.forEach(function(e){top=Math.max(top,e.getBoundingClientRect().bottom)});var v=Math.round(top)+'px';if(t.style.getPropertyValue('--tla-top')!==v)t.style.setProperty('--tla-top',v);var st=Math.abs(t.getBoundingClientRect().top-top)<2;if(t.classList.contains('stuck')!==st)t.classList.toggle('stuck',st)}
 function setTitle(){var p=window.TL_USER?curPlat():null,t=p?PN[p]+' · منصة متابعة تشغيل المنظومات الضريبية':'منصة متابعة تشغيل المنظومات الضريبية';if(document.title!==t)document.title=t}
 var tk=0;function tick(){if(!document.body)return;css();charts();themeColor();setTitle();
  if(!window.TL_USER){loginSky();return}
- sideInd();barBub();crumb();if(tk%2===0)icons();if(++tk%3===0){chartFs();empties();a11y();printFrame();homeSparks()}}
+ sideInd();barBub();crumb();admTabs();if(tk%2===0)icons();if(++tk%3===0){chartFs();empties();a11y();printFrame();homeSparks()}}
 if(document.readyState!=='loading')tick();else document.addEventListener('DOMContentLoaded',tick);
 setInterval(function(){try{if(!document.hidden)tick()}catch(e){}},500);
-var bq=0;addEventListener('scroll',function(){if(bq)return;bq=requestAnimationFrame(function(){bq=0;try{barBub()}catch(e){}})},{passive:true});document.addEventListener('click',function(){setTimeout(function(){try{barBub();sideInd()}catch(e){}},30)},true);
+var bq=0;addEventListener('scroll',function(){if(bq)return;bq=requestAnimationFrame(function(){bq=0;try{barBub();admTabs()}catch(e){}})},{passive:true,capture:true});document.addEventListener('click',function(){setTimeout(function(){try{barBub();sideInd()}catch(e){}},30)},true);
 window.addEventListener('resize',function(){[].forEach.call(document.querySelectorAll('.tlp-ind,#tlp-bub'),function(x){x.$y=x.$k=null})});
 window.addEventListener('tl-unlocked',function(){welDone=0;setTimeout(function(){try{welcome()}catch(e){}},12000);setTimeout(function(){try{miles()}catch(e){}},5200)});
 window.TL_PREMIUM={palette:palette,keys:keys,toast:toast};
@@ -8614,7 +8615,7 @@ window.TL_CLEAN={on:on,refresh:tick};
 var TABS=[['users','المستخدمين',/^(المستخدمين|إضافة مستخدم|مصفوفة الصلاحيات)/],['groups','المجموعات',/^المجموعات/],['activity','النشاط',/نشاط|إحصاءات|الاستخدام/],['comms','الإشعارات والتقارير',/إشعار|التقرير المجدول|التقارير المجدولة/],['story','الحكاية',/الحكاية|المعاينة/],['settings','الإعدادات',/./]];
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}}
 var css=`
-#tl-radmin .tla-tabs{display:flex;gap:2px;border-bottom:1px solid #E5E7EB;margin:6px 0 22px;position:sticky;top:64px;background:inherit;z-index:5;overflow-x:auto}
+#tl-radmin .tla-tabs{display:flex;gap:2px;border-bottom:1px solid #E5E7EB;margin:6px -12px 22px;padding:8px 12px 0;position:sticky;top:var(--tla-top,64px);background:rgba(243,246,251,.94);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);z-index:20;overflow-x:auto;transition:box-shadow .2s}#tl-radmin .tla-tabs.stuck{box-shadow:0 8px 18px -10px rgba(16,32,72,.25)}
 #tl-radmin .tla-tabs button{background:none;border:0;padding:12px 16px;font:500 14.5px inherit;font-family:inherit;color:#6B7280;cursor:pointer;position:relative;white-space:nowrap;display:flex;align-items:center;gap:8px}
 #tl-radmin .tla-tabs button:hover{color:#111827}
 #tl-radmin .tla-tabs button.on{color:#111827;font-weight:600}#tl-radmin .tla-tabs button.on:after{content:"";position:absolute;inset:auto 12px -1px;height:2px;background:#111827;border-radius:2px}
