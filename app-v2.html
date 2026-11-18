@@ -9013,7 +9013,41 @@ function closeK(){if(K)K.hidden=true}
 addEventListener('keydown',function(e){if(!pro())return;if((e.ctrlKey||e.metaKey)&&(e.key==='k'||e.key==='K'||e.code==='KeyK')){e.preventDefault();e.stopImmediatePropagation();if(K&&!K.hidden)closeK();else openK()}},true);
 window.TL_PRO_K=openK;
 
-function tick(){if(!pro()||!document.body||!document.body.classList.contains('v2'))return;try{wireSide();pinBtn();hideToolsGroup();topBtns();var cp=cur();if(cp)toolbar(cp);track();nav();crumbSec();dots()}catch(e){}}
+/* ===== المرحلة 4: قراءة الأرقام ===== */
+var css4=[
+/* السهم والنسبة في كبسولة + كلمة بتفسّر */
+P+'body.v2 .pro-delta{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-family:var(--pro-n)!important;font-weight:700;font-size:.92em;white-space:nowrap;background:#F1F4F8;color:#475467}',
+P+'body.v2 .pro-delta.dn{background:#FDECEC;color:var(--pro-red)!important}'+P+'body.v2 .pro-delta.up{background:#E7F5EF;color:var(--pro-green)!important}',
+P+'body.v2 .pro-delta[data-w]:after{content:attr(data-w);font:600 .82em var(--pro-f);opacity:.85;margin-inline-start:2px}',
+/* الأرقام المختصرة */
+P+'body.v2 .pro-abbr{cursor:help;text-decoration:underline dotted rgba(15,26,51,.25);text-underline-offset:6px;text-decoration-thickness:1px}',
+/* الرقم البطل: أول رقم في كل لوحة أرقام أكبر */
+P+'body.v2 :is(.sp-ks,.ex-kpis,.grid.xk)>:first-child :is(.big,b.n,.v,.sp-k-v){font-size:1.18em}',
+P+'body.v2 :is(.sp-hero,.ex-hero) :is(.big,b){letter-spacing:-.02em}',
+/* «آخر تحديث» + مؤشر البيانات الحية */
+P+'#v2-asof .pro-age{opacity:.8;font-weight:500}'+P+'#v2-asof i{transition:background .3s}',
+P+'#v2-asof.fresh i{background:#22C55E!important;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:proPulse 2s infinite}',
+P+'#v2-asof.aging i{background:#F59E0B!important}'+P+'#v2-asof.stale i{background:#EF4444!important}'+P+'#v2-asof.stale{background:rgba(239,68,68,.18)!important}',
+'@keyframes proPulse{70%{box-shadow:0 0 0 7px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}',
+/* تعريف المؤشر: أيقونة i أوضح */
+P+'body.v2 .tlx-i{background:#EEF2F7!important;color:#475467!important;border:0!important}'
+].join('\n');
+var st4=document.createElement('style');st4.textContent=css4;(document.head||H).appendChild(st4);
+var BIDI=/[⁦-⁩‎‏]/g;
+function deltas(root){root.querySelectorAll('span,b,small,em,strong').forEach(function(e){if(e.children.length||e.classList.contains('pro-delta')||e.closest('.pro-nav,table,svg,#pro-k'))return;var t=e.textContent.replace(BIDI,'').trim(),m=/^([▲▼↑↓])\s*([+\-−]?)([\d.,]+)\s*%$/.exec(t);if(!m)return;
+ var v=parseFloat(m[3].replace(/,/g,'')),dn=m[1]==='▼'||m[1]==='↓';e.classList.add('pro-delta');var cls=e.classList.contains('down')||e.classList.contains('neg')||e.classList.contains('bad')?'dn':e.classList.contains('up')||e.classList.contains('pos')||e.classList.contains('good')?'up':(dn?'dn':'up');e.classList.add(cls);
+ e.setAttribute('data-w',v<3?'مستقر':v>=15?(dn?'انخفاض ملحوظ':'ارتفاع ملحوظ'):(dn?'انخفاض':'ارتفاع'))})}
+function fmt(n){return n>=1e9?(n/1e9).toFixed(n>=1e10?1:2).replace(/\.?0+$/,'')+' مليار':(n/1e6).toFixed(n>=1e7?1:2).replace(/\.?0+$/,'')+' مليون'}
+function abbr(root){root.querySelectorAll('.big,.sp-k b,.kpi b,.k b,.tile b,.v').forEach(function(e){if(e.children.length&&!e.classList.contains('pro-abbr'))return;var t=e.textContent.replace(BIDI,'').trim();if(e.classList.contains('pro-abbr')&&e.dataset.ab===t)return;if(!/^[\d,]{9,}$/.test(t))return;var n=+t.replace(/,/g,'');if(!(n>=1e6))return;
+ var s=fmt(n);e.dataset.full=t;e.dataset.ab=s;e.title=t;e.classList.add('pro-abbr');e.textContent='⁧'+s+'⁩'})}
+var MO2=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+function fresh(){var c=document.getElementById('v2-asof');if(!c)return;var s=c.querySelector('span');if(!s)return;var t=s.textContent,m=/(\d{1,2})\s+(\S+)/.exec(t);if(!m)return;var mi=MO2.indexOf(m[2]);if(mi<0)return;
+ var now=new Date(),d=new Date(now.getFullYear(),mi,+m[1]);if(d>now)d.setFullYear(d.getFullYear()-1);var days=Math.floor((now-d)/864e5),txt=days<=0?'اليوم':days===1?'منذ يوم':days===2?'منذ يومين':days<=10?'منذ '+days+' أيام':'منذ '+days+' يوم';
+ var a=c.querySelector('.pro-age');if(!a){a=document.createElement('span');a.className='pro-age';c.appendChild(a)}if(a.textContent!==' · '+txt)a.textContent=' · '+txt;
+ c.classList.toggle('fresh',days<=3);c.classList.toggle('aging',days>3&&days<=7);c.classList.toggle('stale',days>7);c.title=days>7?'البيانات قديمة: آخر تحديث '+txt:'آخر تحديث للبيانات '+txt}
+function p4(){var p=cur();if(!p)return;var pane=document.getElementById('plat-'+p);deltas(pane);abbr(pane);fresh()}
+
+function tick(){if(!pro()||!document.body||!document.body.classList.contains('v2'))return;try{wireSide();pinBtn();hideToolsGroup();topBtns();var cp=cur();if(cp)toolbar(cp);track();nav();crumbSec();dots();p4()}catch(e){}}
 setInterval(tick,400);
 })();
 </script>
