@@ -8774,8 +8774,8 @@ P+'body.v2 :is(p,li,td){line-height:1.7}',
 P+'body.v2 :is(.big,.v,.num,.kpi b,.k b,.tile b,.sp-k b,.sp-k .n,.tg-kv3 b,.tg-kv b,td.tlp-n,th.tlp-n,.tlp-fit){font-family:var(--pro-n)!important;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.015em}',
 P+'body.v2 :is(.big,.sp-k b){font-weight:700!important}',
 /* الكروت: أبيض، حدود رفيعة، ظل ناعم، زوايا موحدة */
-P+'body.v2 :is(.sp-k,.sp-card,.ex-card,.card,.im-wa,.tile,.tl-card){background:var(--pro-card)!important;border:1px solid var(--pro-line)!important;border-radius:var(--pro-r)!important;box-shadow:var(--pro-sh)!important}',
-P+'body.v2 .ex-card.ex-counter{background:transparent!important;border:0!important;box-shadow:none!important}',
+P+'body.v2 :is(.sp-k,.sp-card,.ex-card:not(.ex-counter),.card,.im-wa,.tile,.tl-card){background:var(--pro-card)!important;border:1px solid var(--pro-line)!important;border-radius:var(--pro-r)!important;box-shadow:var(--pro-sh)!important}',
+P+'body.v2 .ex-card.ex-counter{background:linear-gradient(135deg,#14306A 0%,#1B3C80 60%,#20458F 100%)!important;border:0!important;border-radius:20px!important;box-shadow:0 18px 40px -24px rgba(20,48,106,.55)!important}',
 P+'body.v2 :is(.sp-say,.ex-take,.ex-stale){background:#F8FAFC!important;border:1px solid var(--pro-line)!important;border-radius:14px!important;box-shadow:none!important}',
 /* ألوان ليها معنى بس: الشريط الملون يفضل للأحمر (مشكلة) والأخضر (تحسن) */
 P+'body.v2 .sp-k{border-inline-start-width:1px!important}',
@@ -8785,7 +8785,7 @@ P+'body.v2 :is(.down,.neg,.bad){color:var(--pro-red)!important}',
 P+'body.v2 :is(.up,.pos,.good){color:var(--pro-green)!important}',
 /* مسافات أكبر */
 P+'body.v2 :is(.sp-kpis,.ex-kpis,.sp-grid,.kpis,.grid){gap:16px!important}',
-P+'body.v2 :is(.sp-card,.ex-card,.card){padding:20px 22px!important}',
+P+'body.v2 :is(.sp-card,.ex-card:not(.ex-counter),.card){padding:20px 22px!important}',
 /* البطل الكحلي يبقى أهدى وأفخم */
 P+'body.v2 :is(.sp-hero,.ex-hero){background:linear-gradient(135deg,#14306A 0%,#1B3C80 60%,#20458F 100%)!important;border-radius:20px!important;box-shadow:0 18px 40px -24px rgba(20,48,106,.55)!important}',
 /* الجداول */
@@ -9047,7 +9047,47 @@ function fresh(){var c=document.getElementById('v2-asof');if(!c)return;var s=c.q
  c.classList.toggle('fresh',days<=3);c.classList.toggle('aging',days>3&&days<=7);c.classList.toggle('stale',days>7);c.title=days>7?'البيانات قديمة: آخر تحديث '+txt:'آخر تحديث للبيانات '+txt}
 function p4(){var p=cur();if(!p)return;var pane=document.getElementById('plat-'+p);deltas(pane);abbr(pane);fresh()}
 
-function tick(){if(!pro()||!document.body||!document.body.classList.contains('v2'))return;try{wireSide();pinBtn();hideToolsGroup();topBtns();var cp=cur();if(cp)toolbar(cp);track();nav();crumbSec();dots();p4()}catch(e){}}
+/* ===== 4ب: الخلاصة فوق ===== */
+var css5=[P+'body.v2 .sp-say.pro-up{margin:0 0 18px!important;background:#fff!important;border:1px solid var(--pro-line)!important;border-inline-start:4px solid var(--pro-navy)!important;font-size:15.5px;line-height:1.85}',
+P+'body.v2 .sp-say.pro-up b:first-child{color:var(--pro-navy)}'].join('\n');
+var st5=document.createElement('style');st5.textContent=css5;(document.head||H).appendChild(st5);
+function sayUp(){document.querySelectorAll('#plat-simp .spane>.sp-say:not(.pro-up)').forEach(function(e){var ph=e.parentElement.querySelector(':scope>.sp-ph');e.classList.add('pro-up');if(ph)ph.after(e);else e.parentElement.prepend(e)})}
+
+/* ===== المرحلة 5: التفاعل مع الرسوم ===== */
+var fxOn=false,syncing=false;
+function fx(){if(fxOn)return;var C=window.Chart;if(!C||!C.register){setTimeout(fx,700);return}fxOn=true;
+ function num(v){return typeof v==='number'?v:v&&typeof v==='object'?(typeof v.y==='number'?v.y:NaN):parseFloat(v)}
+ /* Tooltip غني: التغيير عن النقطة اللي قبلها */
+ var tt=C.defaults.plugins.tooltip,old=(tt.callbacks&&tt.callbacks.footer)||null;
+ tt.callbacks=tt.callbacks||{};tt.callbacks.footer=function(items){var r=old?old.apply(this,arguments):'';if(r&&String(r).trim())return r;if(!pro()||!items||!items.length)return'';var it=items[0],ds=it.dataset,i=it.dataIndex;if(!ds||!ds.data||i<1)return'';
+  var a=num(ds.data[i]),b=num(ds.data[i-1]);if(!isFinite(a)||!isFinite(b)||b===0)return'';var d=(a-b)/Math.abs(b)*100;if(!isFinite(d))return'';return(d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+'% عن اللي قبله'};
+ tt.footerFont={weight:'600'};tt.footerColor='#C7D2E3';
+ C.register({id:'proFx',
+  /* ربط التوقيت بين الرسوم: نفس العنوان بيتعلّم في كل رسوم الصفحة */
+  afterEvent:function(ch,args){if(!pro()||syncing)return;var e=args.event;if(!e||(e.type!=='mousemove'&&e.type!=='mouseout'))return;var labs=ch.data&&ch.data.labels;if(!labs||labs.length<4)return;
+   var act=ch.getActiveElements(),lab=e.type==='mousemove'&&act.length?String(labs[act[0].index]):null;if(ch.$proLab===lab)return;ch.$proLab=lab;
+   syncing=true;try{Object.values(C.instances||{}).forEach(function(o){if(o===ch||!o.canvas||!o.canvas.isConnected||!o.canvas.offsetParent)return;var L=o.data&&o.data.labels;if(!L||L.length<4)return;
+    if(lab===null){if(o.$proSync){o.$proSync=false;o.setActiveElements([]);o.tooltip&&o.tooltip.setActiveElements([],{x:0,y:0});o.update('none')}return}
+    var j=L.map(String).indexOf(lab);if(j<0)return;var els=[];o.data.datasets.forEach(function(d,di){var m=o.getDatasetMeta(di);if(!m.hidden&&m.data[j])els.push({datasetIndex:di,index:j})});if(!els.length)return;
+    o.$proSync=true;o.setActiveElements(els);if(o.tooltip){var pe=o.getDatasetMeta(els[0].datasetIndex).data[j];o.tooltip.setActiveElements(els,{x:pe.x,y:pe.y})}o.update('none')})}catch(err){}syncing=false},
+  /* اكتشاف الشذوذ: نقطة بعيدة جداً عن المعتاد في رسم خطي */
+  afterDatasetsDraw:function(ch){if(!pro())return;var cfg=ch.config;if((cfg.type||'')!=='line')return;var ctx=ch.ctx;
+   ch.data.datasets.forEach(function(ds,di){var m=ch.getDatasetMeta(di);if(m.hidden||m.type!=='line'||!ds.data||ds.data.length<8)return;var v=ds.data.map(num);if(v.some(function(x){return!isFinite(x)}))return;
+    var n=v.length,mean=v.reduce(function(a,b){return a+b},0)/n,sd=Math.sqrt(v.reduce(function(a,b){return a+(b-mean)*(b-mean)},0)/n);if(!sd)return;
+    v.forEach(function(x,i){var z=(x-mean)/sd;if(Math.abs(z)<2.2)return;var p=m.data[i];if(!p)return;ctx.save();ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.lineWidth=2;ctx.strokeStyle=z>0?'#12805C':'#C8202C';ctx.globalAlpha=.9;ctx.stroke();ctx.restore()})})}});
+}
+
+/* اختيار فترة بسحب الماوس على الرسم: بيكبّر الفترة دي، ودبل كليك يرجّع */
+function dragZoom(){var C=window.Chart;if(!C||!desk())return;Object.values(C.instances||{}).forEach(function(ch){var cv=ch.canvas;if(!cv||cv.$proDZ||(ch.config.type!=='line'&&ch.config.type!=='bar'))return;var L=ch.data&&ch.data.labels;if(!L||L.length<10)return;cv.$proDZ=1;
+ var x0=null,box=null;function idx(x){var s=ch.scales.x;if(!s)return-1;var v=s.getValueForPixel(x);return Math.max(0,Math.min(L.length-1,Math.round(v)))}
+ cv.addEventListener('mousedown',function(e){if(!pro()||e.button!==0)return;var r=cv.getBoundingClientRect();x0=e.clientX-r.left;box=document.createElement('div');box.style.cssText='position:absolute;top:0;bottom:0;background:rgba(31,76,154,.12);border:1px solid rgba(31,76,154,.35);pointer-events:none;border-radius:4px';var par=cv.parentElement;if(getComputedStyle(par).position==='static')par.style.position='relative';box.style.left=(x0+cv.offsetLeft)+'px';box.style.width='0';par.appendChild(box)});
+ addEventListener('mousemove',function(e){if(x0===null||!box)return;var r=cv.getBoundingClientRect(),x=Math.max(0,Math.min(r.width,e.clientX-r.left));box.style.left=(Math.min(x0,x)+cv.offsetLeft)+'px';box.style.width=Math.abs(x-x0)+'px'});
+ addEventListener('mouseup',function(e){if(x0===null)return;var r=cv.getBoundingClientRect(),x=e.clientX-r.left,a=idx(Math.min(x0,x)),b=idx(Math.max(x0,x));x0=null;if(box){box.remove();box=null}if(b-a<2)return;
+  var s=ch.options.scales&&ch.options.scales.x;if(!s)return;if(!ch.$proZ)ch.$proZ={min:s.min,max:s.max};s.min=a;s.max=b;ch.update();toast('اتعرضت الفترة دي بس. دبل كليك على الرسم يرجّع الكل')});
+ cv.addEventListener('dblclick',function(){if(!ch.$proZ)return;var s=ch.options.scales.x;s.min=ch.$proZ.min;s.max=ch.$proZ.max;ch.$proZ=null;ch.update()})})}
+var tst=null;function toast(t){if(!tst){tst=document.createElement('div');tst.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:400;background:#0F1A33;color:#fff;font:600 13.5px var(--pro-f);padding:10px 16px;border-radius:12px;box-shadow:0 12px 30px -10px rgba(0,0,0,.4);transition:opacity .25s;direction:rtl';document.body.appendChild(tst)}tst.textContent=t;tst.style.opacity=1;clearTimeout(tst.$t);tst.$t=setTimeout(function(){tst.style.opacity=0},2600)}
+
+function tick(){if(!pro()||!document.body||!document.body.classList.contains('v2'))return;try{wireSide();pinBtn();hideToolsGroup();topBtns();var cp=cur();if(cp)toolbar(cp);track();nav();crumbSec();dots();p4();sayUp();fx();dragZoom()}catch(e){}}
 setInterval(tick,400);
 })();
 </script>
