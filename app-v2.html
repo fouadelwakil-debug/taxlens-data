@@ -5310,7 +5310,7 @@ var box=el('div','tlst-grid');c.appendChild(box);
         var ul=el('label','chk');var ux=el('input');ux.type='checkbox';ux.dataset.e='upload';ux.checked=!!r.upload;ul.append(ux,document.createTextNode('رفع وتحديث البيانات (المنصات المتاحة له)'));pl.appendChild(ul);
         var dl=el('label','chk');var dx=el('input');dx.type='checkbox';dx.dataset.e='dis';dx.checked=!!r.disabled;dl.append(dx,document.createTextNode('موقوف'));pl.appendChild(dl);
         var iM=el('input','ltr');iM.dataset.e='phone';iM.value=r.phone||'';iM.placeholder='01xxxxxxxxx';iM.inputMode='tel';var iE=el('input','ltr');iE.dataset.e='email';iE.value=r.email||'';iE.placeholder='name@example.com';iE.type='email';
-        var sU=el('select');sU.dataset.e='ui';[['','التصميم الحالي'],['clean','التصميم الجديد · أبيض نضيف']].forEach(function(x){var op=new Option(x[1],x[0]);if((r.ui||'')===x[0])op.selected=true;sU.appendChild(op)});var SEC=function(t){var h=el('div','efsec',t);f.appendChild(h)};SEC('البيانات الأساسية');f.append(lab('اسم الدخول',iu),lab('الاسم',iN),lab('المجموعة',sG),lab('التصميم',sU));SEC('التواصل');f.append(lab('موبايل (واتساب)',iM),lab('الإيميل',iE));SEC('كلمة السر');f.append(lab('كلمة السر الحالية',pw0),lab('كلمة سر جديدة',pr));SEC('الصلاحيات');pl.className='efperm';f.appendChild(pl);var dt=el('details','efdet');var sm=el('summary',null,'الشاشات والإمكانيات جوه كل منصة (اختياري)');dt.appendChild(sm);dt.appendChild(scrBox(r));f.appendChild(dt);pl.querySelectorAll('[data-e="plat"]').forEach(function(x){x.addEventListener('change',function(){var g=f.querySelector('[data-plat="'+x.value+'"]');if(g)g.hidden=!x.checked})});
+        var sU=el('select');sU.dataset.e='ui';[['','التصميم الحالي'],['clean','التصميم الجديد · أبيض نضيف'],['pro','التصميم الاحترافي (2026)']].forEach(function(x){var op=new Option(x[1],x[0]);if((r.ui||'')===x[0])op.selected=true;sU.appendChild(op)});var SEC=function(t){var h=el('div','efsec',t);f.appendChild(h)};SEC('البيانات الأساسية');f.append(lab('اسم الدخول',iu),lab('الاسم',iN),lab('المجموعة',sG),lab('التصميم',sU));SEC('التواصل');f.append(lab('موبايل (واتساب)',iM),lab('الإيميل',iE));SEC('كلمة السر');f.append(lab('كلمة السر الحالية',pw0),lab('كلمة سر جديدة',pr));SEC('الصلاحيات');pl.className='efperm';f.appendChild(pl);var dt=el('details','efdet');var sm=el('summary',null,'الشاشات والإمكانيات جوه كل منصة (اختياري)');dt.appendChild(sm);dt.appendChild(scrBox(r));f.appendChild(dt);pl.querySelectorAll('[data-e="plat"]').forEach(function(x){x.addEventListener('change',function(){var g=f.querySelector('[data-plat="'+x.value+'"]');if(g)g.hidden=!x.checked})});
         var acts=el('div','acts');acts.style.marginTop='10px';var ap=el('button','btn p','تطبيق ونشر');ap.dataset.a='apply';var cn=el('button','btn','إلغاء');cn.dataset.a='cancel';acts.append(ap,cn);
         if(u!==window.TL_USER){var dd=el('button','btn d','حذف المستخدم');dd.dataset.a='del';acts.appendChild(dd)}
         c.append(f,acts);tr.appendChild(c);tb.appendChild(tr);
@@ -5321,7 +5321,7 @@ var box=el('div','tlst-grid');c.appendChild(box);
       t=td('المجموعة');t.textContent=GROUPS[r.group]?GROUPS[r.group].name:'—';tr.appendChild(t);
       t=td('المنصات');t.textContent=platLabel(r.platforms)+(r.admin?' · إدارة':'')+''+(r.scr||(r.nof&&r.nof.length)?' · شاشات محددة':'');tr.appendChild(t);t=td('التقارير');[['reports','عرض وتحميل التقارير'],['upload','رفع وتحديث البيانات']].forEach(function(k){var l=el('label','chk');l.style.whiteSpace='nowrap';var x=el('input');x.type='checkbox';x.checked=!!r[k[0]];x.disabled=EDIT!=null;x.addEventListener('change',function(){if(k[0]==='upload'&&x.checked&&!(r.platforms||[]).length){x.checked=false;alert('تحديث البيانات محتاج منصة واحدة على الأقل');return}r[k[0]]=x.checked;render()});l.append(x,document.createTextNode(' '+k[1]));t.appendChild(l);t.appendChild(el('br'))});tr.appendChild(t);
       t=td('كلمة السر الحالية');t.appendChild(el('span','pw',r.pw||'—'));tr.appendChild(t);
-      t=td('التصميم');t.appendChild(el('span','pill '+(r.ui==='clean'?'dsn':'dsn0'),r.ui==='clean'?'الجديد':'الحالي'));tr.appendChild(t);t=td('آخر ظهور');t.appendChild(seen(u));tr.appendChild(t);t=td('الحالة');var ch=changed(u);t.appendChild(el('span','pill '+(ch?'chg':r.disabled?'off':'on'),ch?'بانتظار النشر':r.disabled?'موقوف':'فعّال'));tr.appendChild(t);
+      t=td('التصميم');t.appendChild(el('span','pill '+(r.ui?'dsn':'dsn0'),r.ui==='clean'?'الجديد':r.ui==='pro'?'الاحترافي':'الحالي'));tr.appendChild(t);t=td('آخر ظهور');t.appendChild(seen(u));tr.appendChild(t);t=td('الحالة');var ch=changed(u);t.appendChild(el('span','pill '+(ch?'chg':r.disabled?'off':'on'),ch?'بانتظار النشر':r.disabled?'موقوف':'فعّال'));tr.appendChild(t);
       t=td('','full');var eb=el('button','btn','تعديل');eb.dataset.a='edit';eb.disabled=EDIT!=null;t.appendChild(eb);var ab=el('button','btn','النشاط');ab.dataset.a='act';t.appendChild(ab);if(u!==window.TL_USER&&!r.disabled){var kb=el('button','btn d',r.kick?'هيخرج بعد النشر':'إخراج الآن');kb.dataset.a='kick';kb.disabled=!!r.kick||EDIT!=null;t.appendChild(kb)}t.style.whiteSpace='nowrap';tr.appendChild(t);
       tb.appendChild(tr)});
     var lf=R('lf_u'),kv=lf.value;lf.replaceChildren(new Option('الكل',''));Object.keys(WORK).sort().forEach(function(u){lf.appendChild(new Option(u+' · '+WORK[u].name,u))});lf.value=kv;
@@ -8742,6 +8742,84 @@ var T=null;function tick(){if(!on())return;try{nav();home();bell();charts()}catc
 function boot(){if(T)return;fl.isConnected||document.head.appendChild(fl);tick();T=setInterval(function(){if(!document.hidden)tick()},700)}
 if(H.classList.contains('tlc'))document.addEventListener('DOMContentLoaded',function(){});
 window.TL_CLEAN={on:on,refresh:tick};
+})();
+</script><script>/* TAX Lens · التصميم الاحترافي (ui=pro) — بيتفعّل لكل مستخدم من إدارة المستخدمين.
+   المرحلة 1: الأساس البصري (ألوان ليها معنى، خطوط موحدة، مسافات، خلفية هادية، رسوم أهدى، احترام تقليل الحركة). */
+(function(){
+var H=document.documentElement;
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}}
+var force=/[?&#]pro\b/.test(location.search+location.hash);
+function want(){return force||window.TL_UIPREF==='pro'}
+var fontsOn=false;
+function fonts(){if(fontsOn)return;fontsOn=true;var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700;800&display=swap';document.head.appendChild(l)}
+function on(v){H.classList.toggle('tlpro',v);if(v){fonts();charts()}}
+if(force||ls('tl_design2')==='pro')on(true);
+window.addEventListener('tl-unlocked',function(){var v=want();on(v);ls('tl_design2',v?'pro':null)});
+
+var P='html.tlpro ';
+var css=[
+/* tokens */
+P+'{--pro-bg:#F5F7FA;--pro-card:#fff;--pro-ink:#0F1A33;--pro-ink2:#34405A;--pro-mute:#667085;--pro-line:#E8ECF2;--pro-line2:#DDE3EB;--pro-navy:#14306A;--pro-red:#C8202C;--pro-green:#12805C;--pro-amber:#B7791F;--pro-sh:0 1px 2px rgba(15,26,51,.04),0 6px 20px -12px rgba(15,26,51,.12);--pro-r:16px;--pro-f:"IBM Plex Sans Arabic","Inter Tight","Segoe UI",Tahoma,sans-serif;--pro-n:"Inter Tight","IBM Plex Sans Arabic","Segoe UI",sans-serif;',
+'--v2-bg:var(--pro-bg);--v2-surface:#fff;--v2-tint:#F2F5F9;--v2-ink:var(--pro-ink);--v2-muted:var(--pro-mute);--v2-line:var(--pro-line);--v2-font:var(--pro-f);--acc:#1F4C9A;--acc-soft:#EDF2FA}',
+/* خط واحد للعربي في كل مكان */
+P+'body.v2,'+P+'body.v2 :is(div,p,span,b,strong,em,small,h1,h2,h3,h4,h5,h6,td,th,li,label,a,button,input,select,textarea,summary,caption,figcaption){font-family:var(--pro-f)!important}',
+'html.tlpro,'+P+'body.v2 :is(#dash-root,section[id^="plat-"],.tl-home,.reta-root){background:var(--pro-bg)!important}',
+P+'body.v2{background:var(--pro-bg)!important;color:var(--pro-ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}',
+/* سلم الخطوط */
+P+'body.v2 h1{font-size:clamp(22px,2vw,28px)!important;font-weight:700!important;letter-spacing:-.01em;line-height:1.35}',
+P+'body.v2 h2{font-size:clamp(18px,1.6vw,22px)!important;font-weight:700!important;line-height:1.4}',
+P+'body.v2 h3{font-size:16px!important;font-weight:600!important;line-height:1.45}',
+P+'body.v2 :is(p,li,td){line-height:1.7}',
+/* الأرقام: خط واحد بعرض ثابت */
+P+'body.v2 :is(.big,.v,.num,.kpi b,.k b,.tile b,.sp-k b,.sp-k .n,.tg-kv3 b,.tg-kv b,td.tlp-n,th.tlp-n,.tlp-fit){font-family:var(--pro-n)!important;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.015em}',
+P+'body.v2 :is(.big,.sp-k b){font-weight:700!important}',
+/* الكروت: أبيض، حدود رفيعة، ظل ناعم، زوايا موحدة */
+P+'body.v2 :is(.sp-k,.sp-card,.ex-card,.card,.im-wa,.tile,.tl-card){background:var(--pro-card)!important;border:1px solid var(--pro-line)!important;border-radius:var(--pro-r)!important;box-shadow:var(--pro-sh)!important}',
+P+'body.v2 .ex-card.ex-counter{background:transparent!important;border:0!important;box-shadow:none!important}',
+P+'body.v2 :is(.sp-say,.ex-take,.ex-stale){background:#F8FAFC!important;border:1px solid var(--pro-line)!important;border-radius:14px!important;box-shadow:none!important}',
+/* ألوان ليها معنى بس: الشريط الملون يفضل للأحمر (مشكلة) والأخضر (تحسن) */
+P+'body.v2 .sp-k{border-inline-start-width:1px!important}',
+P+'body.v2 .sp-k.r{box-shadow:inset -3px 0 0 var(--pro-red),var(--pro-sh)!important}',
+P+'body.v2 .sp-k.g{box-shadow:inset -3px 0 0 var(--pro-green),var(--pro-sh)!important}',
+P+'body.v2 :is(.down,.neg,.bad){color:var(--pro-red)!important}',
+P+'body.v2 :is(.up,.pos,.good){color:var(--pro-green)!important}',
+/* مسافات أكبر */
+P+'body.v2 :is(.sp-kpis,.ex-kpis,.sp-grid,.kpis,.grid){gap:16px!important}',
+P+'body.v2 :is(.sp-card,.ex-card,.card){padding:20px 22px!important}',
+/* البطل الكحلي يبقى أهدى وأفخم */
+P+'body.v2 :is(.sp-hero,.ex-hero){background:linear-gradient(135deg,#14306A 0%,#1B3C80 60%,#20458F 100%)!important;border-radius:20px!important;box-shadow:0 18px 40px -24px rgba(20,48,106,.55)!important}',
+/* الجداول */
+P+'body.v2 table{border-collapse:separate;border-spacing:0}',
+P+'body.v2 table th{background:#F7F9FC!important;color:var(--pro-ink2)!important;font-weight:600!important;border-bottom:1px solid var(--pro-line2)!important}',
+P+'body.v2 table td{border-bottom:1px solid var(--pro-line)!important}',
+P+'body.v2 table tbody tr:hover td{background:#F7F9FC}',
+/* المنيو الجانبي والهيدر */
+P+'body.v2 .v2-side{background:#fff!important;border-left:1px solid var(--pro-line)!important}',
+P+'body.v2 .v2-side h6{color:#8A94A6!important;font-weight:600!important;letter-spacing:0}',
+P+'body.v2 .v2-side button.nv{border-radius:10px!important;color:var(--pro-ink2)!important}',
+P+'body.v2 .v2-side button.nv.on{background:#EDF2FA!important;color:var(--pro-navy)!important;font-weight:700}',
+P+'body.v2 .v2-top{background:#14306A!important;box-shadow:0 1px 0 rgba(255,255,255,.06),0 6px 18px -10px rgba(10,25,60,.5)}',
+/* شرايط وفواصل أهدى */
+P+'body.v2 :is(hr,.sep){border-color:var(--pro-line)!important}',
+/* احترام تقليل الحركة */
+'@media (prefers-reduced-motion:reduce){'+P+'*,'+P+'*:before,'+P+'*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}'
+].join('\n');
+var st=document.createElement('style');st.id='tl-pro-css';st.textContent=css;(document.head||H).appendChild(st);
+
+/* الرسوم: خط موحد، خطوط شبكة أخف، ألوان سلاسل أهدى */
+var chOk=false;
+function charts(){if(chOk)return;var C=window.Chart;if(!C||!C.defaults){setTimeout(charts,600);return}chOk=true;try{
+  var d=C.defaults;(d.font=d.font||{}).family='"IBM Plex Sans Arabic","Inter Tight",sans-serif';d.color='#667085';
+  var sc=d.scale||(d.scales&&d.scales.linear);if(sc){sc.grid=sc.grid||{};sc.grid.color='#EEF1F5';sc.border=sc.border||{};sc.border.color='#E3E8EF'}
+  if(d.plugins&&d.plugins.legend&&d.plugins.legend.labels){d.plugins.legend.labels.usePointStyle=true;d.plugins.legend.labels.boxWidth=8}
+  if(d.plugins&&d.plugins.tooltip){var t=d.plugins.tooltip;t.backgroundColor='#0F1A33';t.padding=10;t.cornerRadius=10;t.titleFont={weight:'600'};t.boxPadding=4}
+  if(d.elements&&d.elements.bar){d.elements.bar.borderRadius=4}
+  if(d.elements&&d.elements.line){d.elements.line.tension=.3;d.elements.line.borderWidth=2.25}
+  if(d.elements&&d.elements.point){d.elements.point.radius=0;d.elements.point.hoverRadius=4}
+  /* الرسوم المرسومة قبل التفعيل */
+  Object.values(C.instances||{}).forEach(function(ch){try{var o=ch.options;if(o&&o.scales)Object.values(o.scales).forEach(function(s){if(s.grid)s.grid.color='#EEF1F5'});ch.update('none')}catch(e){}});
+}catch(e){}}
+window.TL_PRO=function(){return H.classList.contains('tlpro')};
 })();
 </script>
 <script>/* إدارة المستخدمين: تبويبات بدل الصفحة الطويلة + بحث + قائمة/مصفوفة */
