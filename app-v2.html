@@ -9176,7 +9176,27 @@ function sideExtras(){if(!side||!pro())return;var p=cur();
  if(p){var T=tabs(p);side.querySelectorAll(':scope>h6').forEach(function(h){var name=h.firstChild&&h.firstChild.nodeType===3?h.firstChild.textContent.trim():h.textContent.trim(),i=SEC.indexOf(name);var c=h.querySelector('.pro-cnt');var n=i<0?0:T.filter(function(x){return(G[p][i]||[]).indexOf(x.id)>=0&&!x.on&&isNew(p,x.id)}).length;if(n){if(!c){c=document.createElement('span');c.className='pro-cnt';h.appendChild(c)}c.textContent=n}else if(c)c.remove()})}}
 function copyLink(){var l=locNow(),u=location.href.split('#')[0]+(l!=='home'?'#go='+encodeURIComponent(l):'');try{navigator.clipboard.writeText(u);toast('اتنسخ رابط الصفحة. اللي هيفتحه لازم يكون عنده صلاحية عليها')}catch(e){prompt('انسخ الرابط',u)}}
 
-function tick(){if(!pro()||!document.body||!document.body.classList.contains('v2'))return;try{wireSide();pinBtn();hideToolsGroup();topBtns();var cp=cur();if(cp)toolbar(cp);track();nav();crumbSec();dots();p4();sayUp();fx();dragZoom();navExtras();sideExtras()}catch(e){}}
+/* ===== أرقام مربوطة بالبيانات: سهم آخر أسبوع، مؤشر دائري للنسب، خط التوقع منقط ===== */
+var css9=[P+'body.v2 .pro-wk{display:flex;align-items:center;justify-content:center;gap:6px;margin:4px 0 2px;font:500 12.5px var(--pro-f);color:#667085}',
+P+'body.v2 :is(.ex-card,.sp-k,.card).pro-hasg{position:relative}',
+P+'body.v2 .pro-g{position:absolute;top:14px;inset-inline-end:14px;width:54px;height:32px}',
+P+'body.v2 .pro-g path{fill:none;stroke-width:6;stroke-linecap:round}'].join('\n');
+var st9=document.createElement('style');st9.textContent=css9;(document.head||H).appendChild(st9);
+function kpiDelta(root){root.querySelectorAll('.ex-spark[data-sig]').forEach(function(sp){var card=sp.closest('.ex-card');if(!card||card.querySelector('.pro-wk'))return;var big=card.querySelector('.big');if(!big)return;
+ var v=sp.dataset.sig.split('#')[0].split('|').map(Number).filter(isFinite);if(v.length<2)return;var a=v[v.length-1],b=v[v.length-2];if(!b)return;
+ var isRate=/%/.test(big.textContent)&&a<=1.5&&b<=1.5,d,txt;if(isRate){d=(a-b)*100;txt=Math.abs(d).toFixed(1)+' نقطة'}else{d=(a-b)/Math.abs(b)*100;txt=Math.abs(d).toFixed(1)+'%'}
+ var w=document.createElement('div');w.className='pro-wk';var s=document.createElement('span');s.className='pro-delta '+(Math.abs(d)<(isRate?1:3)?'':d>=0?'up':'dn');s.textContent=(d>=0?'▲ ':'▼ ')+txt;
+ s.setAttribute('data-w',Math.abs(d)<(isRate?1:3)?'مستقر':Math.abs(d)>=(isRate?5:15)?(d>=0?'ارتفاع ملحوظ':'انخفاض ملحوظ'):(d>=0?'ارتفاع':'انخفاض'));s.classList.add('pro-delta');
+ var l=document.createElement('span');l.textContent='آخر أسبوع عن اللي قبله';w.append(l,s);big.after(w)})}
+function gauges(root){root.querySelectorAll(':is(.ex-card,.sp-k,.card) .big').forEach(function(big){var card=big.closest('.ex-card,.sp-k,.card');if(!card||card.querySelector('.pro-g')||card.closest('.ex-counter'))return;var t=big.textContent.replace(BIDI,'').trim(),m=/^([\d.]+)%$/.exec(t);if(!m)return;var v=Math.max(0,Math.min(100,+m[1]));
+ var bad=card.classList.contains('r'),col=bad?'#C8202C':v>=70?'#12805C':v>=40?'#B7791F':'#C8202C';var L=Math.PI*22,ns='http://www.w3.org/2000/svg';
+ var svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 54 32');svg.setAttribute('class','pro-g');svg.setAttribute('aria-hidden','true');
+ svg.innerHTML='<path d="M5 28 A22 22 0 0 1 49 28" stroke="#E8ECF2"/><path d="M5 28 A22 22 0 0 1 49 28" stroke="'+col+'" stroke-dasharray="'+L+'" stroke-dashoffset="'+L+'" style="transition:stroke-dashoffset 1.1s cubic-bezier(.3,.7,.2,1)"/>';
+ card.classList.add('pro-hasg');card.appendChild(svg);requestAnimationFrame(function(){requestAnimationFrame(function(){svg.lastChild.setAttribute('stroke-dashoffset',String(L*(1-v/100)))})})})}
+function dashFc(){var C=window.Chart;if(!C)return;Object.values(C.instances||{}).forEach(function(ch){if(ch.$proFc)return;ch.$proFc=1;var ch2=false;(ch.data.datasets||[]).forEach(function(d){if(/متوقع|توقع|تقدير|مستقبل/.test(d.label||'')&&!d.borderDash){d.borderDash=[6,5];d.pointStyle='circle';ch2=true}});if(ch2)ch.update('none')})}
+function p9(){var p=cur();if(!p)return;var pane=document.getElementById('plat-'+p);kpiDelta(pane);gauges(pane);dashFc()}
+
+function tick(){if(!pro()||!document.body||!document.body.classList.contains('v2'))return;try{wireSide();pinBtn();hideToolsGroup();topBtns();var cp=cur();if(cp)toolbar(cp);track();nav();crumbSec();dots();p4();sayUp();fx();dragZoom();navExtras();sideExtras();p9()}catch(e){}}
 setInterval(tick,400);
 })();
 </script>
