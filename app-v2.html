@@ -9008,7 +9008,7 @@ function goLoc(l){if(!l||l==='home'){goHome();return}var pp=l.split('|'),p=pp[0]
 (function(){var R=history.replaceState;history.replaceState=function(st,t,u){if(st==null&&history.state&&history.state.tlp)st=history.state;return R.call(history,st,t,u)}})();
 addEventListener('popstate',function(e){if(!pro())return;var l=e.state&&e.state.tlp;if(!l)return;popping=true;goLoc(l)});
 var restored=false;
-function restore(){if(restored)return;restored=true;var l=ls('tl_pro_loc_'+(window.TL_USER||''));if(!l||l==='home'||cur())return;if(document.querySelector('.tlp-wel,.tlx2-m'))return;goLoc(l)}
+function restore(){if(restored)return;restored=true;var l=ls('tl_pro_loc_'+(window.TL_USER||''));if(!l||l==='home'||cur())return;if(/\|(imap|p14)$/.test(l))l=l.split('|')[0]+'|';if(document.querySelector('.tlp-wel,.tlx2-m'))return;goLoc(l)}
 window.addEventListener('tl-unlocked',function(){if(want())setTimeout(restore,1800)});
 
 /* ===== المرحلة 3: تجميع الزراير وتنضيف الشاشة ===== */
