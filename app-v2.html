@@ -9196,7 +9196,15 @@ function gauges(root){root.querySelectorAll(':is(.ex-card,.sp-k,.card) .big').fo
 function dashFc(){var C=window.Chart;if(!C)return;Object.values(C.instances||{}).forEach(function(ch){if(ch.$proFc)return;ch.$proFc=1;var ch2=false;(ch.data.datasets||[]).forEach(function(d){if(/متوقع|توقع|تقدير|مستقبل/.test(d.label||'')&&!d.borderDash){d.borderDash=[6,5];d.pointStyle='circle';ch2=true}});if(ch2)ch.update('none')})}
 function p9(){var p=cur();if(!p)return;var pane=document.getElementById('plat-'+p);kpiDelta(pane);gauges(pane);dashFc()}
 
-function tick(){if(!pro()||!document.body||!document.body.classList.contains('v2'))return;try{wireSide();pinBtn();hideToolsGroup();topBtns();var cp=cur();if(cp)toolbar(cp);track();nav();crumbSec();dots();p4();sayUp();fx();dragZoom();navExtras();sideExtras();p9()}catch(e){}}
+/* التسهيلات: حركة آخر أسبوع تحت كروت الأرقام (من بيانات الأسابيع نفسها) */
+function simpWk(){var pane=document.getElementById('plat-simp');if(!pane||pane.hidden||!window.SIMP_MODEL)return;var m;try{m=SIMP_MODEL()}catch(e){return}if(!m||!m.L||!m.P)return;
+ var xl=null;try{var d=m.R&&m.R.xl&&m.R.xl.daily;if(d&&d.length>=14){var s=function(a){return a.reduce(function(x,y){return x+(+y.n||0)},0)};xl={a:s(d.slice(-7)),b:s(d.slice(-14,-7))}}}catch(e){}
+ var MAP=[[/^منظومة ساب/,'طلبات ساب آخر أسبوع',m.L.n,m.P.n,1],[/^اترفضت/,'رفض آخر أسبوع',m.L.rej,m.P.rej,-1]];if(xl)MAP.push([/^منظومة اكسيل/,'طلبات اكسيل آخر 7 أيام',xl.a,xl.b,1]);
+ pane.querySelectorAll('.sp-k').forEach(function(k){if(k.querySelector('.pro-wk'))return;var t=k.innerText.trim();MAP.forEach(function(r){if(!r[0].test(t))return;var a=r[2],b=r[3];if(!isFinite(a)||!isFinite(b)||!b)return;var d=(a-b)/b*100,good=d*r[4]>=0;
+  var w=document.createElement('div');w.className='pro-wk';var l=document.createElement('span');l.textContent=r[1]+': '+a.toLocaleString('en-US');var s=document.createElement('span');s.className='pro-delta '+(Math.abs(d)<3?'':good?'up':'dn');s.textContent=(d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+'%';
+  s.setAttribute('data-w',Math.abs(d)<3?'مستقر':Math.abs(d)>=15?(d>=0?'ارتفاع ملحوظ':'انخفاض ملحوظ'):(d>=0?'ارتفاع':'انخفاض'));s.title='مقارنة بالأسبوع اللي قبله ('+b.toLocaleString('en-US')+')';w.append(l,s);var b2=k.querySelector('b');(b2||k.lastChild).after(w)})})}
+
+function tick(){if(!pro()||!document.body||!document.body.classList.contains('v2'))return;try{wireSide();pinBtn();hideToolsGroup();topBtns();var cp=cur();if(cp)toolbar(cp);track();nav();crumbSec();dots();p4();sayUp();fx();dragZoom();navExtras();sideExtras();p9();simpWk()}catch(e){}}
 setInterval(tick,400);
 })();
 </script>
