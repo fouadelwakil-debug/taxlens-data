@@ -8425,12 +8425,13 @@ var css=[
 '#ofcmap .om-r{display:grid;grid-template-columns:26px 1fr auto;gap:2px 10px;align-items:start;padding:8px 0;border-top:1px solid #EEF1F5;cursor:pointer}#ofcmap .om-r:first-of-type{border-top:0}#ofcmap .om-r i{font-style:normal;width:24px;height:24px;border-radius:50%;background:#14306A;color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px}#ofcmap .om-r b{font-size:14px}#ofcmap .om-r .d{font-weight:700;color:#14306A;white-space:nowrap}#ofcmap .om-r small,#ofcmap .om-r .om-a{grid-column:2/-1}#ofcmap .om-r small{color:#667085;font-size:12px}',
 '#ofcmap .om-leg{font-size:12.5px}#ofcmap .om-leg div{display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer}#ofcmap .om-leg i{flex:none;width:12px;height:12px;border-radius:3px}',
 '#ofcmap .om-note{font-size:12px;color:#667085;line-height:1.7;margin:0}#ofcmap .om-msg{font-size:13px;color:#B45309;margin:0 0 8px}',
-'#ofcmap .om-wrap.om-full{position:fixed;inset:0;z-index:2147483000;background:#F5F7FA;padding:12px;overflow:auto}#ofcmap .om-wrap.om-full .om-top .om-note{display:none}#ofcmap .om-wrap.om-full .om-map{height:calc(100vh - 150px)}html.om-lock,html.om-lock body{overflow:hidden!important}',
+'#ofcmap .om-wrap.om-full{position:fixed;inset:0;z-index:2147483000;background:#F5F7FA;padding:10px 12px;overflow:hidden;display:flex;flex-direction:column}#ofcmap .om-wrap.om-full>*{flex:none}#ofcmap .om-wrap.om-full>.om-note{display:none}#ofcmap .om-wrap.om-full .om-top{margin-bottom:8px}#ofcmap .om-wrap.om-full .om-bar{margin-bottom:8px;padding:8px 10px}#ofcmap .om-wrap.om-full .om-top .om-note{display:none}html.om-lock,html.om-lock body{overflow:hidden!important}',
 '.om-pin{width:13px;height:13px;border-radius:50%;background:#14306A;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}.om-pin.hl{width:20px;height:20px;background:#D6202E;box-shadow:0 0 0 6px rgba(214,32,46,.25)}',
 '.om-me{width:18px;height:18px;border-radius:50%;background:#D6202E;border:3px solid #fff;animation:omP 2s infinite}@keyframes omP{0%{box-shadow:0 0 0 0 rgba(214,32,46,.45)}70%{box-shadow:0 0 0 18px rgba(214,32,46,0)}100%{box-shadow:0 0 0 0 rgba(214,32,46,0)}}',
 '.om-lbl{background:#14306A;color:#fff;border:0;border-radius:999px;padding:3px 10px;font:700 12px "IBM Plex Sans Arabic",Cairo,sans-serif;box-shadow:0 4px 12px -4px rgba(0,0,0,.4)}.om-lbl:before{display:none}',
 '.om-tip{font:600 12.5px "IBM Plex Sans Arabic",Cairo,sans-serif;direction:rtl;text-align:right}.om-tip small{display:block;font-weight:500;color:#475467}',
 '@media (prefers-reduced-motion:reduce){.om-me{animation:none}}',
+'@media(max-width:900px){#ofcmap .om-wrap.om-full .om-panel{position:absolute;top:auto;left:8px;right:8px;bottom:8px;width:auto;max-height:46%;margin:0;pointer-events:none}#ofcmap .om-wrap.om-full .om-panel>*{pointer-events:auto}#ofcmap .om-wrap.om-full .om-top .om-note,#ofcmap .om-wrap.om-full .om-top h2{display:none}}',
 '@media(max-width:700px){#ofcmap .om-top>div:last-child{flex-wrap:wrap}#ofcmap .om-top .om-btn{height:36px;padding:0 10px;font-size:12.5px}#ofcmap .om-sel select{flex:1 1 100%!important;min-width:100%!important}#ofcmap .om-sel>b{flex:1 1 100%}#ofcmap .om-chips{margin-inline-start:0!important}#ofcmap .om-gps{flex:1 1 100%;justify-content:center}}',
 '@media(max-width:900px){#ofcmap .om-panel{position:static;width:auto;pointer-events:auto;margin-top:10px}#ofcmap .om-map{height:60vh}#ofcmap .om-sel select{min-width:0;flex:1}}'
 ].join('\n');
@@ -8529,7 +8530,10 @@ function mount(){var sec=document.getElementById('ofcmap');if(!sec||sec.hidden||
  $('.om-jl').onclick=function(){showJ=!showJ;this.classList.toggle('on',showJ);this.setAttribute('aria-pressed',showJ);drawJ(gSel)};
  $('.om-chips').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;typ=b.dataset.t;[].forEach.call(this.children,function(x){x.classList.toggle('on',x===b)});drawPins();if(last)nearest(last[0],last[1])});
  $('.om-rs').onclick=function(){say('');$('.om-q').value='';last=null;clearMe();hlShape(null);if(hlPin){hlPin.remove();hlPin=null}gSel=dSel=sSel='';$('.s-g').value='';fillD('');['.om-jur','.om-res'].forEach(function(q){$(q).hidden=true});drawJ('');if(map&&A0)map.flyToBounds(L.geoJSON(A0).getBounds(),{duration:1.1,paddingBottomRight:[innerWidth>900?390:10,10]})};
- var wrap=$('.om-wrap'),fsb=$('.om-fs');function fs(on){wrap.classList.toggle('om-full',on);document.documentElement.classList.toggle('om-lock',on);fsb.textContent=on?'✕ خروج من ملء الشاشة':'⛶ ملء الشاشة';setTimeout(function(){map&&map.invalidateSize()},150)}
+ var wrap=$('.om-wrap'),fsb=$('.om-fs');
+ function fit(){if(!wrap.classList.contains('om-full')){box.style.height='';return}var t=box.getBoundingClientRect().top;box.style.height=Math.max(260,innerHeight-t-12)+'px';map&&map.invalidateSize()}
+ function fs(on){wrap.classList.toggle('om-full',on);document.documentElement.classList.toggle('om-lock',on);fsb.textContent=on?'✕ خروج من ملء الشاشة':'⛶ ملء الشاشة';requestAnimationFrame(function(){fit();setTimeout(fit,200)})}
+ addEventListener('resize',fit);sec.__fs=fs;fs(true);
  fsb.onclick=function(){fs(!wrap.classList.contains('om-full'))};document.addEventListener('keydown',function(e){if(e.key==='Escape'&&wrap.classList.contains('om-full'))fs(false)});
  /* البحث: أسماء الشياخات والأقسام فوراً + عناوين OpenStreetMap */
  var sug=$('.om-sug'),qi=$('.om-q'),tq=0,SG=[],si=-1;function hideS(){sug.hidden=true;SG=[];si=-1}
@@ -8545,7 +8549,7 @@ function mount(){var sec=document.getElementById('ofcmap');if(!sec||sec.hidden||
  function geo(){var q=qi.value.trim();if(q.length<3){say('اكتب العنوان الأول.');return}say('جاري البحث عن العنوان…');fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=eg&accept-language=ar&q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(a){if(!a||!a.length){say('مالقيتش العنوان ده. جرّب اسم الحي والمدينة، أو اختار من القوايم.');return}pick(+a[0].lat,+a[0].lon,q)}).catch(function(){say('خدمة البحث عن العناوين مش متاحة على الشبكة دي. اختار من القوايم أو دوس على الخريطة.')})}
  $('.om-go').onclick=geo;
 }
-setInterval(function(){try{mount()}catch(e){console.warn('ofcmap',e)}},800);
+setInterval(function(){try{mount();var sc=document.getElementById('ofcmap');if(sc&&sc.__fs){var v=!sc.hidden;if(v&&!sc.__shown){sc.__shown=1;sc.__fs(true)}if(!v&&sc.__shown){sc.__shown=0;sc.__fs(false)}}}catch(e){console.warn('ofcmap',e)}},500);
 })();
 </script>
 <script>;(function(){/* شعار وزارة المالية + وضع حفل الإطلاق */
