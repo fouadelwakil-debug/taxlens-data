@@ -8666,6 +8666,26 @@ function row(d,s,t){var sp=t.split,tt=sp.tot;if(!tt)return null;var eg=s.eg,emp=
  var r={d:d,enr:tt.enr,reg:tt.reg,sub:tt.sub,mon:s.mon,qtr:s.qtr,ann:s.ann,emp:emp,eg:eg,fr:fr,tech:s.tech,integ:s.integ,intf:s.intf,unact:s.unact,mg:sp.mg,un:sp.un,regions:t.regions};
  if(r.qtr&&r.ann&&r.qtr===r.ann)r.qtr=null;Object.keys(r).forEach(function(k){if(r[k]===undefined)r[k]=null});return r}
 var api={pdfPages:pdfPages,summary:summary,rows:rows,score:score,row:row};if(typeof module!=='undefined'&&module)module.exports=api;else{root.TL_UPD_PROC=root.TL_UPD_PROC||{};root.TL_UPD_PROC.pay=api}})(this);
+</script><script>/* أسباب التحويل للفحص (PDF أسبوعي): التاريخ من تاريخ إنشاء الـPDF، الإجماليات من النص، والأسباب الخمسة من صورة الرسم (OCR)
+   ومش بتتقبل غير لو مجموعها = إجمالي حالات الفحص. */
+(function(root){'use strict';
+var R5=['أقل من القيمة الاسترشادية','تقسيط','عدم توفر قيمة استرشادية','ملكية مشتركة','واقع موروث'];
+function pdfDate(s){var m=/D:(\d{4})(\d{2})(\d{2})/.exec(s||'');return m?m[1]+'-'+m[2]+'-'+m[3]:null}
+function n(t){var s=String(t).replace(/[^\d,.]/g,'');if(!/^\d{1,3}([,.]\d{3})+$|^\d+$/.test(s))return null;return+s.replace(/[,.]/g,'')}
+/* words: [{t,x,y}] بنسب من عرض/طول الصفحة 0..100 */
+function fromWords(words,tot){var W=words.filter(function(w){return!/[%(]/.test(w.t)}).map(function(w){return{v:n(w.t),x:w.x,y:w.y}}).filter(function(w){return w.v!=null&&w.y>30&&w.y<95});
+ var center=W.filter(function(w){return w.x>=45&&w.x<=62&&w.v!==tot.insp}).sort(function(a,b){return b.v-a.v})[0];
+ var left=W.filter(function(w){return w.x<30&&w.v>=10}).sort(function(a,b){return a.y-b.y});var seen={},L=[];left.forEach(function(w){var k=Math.round(w.y/2);if(!seen[k]){seen[k]=1;L.push(w)}});
+ if(!center||L.length!==4)return null;var v={'أقل من القيمة الاسترشادية':center.v,'واقع موروث':L[0].v,'ملكية مشتركة':L[1].v,'عدم توفر قيمة استرشادية':L[2].v,'تقسيط':L[3].v};
+ var s=0;R5.forEach(function(r){s+=v[r]});return s===tot.insp?v:null}
+function totalsFromText(items){/* items: [t,x,y] بنسب 0..1 */var lab=function(re){return items.filter(function(a){return re.test(a[0].replace(/[\u0640\u200e\u200f]/g,''))})[0]};
+ var nums=items.map(function(a){return{v:n(a[0]),x:a[1],y:a[2],p:/%/.test(a[0])}}).filter(function(z){return z.v!=null&&!z.p});
+ function near(l){if(!l)return null;var c=nums.filter(function(z){return z.y>l[2]}).sort(function(p,q){return(Math.abs(p.x-l[1])+Math.abs(p.y-l[2]))-(Math.abs(q.x-l[1])+Math.abs(q.y-l[2]))})[0];return c?c.v:null}
+ return{sales:near(lab(/حالات\s*البيع|حالاتالبيع/)),insp:near(lab(/حالات\s*الفحص|حالاتالفحص/))}}
+function csvRows(rows){return'report_date,reason,count,total_inspections,total_sales\n'+rows.map(function(r){return[r.report_date,r.reason,r.count,r.total_inspections,r.total_sales].join(',')}).join('\n')+'\n'}
+function parseCsv(t){var L=String(t||'').replace(/^\ufeff/,'').trim().split('\n');if(L.length<2)return[];var H=L[0].split(',');return L.slice(1).map(function(l){var c=l.split(','),o={};H.forEach(function(h,i){o[h]=c[i]});o.count=+o.count;o.total_inspections=+o.total_inspections;o.total_sales=+o.total_sales;return o})}
+var api={R5:R5,pdfDate:pdfDate,fromWords:fromWords,totalsFromText:totalsFromText,csvRows:csvRows,parseCsv:parseCsv};
+if(typeof module!=='undefined'&&module)module.exports=api;else{root.TL_UPD_PROC=root.TL_UPD_PROC||{};root.TL_UPD_PROC.insp=api}})(this);
 </script><script>/* مركز تحديث البيانات (للأدمن): يقرا ملفات «Data Source» من جهاز الأدمن، يحسب الأرقام المجمّعة في المتصفح،
    يشفّرها وينشرها، والمنصة تتحدث في مكانها. الملفات الأصلية مش بتطلع من الجهاز. */
 ;(function(){
@@ -8674,6 +8694,7 @@ var OWNER='fouadelwakil-debug',REPO='taxlens-data',VF='vault.json';
 var SRC=[
  {id:'appts',plat:'tsrf',name:'حجز المواعيد في وحدات التصرفات',path:['RTA','Appointments Detials.xlsx'],ready:1},
  {id:'tsrf',plat:'tsrf',name:'التصرفات العقارية (الأرقام اليومية)',path:['RTA','tasrofat.xlsx'],ready:1},
+ {id:'insp',plat:'tsrf',name:'أسباب التحويل للفحص (PDF أسبوعي)',path:['RTA'],dir:1,pat:/التحويل.*\.pdf$/i,ready:1},
  {id:'simp',plat:'simp',name:'التسهيلات الضريبية (ساب + اكسيل)',path:['Simplified regestration','Source Data.XLSX'],more:[['Simplified regestration','EXcel DATA.xlsx'],['Simplified regestration','income_districts.xlsx'],{dir:['Simplified regestration','weekly report'],latest:1}],ready:1},
  {id:'reta',plat:'reta',name:'الضرائب العقارية (تقارير RETA)',path:['RETA'],dir:1,pat:/till.*report\.pptx$/i,ready:1},
  {id:'pay',plat:'pay',name:'منظومة المرتبات (التقرير الأسبوعي PDF)',path:['payroll'],sub:1,ready:1},
@@ -8703,6 +8724,18 @@ function listSub(path){var i=0;function step(h){if(i>=path.length)return Promise
  return step(DIR).then(function(d){if(!d)throw new Error('المجلد مش موجود: '+path.join(' / '));var it=d.values(),subs=[];function nx(){return it.next().then(function(r){if(r.done)return subs;if(r.value.kind==='directory'&&isoOf(r.value.name))subs.push(r.value);return nx()})}return nx()})
  .then(function(subs){subs.sort(function(a,b){return isoOf(a.name)<isoOf(b.name)?-1:1});subs=subs.slice(-6);return Promise.all(subs.map(function(sd){var it=sd.values(),fs=[];function nx(){return it.next().then(function(r){if(r.done)return fs;if(r.value.kind==='file'&&/\.pdf$/i.test(r.value.name))fs.push(r.value);return nx()})}return nx().then(function(hs){return Promise.all(hs.map(function(h){return h.getFile()})).then(function(F){F.forEach(function(f){f.__d=isoOf(sd.name)});return F})})}))}).then(function(a){var F=[].concat.apply([],a);if(!F.length)throw new Error('مفيش تقارير PDF في مجلدات payroll');return F})}
 function getFiles(s){if(s.dir)return listDir(s.path,s.pat);if(s.sub)return listSub(s.path);var specs=[s.path].concat(s.more||[]);return Promise.all(specs.map(function(sp){return(sp.dir?latestIn(DIR,sp.dir):findFile(DIR,sp)).then(function(h){if(!h)throw new Error('الملف مش موجود: '+(sp.dir?sp.dir.join(' / ')+' (آخر تقرير)':sp.join(' / ')));return h.getFile()})}))}
+function pdfLib(){return window.pdfjsLib?Promise.resolve():new Promise(function(ok,no){var x=document.createElement('script');x.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';x.onload=function(){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';ok()};x.onerror=function(){no(new Error('مكتبة قراءة PDF مش قادرة تتحمّل'))};document.head.appendChild(x)})}
+function ocrPage(doc,P){P('بيقرا أرقام الرسم البياني من الصورة (أول مرة بتاخد شوية)…');return(window.Tesseract?Promise.resolve():new Promise(function(ok,no){var x=document.createElement('script');x.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';x.onload=ok;x.onerror=function(){no(new Error('أداة قراءة الصور مش قادرة تتحمّل'))};document.head.appendChild(x)}))
+ .then(function(){return doc.getPage(1)}).then(function(pg){var vp=pg.getViewport({scale:3}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;return pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise.then(function(){
+  return Tesseract.recognize(c,'eng',{tessedit_char_whitelist:'0123456789,%().'}).then(function(r){return(r.data.words||[]).filter(function(w){return/\d/.test(w.text)}).map(function(w){return{t:w.text,x:w.bbox.x0/vp.width*100,y:w.bbox.y0/vp.height*100}})})})}).catch(function(){return[]})}
+function askNums(d,tot){return new Promise(function(ok){var b=M&&M.querySelector('.body');if(!b){ok(null);return}var R5=window.TL_UPD_PROC.insp.R5,box=document.createElement('div');box.className='warn';box.style.background='#EEF3FA';box.style.color='#14306A';
+ box.innerHTML='<b>أسباب التحويل للفحص بتاريخ '+d+'</b><div style="margin:6px 0 8px">الأرقام دي جوه صورة في الـPDF ومعرفتش أقراها بثقة. اكتبها من الملف. لازم مجموعها يساوي إجمالي حالات الفحص.</div>'+
+  '<div style="display:grid;grid-template-columns:1fr 120px;gap:6px;align-items:center">'+R5.map(function(r,i){return'<label for="tlu-n'+i+'">'+r+'</label><input id="tlu-n'+i+'" type="number" min="0" style="height:34px;border:1px solid #D5DEEB;border-radius:8px;padding:0 8px">'}).join('')+
+  '<label for="tlu-ti">إجمالي حالات الفحص</label><input id="tlu-ti" type="number" value="'+(tot.insp||'')+'" style="height:34px;border:1px solid #D5DEEB;border-radius:8px;padding:0 8px"><label for="tlu-ts">إجمالي حالات البيع</label><input id="tlu-ts" type="number" value="'+(tot.sales||'')+'" style="height:34px;border:1px solid #D5DEEB;border-radius:8px;padding:0 8px"></div>'+
+  '<div class="act" style="margin-top:10px"><button class="go tlu-okn" disabled>تأكيد</button><button class="tlu-skip">تخطّي الأسبوع ده</button><span class="tlu-sum" style="align-self:center;font-size:13px"></span></div>';
+ b.insertBefore(box,b.querySelector('.tlu-pg'));var ins=box.querySelectorAll('input'),okb=box.querySelector('.tlu-okn');function chk(){var s=0;for(var i=0;i<5;i++)s+=+ins[i].value||0;var ti=+ins[5].value||0;box.querySelector('.tlu-sum').textContent='المجموع '+s.toLocaleString('en-US')+' من '+ti.toLocaleString('en-US');okb.disabled=!(ti&&s===ti&&+ins[6].value)}
+ ins.forEach(function(x){x.disabled=false;x.oninput=chk});okb.disabled=true;box.querySelector('.tlu-skip').disabled=false;
+ okb.onclick=function(){var v={};R5.forEach(function(r,i){v[r]=+ins[i].value});tot.insp=+ins[5].value;tot.sales=+ins[6].value;box.remove();ok(v)};box.querySelector('.tlu-skip').onclick=function(){box.remove();ok(null)}})}
 /* الخزنة */
 function getVault(){var t=tok();var H={'Accept':'application/vnd.github.raw+json'};if(t)H.Authorization='Bearer '+t;
  return fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+VF+'?t='+Date.now(),{headers:H,cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('مقدرتش أقرا البيانات الحالية من GitHub ('+r.status+')');return r.json()})}
@@ -8729,6 +8762,18 @@ var PROC={tsrf:function(file,pay,files,P){return readWB(file,{sheets:['Daily Dat
    w.onmessage=function(e){var m=e.data;if(m.p){P(m.p);return}w.terminate();URL.revokeObjectURL(url);if(m.err){no(new Error(m.err));return}var R=JSON.parse(m.ok);pay.simp=m.ok;
     ok({keys:['simp'],note:'اتحدّثت بيانات التسهيلات الضريبية لحد '+R.asof+': '+R.tot.n.toLocaleString('en-US')+' نموذج في ساب و'+R.xl.n.toLocaleString('en-US')+' طلب في اكسيل.',check:function(p2){return JSON.parse(p2.simp).tot.n===R.tot.n}})};
    w.onerror=function(e){w.terminate();no(new Error('الحساب وقف: '+(e.message||'الذاكرة مش كفاية؟ اقفل التابات التانية وجرّب تاني')))};w.postMessage(files)})},
+ insp:function(file,pay,files,P){var IP=window.TL_UPD_PROC.insp,PP=window.TL_UPD_PROC.pay,cur=IP.parseCsv(pay.inspection_reasons),have={};cur.forEach(function(r){have[r.report_date]=1});
+  var pf=(UPD.insp&&UPD.insp.files)||{},todo=files.filter(function(f){return pf[f.name]!==f.lastModified}),fm={};files.forEach(function(f){fm[f.name]=f.lastModified});var added=[],warn=[];
+  return pdfLib().then(function(){return todo.reduce(function(pr,f){return pr.then(function(){return f.arrayBuffer().then(function(buf){return pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0)),isEvalSupported:false}).promise.then(function(doc){return doc.getMetadata().then(function(md){var d=IP.pdfDate(md.info&&md.info.CreationDate);
+    if(!d){warn.push(f.name+': مالقيتش تاريخ إنشاء جوه الملف');return}if(have[d]&&pf[f.name]===undefined)return;
+    P('بيقرا أسباب التحويل للفحص بتاريخ '+d+'…');return PP.pdfPages(buf,pdfjsLib).then(function(pages){var tot=IP.totalsFromText(pages[0]||[]);
+     return ocrPage(doc,P).then(function(words){if(!tot.insp||!tot.sales){var top=words.map(function(w){return{v:+String(w.t).replace(/[^\d]/g,''),x:w.x,y:w.y,p:/%/.test(w.t)}}).filter(function(w){return!w.p&&w.v&&w.y>15&&w.y<35});
+       if(!tot.sales){var a=top.filter(function(w){return w.x<35})[0];if(a)tot.sales=a.v}if(!tot.insp){var b=top.filter(function(w){return w.x>65})[0];if(b)tot.insp=b.v}}
+      var v=tot.insp?IP.fromWords(words,tot):null;return v?v:askNums(d,tot)}).then(function(v){if(!v){warn.push(d+': اتخطّى');return}
+      var prev=cur.filter(function(r){return r.report_date<d}).sort(function(a,b){return a.report_date<b.report_date?1:-1})[0];if(prev&&(tot.insp<prev.total_inspections||tot.sales<prev.total_sales))warn.push(d+': الإجماليات أقل من '+prev.report_date+' (تراكمي، اتنشر عادي)');
+      cur=cur.filter(function(r){return r.report_date!==d}).concat(IP.R5.map(function(r){return{report_date:d,reason:r,count:v[r],total_inspections:tot.insp,total_sales:tot.sales}}));have[d]=1;added.push(d)})})})})})})},Promise.resolve())}).then(function(){
+   if(warn.length)P('⚠ '+warn.join(' · '));cur.sort(function(a,b){return a.report_date<b.report_date?-1:a.report_date>b.report_date?1:IP.R5.indexOf(a.reason)-IP.R5.indexOf(b.reason)});var csv=IP.csvRows(cur);if(added.length)pay.inspection_reasons=csv;
+   return{keys:added.length?['inspection_reasons']:[],files:fm,note:added.length?'اتحدّثت أسباب التحويل للفحص لحد '+added.sort().pop()+'.':'',check:function(p2){return!added.length||p2.inspection_reasons===csv}}})},
  pay:function(file,pay,files,P){var PP=window.TL_UPD_PROC.pay,D=JSON.parse(pay.pay),last=D.series[D.series.length-1].d,seen={};D.series.forEach(function(r){seen[r.reg+'|'+r.sub]=1});
   var by={};files.forEach(function(f){if(f.__d>last)(by[f.__d]=by[f.__d]||[]).push(f)});var days=Object.keys(by).sort();if(!days.length){return Promise.resolve({keys:[],note:'',check:function(){return true}})}
   return(window.pdfjsLib?Promise.resolve():new Promise(function(ok,no){var x=document.createElement('script');x.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';x.onload=function(){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';ok()};x.onerror=function(){no(new Error('مكتبة قراءة PDF مش قادرة تتحمّل'))};document.head.appendChild(x)})).then(function(){
