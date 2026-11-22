@@ -8386,7 +8386,7 @@ window.TL_ETA_OFC=[["رئاسة مصلحة الضرائب المصرية بال�
    - أقرب مأمورية بالمسافة لمكانك أو لعنوان أو لنقطة على الخريطة
    - طبقة «حدود الاختصاص» ملوّنة بالمأمورية */
 (function(){
-var GEO='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/geo/';
+var GEO='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/geo2/';
 var CDN='https://cdnjs.cloudflare.com/ajax/libs/',LJS=CDN+'leaflet/1.9.4/leaflet.min.js',LCSS=CDN+'leaflet/1.9.4/leaflet.min.css',MC=CDN+'leaflet.markercluster/1.5.3/';
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function N(s){return String(s||'').replace(/[ً-ْـ]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/[^؀-ۿ0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
@@ -8400,7 +8400,7 @@ function bbox(g){if(g.__b)return g.__b;var b=[1e9,1e9,-1e9,-1e9];(function w(a){
 function find(fc,x,y){var F=fc.features;for(var i=0;i<F.length;i++){var g=F[i].geometry,b=bbox(g);if(x<b[0]||x>b[2]||y<b[1]||y>b[3])continue;if(inGeom(g,x,y))return F[i]}return null}
 var PAL=['#1F4C9A','#0E7C66','#B45309','#7C3AED','#BE185D','#0369A1','#4D7C0F','#9A3412','#0F766E','#6D28D9','#A16207','#1D4ED8','#15803D','#C2410C','#4338CA','#047857'];
 function colOf(id){var h=0;for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))>>>0;return PAL[h%PAL.length]}
-var LV={named:['مذكورة بالاسم في نص الاختصاص','hi'],district:['حسب القسم أو المركز في نص الاختصاص','hi'],name:['حسب اسم المأمورية والقسم','mid'],weak:['تقريبي: اسم المنطقة ورد في نص الاختصاص','lo'],location:['تقديري: المأمورية الموجودة في نفس القسم','lo']};
+var LV={official:['حسب دليل اختصاص المأموريات','hi'],named:['مذكورة بالاسم في نص الاختصاص','hi'],district:['حسب القسم أو المركز في نص الاختصاص','hi'],name:['حسب اسم المأمورية والقسم','mid'],weak:['تقريبي: اسم المنطقة ورد في نص الاختصاص','lo'],location:['تقديري: المأمورية الموجودة في نفس القسم','lo']};
 
 var css=[
 '#ofcmap .om-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 12px}#ofcmap .om-top h2{margin:0}',
@@ -8446,14 +8446,14 @@ function loadL(cb){if(window.L&&L.map&&L.markerClusterGroup){cb(true);return}if(
 
 function mount(){var sec=document.getElementById('ofcmap');if(!sec||sec.hidden||sec.__om)return;sec.__om=1;
  if(!document.getElementById('om-css')){var st=document.createElement('style');st.id='om-css';st.textContent=css;document.head.appendChild(st)}
- var OF=(window.TL_ETA_OFC||[]).map(function(r){return{n:r[0],g:r[1],a:r[2],lat:r[3],lng:r[4],t:r[5],u:r[6]}}),withC=OF.filter(function(o){return o.lat});
+ var HID=function(n,t){return/كبار|المهن الحرة/.test(n||'')||t==='مركز'},OF=(window.TL_ETA_OFC||[]).filter(function(r){return!HID(r[0],r[5])}).map(function(r){return{n:r[0],g:r[1],a:r[2],lat:r[3],lng:r[4],t:r[5],u:r[6]}}),withC=OF.filter(function(o){return o.lat});
  sec.innerHTML='<div class="om-wrap"><div class="om-top"><div><h2>خريطة المأموريات</h2><p class="om-note">اعرف المأمورية المختصة بمكانك، أو أقرب مأمورية ضرائب مصرية.</p></div>'+
   '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="om-btn ghost om-jl on" aria-pressed="true">◧ حدود الاختصاص</button><button type="button" class="om-btn ghost om-rs">↺ إعادة ضبط</button><button type="button" class="om-btn ghost om-fs">⛶ ملء الشاشة</button></div></div>'+
   '<div class="om-bar"><button type="button" class="om-btn om-gps">📍 مكاني الحالي</button><div class="om-qw"><input class="om-q" type="search" autocomplete="off" placeholder="اكتب عنوان أو اسم شياخة أو قرية أو قسم…" aria-label="بحث"><div class="om-sug" hidden></div></div><button type="button" class="om-btn ghost om-go">ابحث</button></div>'+
   '<div class="om-bar om-sel"><b>المأمورية المختصة:<button type="button" class="om-tg">إخفاء</button></b><select class="s-g" aria-label="المحافظة"><option value="">المحافظة…</option></select><select class="s-d" aria-label="القسم أو المركز" disabled><option value="">القسم أو المركز…</option></select><select class="s-s" aria-label="الشياخة أو القرية" disabled><option value="">الشياخة أو القرية…</option></select>'+
-  '<div class="om-chips" role="group" aria-label="نوع المقر" style="margin-inline-start:auto"><button type="button" class="on" data-t="">كل المقار</button><button type="button" data-t="مأمورية">مأموريات</button><button type="button" data-t="مركز">مراكز كبار الممولين</button><button type="button" data-t="مكتب">مكاتب</button></div></div>'+
+  '<div class="om-chips" role="group" aria-label="نوع المقر" style="margin-inline-start:auto"><button type="button" class="on" data-t="">كل المقار</button><button type="button" data-t="مأمورية">مأموريات</button><button type="button" data-t="مكتب">مكاتب</button></div></div>'+
   '<p class="om-msg" hidden></p><div class="om-body"><div class="om-map"><div class="ph">جاري تحميل الخريطة…</div></div><div class="om-panel"><div class="om-card om-jur" hidden></div><div class="om-card om-res" hidden></div><div class="om-card om-leg" hidden></div></div></div>'+
-  '<p class="om-note" style="margin-top:8px">مكانك بيتحسب جوه جهازك ومش بيتحفظ. العنوان المكتوب بيتبعت لخدمة OpenStreetMap علشان يتحوّل لمكان. الاختصاص مأخوذ من الأوصاف المنشورة في دليل مصلحة الضرائب المصرية، ويلزم التحقق من سريان القرار قبل أي توجيه ملزم. الحدود الإدارية: HDX COD-AB.</p></div>';
+  '<p class="om-note" style="margin-top:8px">مكانك بيتحسب جوه جهازك ومش بيتحفظ. العنوان المكتوب بيتبعت لخدمة OpenStreetMap علشان يتحوّل لمكان. الاختصاص وحدود الشياخات من دليل اختصاص المأموريات الضريبية. يلزم التحقق من سريان القرار قبل أي توجيه ملزم.</p></div>';
  var $=function(q){return sec.querySelector(q)},box=$('.om-map'),msg=$('.om-msg');function say(t){msg.hidden=!t;msg.textContent=t||''}
  var map=null,J=null,A0=null,A1=null,A2=null,A3={},clus=null,jLayer=null,ext=null,hl=null,typ='',last=null,showJ=true,gSel='',dSel='',sSel='';
 
@@ -8474,8 +8474,8 @@ function mount(){var sec=document.getElementById('ofcmap');if(!sec||sec.hidden||
  function mcl(){if(innerWidth<=900&&wrap.classList.contains('om-full')){var c=sec.querySelector('.om-sel'),t=sec.querySelector('.om-tg');if(c&&!c.classList.contains('cl')){c.classList.add('cl');t.textContent='إظهار';setTimeout(fit,50)}}}
  function showJur(sp,dp){if(sp)mcl();var c=$('.om-jur');if(!J)return;var S=sp&&J.s[sp],D=J.d[dp||(S&&S.d)];if(!D){c.hidden=true;return}
   var ids=(S&&S.o.length?S.o:D.o),lv=(S&&S.o.length?S.lv:D.lv),L=LV[lv]||['مش محدد في الدليل المنشور','no'];
-  c.innerHTML='<h4>المأمورية المختصة<button type="button" class="x" aria-label="قفل">×</button></h4><div class="path">'+esc(J.gov[D.g])+' ← '+esc(D.n)+(S?' ← '+esc(S.n):'')+'</div><span class="lv '+L[1]+'">'+L[0]+'</span>'+
-   (ids.length?(ids.length>1?'<p class="om-note">المنطقة دي ممكن تكون تبع واحدة من '+ids.length+' مأموريات. راجع نص الاختصاص لكل واحدة:</p>':'')+ids.map(ofcHTML).join(''):'<p class="om-note">مالقيناش مأمورية مذكور اختصاصها بالمنطقة دي في الدليل المنشور. شوف أقرب مأمورية تحت.</p>');
+  c.innerHTML='<h4>المأمورية المختصة<button type="button" class="x" aria-label="قفل">×</button></h4><div class="path">'+esc(J.gov[D.g])+' ← '+esc(D.n)+(S?' ← '+esc(S.n):'')+'</div>'+(S&&S.c&&S.c.length?'<div class="path">'+S.c.map(esc).join(' · ')+'</div>':'')+'<span class="lv '+L[1]+'">'+L[0]+'</span>'+
+   (ids.length?(ids.length>1?'<p class="om-note">المنطقة دي مقسومة بين '+ids.length+' مأموريات حسب الدليل:</p>':'')+ids.map(ofcHTML).join(''):'<p class="om-note">المنطقة دي مالهاش مأمورية عامة في الدليل. شوف أقرب مأمورية تحت.</p>');
   c.hidden=false;wire(c);c.querySelector('.x').onclick=function(){c.hidden=true}}
  function wire(c){c.querySelectorAll('[data-fly]').forEach(function(b){b.onclick=function(){var o=J.ofc[b.dataset.fly];if(map&&o.lat){fly([[o.lat,o.lng]],16);pinHL(o.lat,o.lng)}}});
   c.querySelectorAll('[data-sh]').forEach(function(b){b.onclick=function(){var o=J.ofc[b.dataset.sh],t='المأمورية: '+o.n+'\nالعنوان: '+(o.a||'')+' – '+(o.g||'')+(o.lat?'\nالاتجاهات: https://www.google.com/maps/dir/?api=1&destination='+o.lat+','+o.lng:'');(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){b.textContent='اتنسخت ✓';setTimeout(function(){b.textContent='شارك'},2000)}).catch(function(){prompt('انسخ الرسالة',t)})}})}
@@ -8486,13 +8486,15 @@ function mount(){var sec=document.getElementById('ofcmap');if(!sec||sec.hidden||
  function vis(){return withC.filter(function(o){return!typ||o.t===typ})}
  function drawPins(){if(!map)return;if(clus)clus.remove();clus=L.markerClusterGroup?L.markerClusterGroup({showCoverageOnHover:false,maxClusterRadius:42}):L.layerGroup();
   vis().forEach(function(o){clus.addLayer(L.marker([o.lat,o.lng],{icon:L.divIcon({className:'',html:'<div class="om-pin"></div>',iconSize:[13,13]}),title:o.n}).bindPopup('<div class="om-tip"><b>'+esc(o.n)+'</b><small>'+esc(o.a)+'</small><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+o.lat+','+o.lng+'">الاتجاهات</a></div>'))});clus.addTo(map)}
- function drawJ(g){if(jLayer){jLayer.remove();jLayer=null}var lg=$('.om-leg');if(!map||!A2||!J||!showJ){lg.hidden=true;return}
-  var feats=A2.features.filter(function(f){return!g||f.properties.adm1_pcode===g}),used={};
-  jLayer=L.geoJSON({type:'FeatureCollection',features:feats},{style:function(f){var d=J.d[f.properties.adm2_pcode],id=d&&d.o[0];if(id)used[id]=(used[id]||0)+1;return{color:'#fff',weight:1,fillColor:id?colOf(id):'#CBD2DC',fillOpacity:id?(d.lv==='weak'||d.lv==='location'?.28:.42):.18,dashArray:id?null:'3 4'}},
-   onEachFeature:function(f,ly){var d=J.d[f.properties.adm2_pcode];ly.bindTooltip('<div class="om-tip">'+esc(f.properties.adm2_name1)+'<small>'+(d&&d.o.length?d.o.map(function(i){return esc(J.ofc[i].n)}).join(' · '):'مش محدد في الدليل')+'</small></div>',{sticky:true,direction:'top'});
+ var jTok=0;function drawJ(g){if(jLayer){jLayer.remove();jLayer=null}var lg=$('.om-leg'),tk=++jTok;if(!map||!A2||!J||!showJ){lg.hidden=true;return}
+  (g?adm3(g):Promise.resolve(null)).then(function(d3){if(tk!==jTok)return;
+  var lvl=d3?3:2,feats=d3?d3.features:A2.features,used={};
+  var rec=function(f){return lvl===3?J.s[f.properties.adm3_pcode]:J.d[f.properties.adm2_pcode]};
+  jLayer=L.geoJSON({type:'FeatureCollection',features:feats},{style:function(f){var d=rec(f),id=d&&d.o[0];if(id)used[id]=(used[id]||0)+1;return{color:'#fff',weight:lvl===3?.6:1,fillColor:id?colOf(id):'#CBD2DC',fillOpacity:id?.42:.18,dashArray:id?null:'3 4'}},
+   onEachFeature:function(f,ly){var d=rec(f);ly.bindTooltip('<div class="om-tip">'+esc(lvl===3?f.properties.adm3_name1:f.properties.adm2_name1)+'<small>'+(d&&d.o.length?d.o.map(function(i){return esc(J.ofc[i].n)}).join(' · '):'مالهاش مأمورية عامة')+'</small></div>',{sticky:true,direction:'top'});
     ly.on('click',function(e){L.DomEvent.stopPropagation(e);pick(e.latlng.lat,e.latlng.lng,null)})}}).addTo(map);jLayer.bringToBack();
-  if(g){var ids=Object.keys(used).sort(function(a,b){return used[b]-used[a]});lg.innerHTML='<h4>حدود الاختصاص في '+esc(J.gov[g])+'</h4>'+ids.slice(0,24).map(function(i){return'<div data-o="'+i+'"><i style="background:'+colOf(i)+'"></i>'+esc(J.ofc[i].n)+'</div>'}).join('')+(ids.length>24?'<p class="om-note">و'+(ids.length-24)+' مأموريات تانية</p>':'')+'<p class="om-note">الرمادي المنقّط = مش محدد في الدليل المنشور. الألوان الفاتحة = تقريبي.</p>';lg.hidden=false;
-   lg.querySelectorAll('[data-o]').forEach(function(x){x.onclick=function(){var id=x.dataset.o;jLayer.eachLayer(function(l){var d=J.d[l.feature.properties.adm2_pcode];l.setStyle({fillOpacity:d&&d.o.indexOf(id)>=0?.7:.08})});setTimeout(function(){drawJ(g)},2600)}})}else lg.hidden=true}
+  if(g){var ids=Object.keys(used).sort(function(a,b){return used[b]-used[a]});lg.innerHTML='<h4>حدود الاختصاص في '+esc(J.gov[g])+'</h4>'+ids.slice(0,30).map(function(i){return'<div data-o="'+i+'"><i style="background:'+colOf(i)+'"></i>'+esc(J.ofc[i].n)+'</div>'}).join('')+(ids.length>30?'<p class="om-note">و'+(ids.length-30)+' مأموريات تانية</p>':'')+'<p class="om-note">دوس على مأمورية عشان تشوف نطاقها.</p>';lg.hidden=false;
+   lg.querySelectorAll('[data-o]').forEach(function(x){x.onclick=function(){var id=x.dataset.o,bb=null;jLayer.eachLayer(function(l){var d=rec(l.feature),on=d&&d.o.indexOf(id)>=0;l.setStyle({fillOpacity:on?.75:.06});if(on){bb=bb?bb.extend(l.getBounds()):L.latLngBounds(l.getBounds().getSouthWest(),l.getBounds().getNorthEast())}});if(bb)map.flyToBounds(bb,{duration:1,paddingBottomRight:[innerWidth>900?400:0,0]})}})}else lg.hidden=true})}
  function hlShape(feat){if(hl){hl.remove();hl=null}if(!feat||!map)return;hl=L.geoJSON(feat,{style:{color:'#D6202E',weight:2.5,fillColor:'#D6202E',fillOpacity:.08}}).addTo(map)}
  function clearMe(){if(ext){ext.remove();ext=null}}
  function nearest(lat,lng){var R=vis().map(function(o){return{o:o,k:km(lat,lng,o.lat,o.lng)}}).sort(function(a,b){return a.k-b.k}),top=R.slice(0,3),res=$('.om-res');if(!top.length){res.hidden=true;return top}
@@ -8518,14 +8520,18 @@ function mount(){var sec=document.getElementById('ofcmap');if(!sec||sec.hidden||
   box.innerHTML='';var EGB=L.latLngBounds([21.6,24.6],[31.9,37.0]);map=L.map(box,{zoomControl:true,maxBounds:L.latLngBounds([19.5,22],[35,39.5]),maxBoundsViscosity:1,minZoom:4,zoomSnap:.25}).setView([26.5,30.5],4.5);
   var OT=function(){if(!wrap.classList.contains('om-full'))return 0;var b=0,t=box.getBoundingClientRect().top;wrap.querySelectorAll(':scope>.om-top,:scope>.om-bar,:scope>.om-msg:not([hidden])').forEach(function(e){b=Math.max(b,e.getBoundingClientRect().bottom)});return Math.max(0,b-t)};
   ['flyToBounds','fitBounds'].forEach(function(k){var f=map[k].bind(map);map[k]=function(b,o){o=Object.assign({},o||{});if(o.padding){o.paddingTopLeft=o.paddingBottomRight=o.padding;delete o.padding}var tl=o.paddingTopLeft||[0,0];o.paddingTopLeft=[tl[0],tl[1]+OT()+8];return f(b,o)}});
-  var osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap · حدود: HDX COD-AB'});
+  var osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap · حدود: دليل الاختصاص'});
   var voy=osm;
-  var sat=L.layerGroup([L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'صور: Esri · حدود: HDX COD-AB'}),L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'shadowPane'})]);
+  var sat=L.layerGroup([L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'صور: Esri · حدود: دليل الاختصاص'}),L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'shadowPane'})]);
   voy.addTo(map);wrap.classList.add('om-g');
   var lyc=L.control.layers({'خريطة':voy,'قمر صناعي':sat},null,{position:'topleft'}).addTo(map);
   setTimeout(function(){try{fit()}catch(e){}},0);
-  if(GK){var gses=function(t){return fetch('https://tile.googleapis.com/v1/createSession?key='+GK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(t==='satellite'?{mapType:'satellite',language:'ar',region:'EG',layerTypes:['layerRoadmap']}:{mapType:'roadmap',language:'ar',region:'EG'})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return L.tileLayer('https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session='+j.session+'&key='+GK,{maxZoom:20,attribution:'خرائط Google · حدود: HDX COD-AB'})})};
-   Promise.all([gses('roadmap'),gses('satellite')]).then(function(a){map.removeLayer(voy);map.removeLayer(lyc);a[0].addTo(map);L.control.layers({'خريطة':a[0],'قمر صناعي':a[1]},null,{position:'topleft'}).addTo(map)}).catch(function(){})}
+  if(GK){var ld=function(u){return new Promise(function(ok,no){var x=document.createElement('script');x.src=u;x.async=true;x.onload=ok;x.onerror=no;document.head.appendChild(x)})};
+   window.__tlg=function(){};
+   (window.google&&google.maps?Promise.resolve():ld('https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(GK)+'&language=ar&region=EG&loading=async&callback=__tlg')).then(function(){return L.gridLayer.googleMutant?0:ld('https://unpkg.com/leaflet.gridlayer.googlemutant@0.14.1/dist/Leaflet.GoogleMutant.js')}).then(function(){
+    var gr=L.gridLayer.googleMutant({type:'roadmap',maxZoom:20,attribution:'خرائط Google · حدود: دليل الاختصاص'}),gs=L.gridLayer.googleMutant({type:'hybrid',maxZoom:20});
+    var bad=0;window.gm_authFailure=function(){bad=1;try{map.removeLayer(gr);map.removeLayer(gs)}catch(e){}voy.addTo(map)};
+    setTimeout(function(){if(bad)return;map.removeLayer(voy);gr.addTo(map);map.removeControl(lyc);lyc=L.control.layers({'خريطة Google':gr,'قمر صناعي Google':gs,'خريطة مجانية':voy,'قمر صناعي مجاني':sat},null,{position:'topleft'}).addTo(map);setTimeout(fit,0)},300)}).catch(function(){})}
   map.zoomControl.setPosition('topleft');try{new ResizeObserver(function(){map.invalidateSize()}).observe(box)}catch(e){}
   map.on('click',function(e){if(!EGB.contains(e.latlng)){say('اختار مكان جوه مصر.');return}pick(e.latlng.lat,e.latlng.lng,null)});
   drawPins();
