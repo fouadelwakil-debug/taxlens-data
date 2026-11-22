@@ -6298,10 +6298,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     if(AP){s=slide();head(s,'الوظائف الجديدة','حجز المواعيد في وحدات التصرفات');
       var L0=Date.UTC(2026,10,14),asof=AP.asof?Date.parse(String(AP.asof).slice(0,10)+'T00:00:00Z'):Date.now(),days=Math.max(1,Math.floor((asof-L0)/864e5)+1),GV=(AP.gov||[]).filter(function(g){return g.n>0});
       D.rect(s,0.89,1.36,11.55,0.42,'EAF0FA',null,0.06);D.text(s,1.0,1.38,11.3,0.38,'الخدمة تم إطلاقها يوم 14 نوفمبر 2026  ·  بقالها '+days+' يوم شغالة (البيانات لحد '+dA(String(AP.asof||'').slice(0,10))+')',14,NAVY,true,'c','m');
-      [['إجمالي الحجوزات من الإطلاق',fN(AP.total),BLUE],['وحدات جالها حجوزات',fN(AP.units||(AP.unit||[]).length),GREEN],['محافظات فيها حجوزات',fN(GV.length),AMB],['متوسط الحجوزات في اليوم',fN(Math.round(AP.total/days)),NAVY]].forEach(function(k,i){var x=9.67-i*2.93;card(s,x-0.03,1.95,2.8,1.3,k[2]);D.text(s,x,2.05,2.6,0.36,k[0],13,SLATE,false,'c');D.text(s,x,2.42,2.6,0.7,k[1],30,NAVY,true,'c','m')});
-      var CR=(AP.created||[]).filter(function(x){return Date.parse(x.d+'T00:00:00Z')>=L0});
-      card(s,0.89,3.45,5.3,3.3,BLUE);D.text(s,1.05,3.53,5.0,0.4,'الحجوزات الجديدة كل يوم',16,NAVY,true);
-      if(CR.length)D.chart(s,'column',1.0,3.95,5.05,2.7,CR.map(function(x){return dA(x.d)}),[['حجوزات',CR.map(function(x){return x.n})]],{colors:[BLUE],legend:false,fontSize:9,valueAxis:false});
+      [['إجمالي الحجوزات من الإطلاق',fN(AP.total),BLUE],['محافظات فيها حجوزات',fN(GV.length),AMB]].forEach(function(k,i){var x=9.67-i*2.93;card(s,x-0.03,1.95,2.8,1.3,k[2]);D.text(s,x,2.05,2.6,0.36,k[0],13,SLATE,false,'c');D.text(s,x,2.42,2.6,0.7,k[1],30,NAVY,true,'c','m')});
+      var SL=(AP.slots||[]).map(function(t,j){return{t:t,n:(AP.heat||[]).reduce(function(a,r){return a+(r[j]||0)},0)}}).filter(function(x){return x.n>0}).sort(function(a,b){return b.n-a.n}).slice(0,4);
+      card(s,0.89,1.95,5.75,1.3,GREEN);D.text(s,1.05,2.0,5.45,0.36,'أكتر المواعيد حجزاً',14,NAVY,true);
+      SL.forEach(function(x,i){var cx=5.2-i*1.38;D.text(s,cx,2.4,1.3,0.45,'\u200E'+x.t+'\u200E',18,NAVY,true,'c','m');D.text(s,cx,2.82,1.3,0.32,fN(x.n)+' حجز',11,SLATE,false,'c')});
+      card(s,0.89,3.45,5.3,3.3,BLUE);D.text(s,1.05,3.53,5.0,0.4,'أكتر الأيام حجزاً (أيام المواعيد)',16,NAVY,true);
+      (AP.adate||[]).slice().sort(function(a,b){return b.n-a.n}).slice(0,5).forEach(function(x,i,arr){var y=4.05+i*0.52,mx=arr[0].n||1;D.text(s,3.95,y,2.1,0.38,dA(x.d),13,INK);D.rect(s,1.6,y+0.12,2.25*x.n/mx,0.16,BLUE,null,0.5);D.text(s,1.0,y,0.6,0.38,String(x.n),13,NAVY,true,'l')});
       card(s,6.35,3.45,3.0,3.3,NAVY);D.text(s,6.5,3.53,2.7,0.4,'أكتر الوحدات حجزاً',15,NAVY,true);
       (AP.unit||[]).slice().sort(function(a,b){return b.n-a.n}).slice(0,6).forEach(function(u,i){var y=4.0+i*0.44;D.text(s,7.05,y,2.2,0.36,u.u,11,INK);D.text(s,6.45,y,0.6,0.36,String(u.n),13,NAVY,true,'l')});
       card(s,9.5,3.45,2.94,3.3,AMB);D.text(s,9.65,3.53,2.65,0.4,'أكتر المحافظات حجزاً',15,NAVY,true);
