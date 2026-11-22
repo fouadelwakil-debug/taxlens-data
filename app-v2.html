@@ -8457,6 +8457,139 @@ function agg(rows,geo,prev){
  return R}
 var api={agg:agg,ts:ts};if(typeof module!=='undefined')module.exports=api;else{root.TL_UPD_PROC=root.TL_UPD_PROC||{};root.TL_UPD_PROC.appts=api}
 })(this);
+</script><script>/* التصرفات العقارية: شيت «Daily Data» في RTA\tasrofat.xlsx → daily.csv (نفس الموصّل القديم) */
+(function(root){'use strict';
+var AR=['التاريخ','عدد المسجلبن','عدد المتصرفين','عدد المستعلمين','المستخدم غير المستكمل','عمليات التصرف','عمليات الفحص','مطالبات الضريبة','مدفوعات الضريبة','عدد المطالبات المدفوعة','عدد مطالبات الغرامات','قيمة مطالبات الغرامات','قيمة مدفوعات الغرامات','عدد مطالبات الغرامات المسددة','بداية الأسبوع','الشهر'];
+var TS=['date','registered','disposers','inquirers','incomplete','disposals','inspections','tax_claims','tax_paid','paid_claims','penalty_claims_n','penalty_claims','penalty_paid','penalty_paid_n','week_start','month'],DT={date:1,week_start:1,month:1};
+function day(v){if(v==null||v==='')return null;var t;if(typeof v==='number')t=Math.round((v-25569)*864e5);else if(v instanceof Date)t=Date.UTC(v.getFullYear(),v.getMonth(),v.getDate());else{var s=String(v).trim();if(!/^\d{4}-\d{1,2}-\d{1,2}|^\d{1,2}\/\d{1,2}\/\d{4}/.test(s))return null;t=Date.parse(s.slice(0,10)+'T00:00:00Z');if(isNaN(t)){var m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);if(m)t=Date.UTC(+m[3],+m[1]-1,+m[2])}}return isNaN(t)?null:new Date(t).toISOString().slice(0,10)}
+function num(v){if(v==null||v==='')return null;var n=typeof v==='number'?v:parseFloat(String(v).replace(/,/g,''));return isNaN(n)?null:n}
+function agg(rows){if(!rows.length)throw new Error('شيت Daily Data فاضي');var k0=Object.keys(rows[0]).map(function(c){return String(c).trim()}),miss=AR.filter(function(c){return k0.indexOf(c)<0&&!rows.some(function(r){return Object.keys(r).some(function(x){return x.trim()===c})})});
+ if(miss.length)throw new Error('أعمدة ناقصة في Daily Data: '+miss.join('، '));
+ var by={};rows.forEach(function(r){var o={};Object.keys(r).forEach(function(k){o[k.trim()]=r[k]});var x={};AR.forEach(function(a,i){var c=TS[i];x[c]=DT[c]?day(o[a]):num(o[a])});if(x.date)by[x.date]=x});
+ var D=Object.keys(by).sort().map(function(k){return by[k]});if(!D.length)throw new Error('مفيش أيام بتاريخ صحيح في Daily Data');
+ var isInt={};TS.forEach(function(c){if(DT[c])return;var v=D.map(function(x){return x[c]}).filter(function(x){return x!=null});isInt[c]=v.length&&v.every(function(x){return x===Math.round(x)})});
+ var csv=TS.join(',')+'\n'+D.map(function(x){return TS.map(function(c){var v=x[c];if(v==null)return'';if(DT[c])return v;return isInt[c]?String(Math.round(v)):(Number.isInteger(v)?v+'.0':String(v))}).join(',')}).join('\n')+'\n';
+ var last=D.filter(function(x){return x.disposals!=null}).pop()||D[D.length-1];
+ return{csv:csv,days:D.length,from:D[0].date,to:last.date,lastDisp:last.disposals}}
+var api={agg:agg};if(typeof module!=='undefined')module.exports=api;else{root.TL_UPD_PROC=root.TL_UPD_PROC||{};root.TL_UPD_PROC.tsrf=api}})(this);
+</script><script>/* التسهيلات الضريبية: نفس حسابات simp_prep.py + simp_xl.py داخل المتصفح. أرقام مجمّعة فقط.
+   رقم التسجيل بيُستخدم جوه الحساب بس لإزالة التكرار والربط، ومش بيتكتب في المخرجات. */
+var __tluSimp=function(root){'use strict';
+var DAY=864e5;
+var NA=new Set(['','#N/A','#N/A N/A','#NA','-1.#IND','-1.#QNAN','-NaN','-nan','1.#IND','1.#QNAN','<NA>','N/A','NA','NULL','NaN','None','n/a','nan','null']);
+function trimKeys(rows){return rows.map(function(r){var o={};for(var k in r){var v=r[k];o[String(k).trim()]=(typeof v==='string'&&NA.has(v))?null:v}return o})}
+function ser(v){return Math.round((v-25569)*DAY)}
+function tsAny(v,dayfirst){if(v==null||v==='')return NaN;if(typeof v==='number')return v>=1?ser(v):NaN;if(v instanceof Date)return Date.UTC(v.getFullYear(),v.getMonth(),v.getDate(),v.getHours(),v.getMinutes(),v.getSeconds());
+ var s=String(v).trim(),m=/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(s);
+ if(m){var a=+m[1],b=+m[2];var dd=dayfirst?a:b,mm=dayfirst?b:a;if(mm>12){var t=dd;dd=mm;mm=t}return Date.UTC(+m[3],mm-1,dd,+(m[4]||0),+(m[5]||0),+(m[6]||0))}
+ m=/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(s);if(m)return Date.UTC(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0));return NaN}
+function actTs(v){if(typeof v==='string'){var m=/^(\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2}):(\d{2})$/.exec(v.trim());if(m)return Date.UTC(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+m[6])}return tsAny(v,true)}
+function D10(t){return new Date(t).toISOString().slice(0,10)}function M7(t){return new Date(t).toISOString().slice(0,7)}
+function norm(t){return Math.floor(t/DAY)*DAY}
+function wdMon(t){return(new Date(t).getUTCDay()+6)%7}
+function r1(x){return Math.round(x*10)/10}function r4(x){return Math.round(x*1e4)/1e4}
+function med(a){if(!a.length)return NaN;a=a.slice().sort(function(x,y){return x-y});var m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2}
+function q(a,p){if(!a.length)return NaN;a=a.slice().sort(function(x,y){return x-y});var h=(a.length-1)*p,l=Math.floor(h);return l+1<a.length?a[l]+(h-l)*(a[l+1]-a[l]):a[l]}
+function mn(a){var m=Infinity;for(var i=0;i<a.length;i++)if(a[i]<m)m=a[i];return m}function mx(a){var m=-Infinity;for(var i=0;i<a.length;i++)if(a[i]>m)m=a[i];return m}
+function mean(a){return a.length?a.reduce(function(s,x){return s+x},0)/a.length:NaN}
+function vcount(arr){var o=new Map();arr.forEach(function(v){if(v==null)return;o.set(v,(o.get(v)||0)+1)});return Array.from(o.entries()).map(function(e,i){return{k:e[0],n:e[1],i:i}}).sort(function(a,b){return b.n-a.n||a.i-b.i})}
+function groupSorted(arr,f){var o=new Map();arr.forEach(function(x){var k=f(x);if(k==null)return;if(!o.has(k))o.set(k,[]);o.get(k).push(x)});return Array.from(o.keys()).sort(function(a,b){return a<b?-1:a>b?1:0}).map(function(k){return[k,o.get(k)]})}
+function strv(v){return v==null||v===''||(typeof v==='number'&&isNaN(v))?'nan':String(v)}
+var STM={'Approved by Supervisor':'app','Auto approved':'auto','Final Rejection':'rej','Taxpayer Submit the Form':'pend','Taxpayer Submit the Form LV1':'pend'};
+function need(rows,cols,where){if(!rows.length)throw new Error(where+': فاضي');var miss=cols.filter(function(c){return!(c in rows[0])&&!rows.slice(0,50).some(function(r){return c in r})});if(miss.length)throw new Error(where+': أعمدة ناقصة: '+miss.join('، '))}
+function normSap(rows,where){rows=trimKeys(rows);need(rows,['رقم التسجيل الضريبي','تاريخ التقديم','تاريخ التعديل','نوع الممول','حالة النموذج','وصف النشاط'],where);
+ var hasTo=rows.some(function(r){return'حجم الاعمال عن اقرار 2025' in r}),hasB=rows.some(function(r){return'أساس تحديد قيمة الإيراد' in r});
+ return rows.map(function(r){var ty=strv(r['نوع الممول']).trim(),st=strv(r['حالة النموذج']).trim(),a=strv(r['وصف النشاط']).trim(),b=hasB?strv(r['أساس تحديد قيمة الإيراد']).trim():'nan',to=hasTo?(r['حجم الاعمال عن اقرار 2025'] instanceof Date)?NaN:(typeof r['حجم الاعمال عن اقرار 2025']==='number'?r['حجم الاعمال عن اقرار 2025']:(r['حجم الاعمال عن اقرار 2025']==null?NaN:Number(String(r['حجم الاعمال عن اقرار 2025']).trim()===''?NaN:r['حجم الاعمال عن اقرار 2025']))):NaN;
+  var rr=strv(r['رقم التسجيل الضريبي']);return{rid:rr==='nan'?null:rr,sub:tsAny(r['تاريخ التقديم'],false),act:actTs(r['تاريخ التعديل']),typ:ty==='فردي'?'ind':ty==='اعتباري'?'corp':'other',st:STM[st]||'pend',actv:a==='nan'?null:a,to:to,basis:b==='nan'?null:b}})}
+var ST=['app','auto','rej','pend'];
+var TB=[['zero','صفر'],['b1','أقل من مليون'],['b5','1–5 مليون'],['b10','5–10 مليون'],['b20','10–20 مليون'],['over','فوق 20 مليون'],['na','مش متاح']];
+function band(v){if(v==null||isNaN(v))return'na';if(v<=0)return'zero';if(v<=1e6)return'b1';if(v<=5e6)return'b5';if(v<=10e6)return'b10';if(v<=20e6)return'b20';return'over'}
+function sup(v){return v>0&&v<5?null:v}
+function cntIf(a,f){var n=0;for(var i=0;i<a.length;i++)if(f(a[i]))n++;return n}
+function prep(simpRows,rejRows){
+ var D=normSap(simpRows,'Source Data / Simplified').concat(normSap(rejRows,'Source Data / Rejected'));
+ D.forEach(function(x){if(isNaN(x.sub))x.sub=x.act});D=D.filter(function(x){return!isNaN(x.sub)});
+ var asof=norm(mx(D.map(function(x){return x.sub})));D.forEach(function(x){x.day=D10(x.sub);x.bd=band(x.to)});
+ var daily=groupSorted(D,function(x){return x.day}).map(function(e){var g=e[1],r={d:e[0],n:g.length};ST.forEach(function(s){r[s]=cntIf(g,function(x){return x.st===s})});r.ind=cntIf(g,function(x){return x.typ==='ind'});r.corp=cntIf(g,function(x){return x.typ==='corp'});return r});
+ var dec=D.filter(function(x){return x.st!=='pend'&&!isNaN(x.act)}).map(function(x){return{x:x,days:Math.max(0,(x.act-x.sub)/DAY)}}).filter(function(z){return z.days<400});
+ var B=[[0,1,'أقل من يوم'],[1,3,'1–3 أيام'],[3,5,'3–5 أيام'],[5,7,'5–7 أيام'],[7,10,'7–10 أيام'],[10,15,'10–15 يوم'],[15,30,'15–30 يوم'],[30,1e9,'أكتر من شهر']];
+ var speed=B.map(function(b){var g=dec.filter(function(z){return z.days>=b[0]&&z.days<b[1]});return{b:b[2],n:g.length,app:cntIf(g,function(z){return z.x.st==='app'||z.x.st==='auto'}),rej:cntIf(g,function(z){return z.x.st==='rej'})}});
+ var speedM=groupSorted(dec,function(z){return M7(z.x.sub)}).map(function(e){var v=e[1].map(function(z){return z.days});return{m:e[0],med:r1(med(v)),p75:r1(q(v,.75)),in5:r4(cntIf(v,function(d){return d<=5})/v.length),n:v.length}});
+ var P=D.filter(function(x){return x.st==='pend'}).map(function(x){return Math.round((asof-norm(x.sub))/DAY)});
+ var PB=[[0,7,'أقل من أسبوع'],[7,14,'1–2 أسبوع'],[14,30,'2–4 أسابيع'],[30,90,'1–3 شهور'],[90,1e9,'أكتر من 3 شهور']];var pend=PB.map(function(b){return{b:b[2],n:cntIf(P,function(a){return a>=b[0]&&a<b[1]})}});
+ var acts=groupSorted(D,function(x){return x.actv}).map(function(e){var g=e[1];return{a:e[0],n:g.length,app:cntIf(g,function(x){return x.st==='app'||x.st==='auto'}),rej:cntIf(g,function(x){return x.st==='rej'}),pend:cntIf(g,function(x){return x.st==='pend'})}});
+ acts=acts.map(function(r,i){r.__i=i;return r}).sort(function(a,b){return b.n-a.n||a.__i-b.__i});
+ var keep=acts.slice(0,60).filter(function(r){return r.n>=5}),rest=acts.filter(function(r){return keep.indexOf(r)<0});
+ acts=rest.length?keep.concat([{a:'أنشطة أخرى ('+rest.length+')',n:rest.reduce(function(s,r){return s+r.n},0),app:rest.reduce(function(s,r){return s+r.app},0),rej:rest.reduce(function(s,r){return s+r.rej},0),pend:rest.reduce(function(s,r){return s+r.pend},0),other:1}]):keep;
+ acts.forEach(function(r){delete r.__i});
+ var typ={};['ind','corp'].forEach(function(t){typ[t]={};ST.forEach(function(s){typ[t][s]=cntIf(D,function(x){return x.typ===t&&x.st===s})})});
+ var S=D.filter(function(x){return x.st!=='rej'});
+ var turn=TB.map(function(t){var k=t[0];var g=S.filter(function(x){return x.bd===k});return{k:k,b:t[1],n:g.length,app:cntIf(g,function(x){return x.st==='app'||x.st==='auto'}),pend:cntIf(g,function(x){return x.st==='pend'}),ind:cntIf(g,function(x){return x.typ==='ind'}),corp:cntIf(g,function(x){return x.typ==='corp'})}});
+ var O=S.filter(function(x){return x.bd==='over'});
+ var oa=groupSorted(O,function(x){return x.actv}).filter(function(e){return e[1].length>=5}).map(function(e,i){return{a:e[0],n:e[1].length,i:i}}).sort(function(a,b){return b.n-a.n||a.i-b.i}).slice(0,10).map(function(r){return{a:r.a,n:r.n}});
+ var over={n:O.length,app:cntIf(O,function(x){return x.st==='app'||x.st==='auto'}),auto:cntIf(O,function(x){return x.st==='auto'}),pend:cntIf(O,function(x){return x.st==='pend'}),ind:cntIf(O,function(x){return x.typ==='ind'}),corp:cntIf(O,function(x){return x.typ==='corp'}),
+  m:groupSorted(O,function(x){return M7(x.sub)}).map(function(e){return{m:e[0],n:e[1].length}}),acts:oa};
+ var basis=vcount(S.filter(function(x){return x.basis!=null}).map(function(x){return x.basis})).map(function(e){return{b:e.k,n:e.n}});basis.push({b:'مش متاح',n:cntIf(S,function(x){return x.basis==null})});
+ var keepA=acts.filter(function(a){return!a.other}).map(function(a){return a.a});
+ var actX=keepA.map(function(a){var x=S.filter(function(z){return z.actv===a}),y=dec.filter(function(z){return z.x.actv===a}).map(function(z){return z.days}),r={a:a,n:cntIf(D,function(z){return z.actv===a}),ok:x.length};
+  TB.forEach(function(t){r[t[0]]=sup(cntIf(x,function(z){return z.bd===t[0]}))});r.auto=sup(cntIf(x,function(z){return z.st==='auto'}));r.med=y.length>=30?r1(med(y)):null;r.in5=y.length>=30?r4(cntIf(y,function(d){return d<=5})/y.length):null;return r});
+ function topacts(X,k){return vcount(X.map(function(x){return x.actv})).filter(function(e){return e.n>=5}).slice(0,k||8).map(function(e){return{a:e.k,n:e.n}})}
+ var Z=S.filter(function(x){return x.bd==='zero'}),AU=D.filter(function(x){return x.st==='auto'}),AU2=S.filter(function(x){return x.st==='auto'});
+ var zero={n:Z.length,app:cntIf(Z,function(x){return x.st==='app'||x.st==='auto'}),pend:cntIf(Z,function(x){return x.st==='pend'}),auto:cntIf(Z,function(x){return x.st==='auto'}),ind:cntIf(Z,function(x){return x.typ==='ind'}),corp:cntIf(Z,function(x){return x.typ==='corp'}),acts:topacts(Z),
+  basis:vcount(Z.map(function(x){return x.basis==null?'مش متاح':x.basis})).map(function(e){return{b:e.k,n:e.n}})};
+ var autoA={n:AU.length,ind:cntIf(AU,function(x){return x.typ==='ind'}),corp:cntIf(AU,function(x){return x.typ==='corp'}),acts:topacts(AU),bands:TB.map(function(t){return{k:t[0],b:t[1],n:cntIf(AU2,function(x){return x.bd===t[0]})}}),
+  m:groupSorted(AU,function(x){return M7(x.sub)}).map(function(e){var m=e[0];return{m:m,n:e[1].length,all:cntIf(D,function(x){return M7(x.sub)===m&&(x.st==='app'||x.st==='auto')})}})};
+ var vc=new Map();D.forEach(function(x){if(x.rid==null)return;vc.set(x.rid,(vc.get(x.rid)||0)+1)});var RJ=new Set(),AP=new Set();D.forEach(function(x){var k=x.rid==null?'nan':x.rid;if(x.st==='rej')RJ.add(k);if(x.st==='app'||x.st==='auto')AP.add(k)});
+ var vals=Array.from(vc.values()),seen=new Set(),mi=0;D.forEach(function(x){if(vc.get(x.rid)>1&&!seen.has(x.rid)){seen.add(x.rid);if(x.typ==='ind')mi++}});var rto=0;RJ.forEach(function(r){if(AP.has(r))rto++});
+ var repeat={uniq:vc.size,forms:D.length,multi:cntIf(vals,function(v){return v>1}),k2:cntIf(vals,function(v){return v===2}),k3:cntIf(vals,function(v){return v===3}),k4:cntIf(vals,function(v){return v>=4}),rejThenOk:rto,multiInd:mi};
+ var DW=['الاتنين','التلات','الأربع','الخميس','الجمعة','السبت','الحد'];
+ var load={wd:[5,6,0,1,2,3,4].map(function(i){return{d:DW[i],n:cntIf(dec,function(z){return wdMon(z.x.act)===i}),sub:cntIf(D,function(x){return wdMon(x.sub)===i})}})};
+ var decDay=new Map(),subDay=new Map();dec.forEach(function(z){var k=norm(z.x.act);decDay.set(k,(decDay.get(k)||0)+1)});D.forEach(function(x){var k=norm(x.sub);subDay.set(k,(subDay.get(k)||0)+1)});
+ load.days=[];for(var t=asof-89*DAY;t<=asof;t+=DAY)load.days.push({d:D10(t),dec:decDay.get(t)||0,sub:subDay.get(t)||0});
+ var bx=groupSorted(S,function(x){return x.basis==null?'مش متاح':x.basis}).map(function(e){var b=e[0],x=e[1],y=dec.filter(function(z){return(z.x.basis==null?'مش متاح':z.x.basis)===b});var ya=y.filter(function(z){return z.x.st==='app'||z.x.st==='auto'}).map(function(z){return z.days});
+  return{b:b,n:x.length,pend:cntIf(x,function(z){return z.st==='pend'}),over:cntIf(x,function(z){return z.bd==='over'}),zero:cntIf(x,function(z){return z.bd==='zero'}),small:cntIf(x,function(z){return z.bd==='b1'||z.bd==='zero'}),med:y.length>=30?r1(med(ya)):null}});
+ var V=S.filter(function(x){return!isNaN(x.to)&&x.to>0});var hist=[];for(var i=0;i<60;i++){var g=V.filter(function(x){return x.to>i*1e6&&x.to<=(i+1)*1e6});hist.push({m:i,n:g.length,ind:cntIf(g,function(x){return x.typ==='ind'})})}
+ var g60=V.filter(function(x){return x.to>60e6});hist.push({m:60,n:g60.length,ind:cntIf(g60,function(x){return x.typ==='ind'}),plus:1});
+ var tot={};ST.forEach(function(s){tot[s]=cntIf(D,function(x){return x.st===s})});tot.n=D.length;
+ return{asof:D10(asof),first:D10(mn(D.map(function(x){return x.sub}))),limit:20000000,daily:daily,speed:speed,speedM:speedM,pend:pend,acts:acts,typ:typ,turn:turn,over:over,basis:basis,tot:tot,actX:actX,zero:zero,autoA:autoA,repeat:repeat,load:load,basisX:bx,hist:hist}}
+function xl(R,xlRows,wkRows,simpRows,rejRows,distRows){
+ xlRows=trimKeys(xlRows);need(xlRows,['unique_tax_id','district','senddate','Activity code Level Four','type_name'],'EXcel DATA / البيانات المجمعة');
+ var X=xlRows.map(function(r,i){var t=r.type_name==null?'':String(r.type_name),a=r['Activity code Level Four'];return{rid:typeof r.unique_tax_id==='number'?r.unique_tax_id:parseFloat(r.unique_tax_id),dc:(r.district==null||r.district==='')?null:+r.district,d:tsAny(r.senddate,false),actv:a==null?'غير محدد':String(a).trim(),typ:t.indexOf('طبيع')>=0?'ind':t.indexOf('اعتبار')>=0?'corp':'na',i:i}});
+ function dedupFirst(a){a.sort(function(x,y){var dx=isNaN(x.d)?Infinity:x.d,dy=isNaN(y.d)?Infinity:y.d;return dx-dy||x.i-y.i});var s=new Set(),o=[];a.forEach(function(x){var k=isNaN(x.rid)?'nan':x.rid;if(!s.has(k)){s.add(k);o.push(x)}});return o}
+ X=dedupFirst(X);
+ var W=wkRows.map(function(r,i){var k=Object.keys(r);return{rid:typeof r[k[0]]==='number'?r[k[0]]:parseFloat(r[k[0]]),d:tsAny(r[k[1]],false),i:i}}).filter(function(x){return!isNaN(x.rid)});W=dedupFirst(W);
+ var xs=new Set(X.map(function(x){return x.rid}));var extra=W.filter(function(w){return!xs.has(w.rid)}).map(function(w){return{rid:w.rid,d:w.d,typ:'na',actv:'غير محدد',dc:null}});
+ var A=X.concat(extra);
+ var S=trimKeys(simpRows).concat(trimKeys(rejRows)).map(function(r,i){var st=strv(r['حالة النموذج']).trim();return{rid:typeof r['رقم التسجيل الضريبي']==='number'?r['رقم التسجيل الضريبي']:parseFloat(r['رقم التسجيل الضريبي']),sd:tsAny(r['تاريخ التقديم'],false),st:(st==='Approved by Supervisor'||st==='Auto approved')?'app':st==='Final Rejection'?'rej':'pend',i:i}});
+ S.sort(function(x,y){var dx=isNaN(x.sd)?Infinity:x.sd,dy=isNaN(y.sd)?Infinity:y.sd;return dx-dy||x.i-y.i});var lastBy=new Map();S.forEach(function(x){lastBy.set(isNaN(x.rid)?'nan':x.rid,x)});S=Array.from(lastBy.values());
+ var DN=new Map();trimKeys(distRows).forEach(function(r){if(r.DISTRICT_ID!=null)DN.set(parseInt(r.DISTRICT_ID,10),[String(r.DISTRICT_NAME).trim(),r.MERGEDTAXOFFICEFLAG])});
+ var Ad=A.filter(function(x){return!isNaN(x.d)});
+ var daily=groupSorted(Ad,function(x){return D10(x.d)}).map(function(e){var g=e[1];return{d:e[0],n:g.length,ind:cntIf(g,function(x){return x.typ==='ind'}),corp:cntIf(g,function(x){return x.typ==='corp'})}});
+ var acts=vcount(A.map(function(x){return x.actv})).map(function(e){return{a:e.k,n:e.n,ind:cntIf(A,function(x){return x.actv===e.k&&x.typ==='ind'})}});
+ var keep=acts.slice(0,60).filter(function(r){return r.n>=5&&r.a!=='غير محدد'}),rest=acts.filter(function(r){return keep.indexOf(r)<0});
+ acts=keep.concat([{a:'أنشطة أخرى أو غير محددة',n:rest.reduce(function(s,r){return s+r.n},0),ind:rest.reduce(function(s,r){return s+r.ind},0),other:1}]);
+ var byDc=new Map();A.forEach(function(x){if(x.dc==null||isNaN(x.dc))return;if(!byDc.has(x.dc))byDc.set(x.dc,[]);byDc.get(x.dc).push(x)});
+ var ds=Array.from(byDc.keys()).sort(function(a,b){return a-b}).map(function(c,i){var g=byDc.get(c),c2=Math.trunc(c),nm=DN.get(c2)||['مأمورية كود '+c2,null];return{n:g.length,name:nm[0],mg:nm[1]==null?null:parseInt(nm[1],10),ind:cntIf(g,function(x){return x.typ==='ind'}),corp:cntIf(g,function(x){return x.typ==='corp'}),__i:i}}).sort(function(a,b){return b.n-a.n||a.__i-b.__i});
+ ds.forEach(function(r){delete r.__i});var small=ds.filter(function(r){return r.n<5});ds=ds.filter(function(r){return r.n>=5});
+ if(small.length)ds.push({n:small.reduce(function(s,r){return s+r.n},0),name:'مأموريات أخرى ('+small.length+')',mg:null,ind:small.reduce(function(s,r){return s+r.ind},0),corp:small.reduce(function(s,r){return s+r.corp},0),other:1});
+ var unk=0;byDc.forEach(function(v,c){if(!DN.has(Math.trunc(c)))unk++});
+ var sBy=new Map();S.forEach(function(x){if(!isNaN(x.rid))sBy.set(x.rid,x)});
+ var M=[];A.forEach(function(a){var s=sBy.get(a.rid);if(s)M.push({d:a.d,typ:a.typ,sd:s.sd,st:s.st,gap:Math.floor((s.sd-a.d)/DAY)})});
+ var gaps=M.map(function(m){return m.gap}).filter(function(g){return!isNaN(g)});
+ var mv={n:M.length,app:cntIf(M,function(m){return m.st==='app'}),rej:cntIf(M,function(m){return m.st==='rej'}),pend:cntIf(M,function(m){return m.st==='pend'}),med:med(gaps),ind:cntIf(M,function(m){return m.typ==='ind'}),corp:cntIf(M,function(m){return m.typ==='corp'}),
+  m:groupSorted(M.filter(function(m){return!isNaN(m.sd)}),function(m){return M7(m.sd)}).map(function(e){return{m:e[0],n:e[1].length}})};
+ var DW=['الاتنين','التلات','الأربع','الخميس','الجمعة','السبت','الحد'];
+ var wd=[5,6,0,1,2,3,4].map(function(i){return{d:DW[i],n:cntIf(Ad,function(x){return wdMon(x.d)===i})}}),hr=[];for(var h=0;h<24;h++)hr.push(cntIf(Ad,function(x){return new Date(x.d).getUTCHours()===h}));
+ var U=new Set();A.forEach(function(x){U.add(isNaN(x.rid)?'nan':x.rid)});S.forEach(function(x){if(!isNaN(x.rid))U.add(x.rid)});var su=new Set();S.forEach(function(x){if(!isNaN(x.rid))su.add(x.rid)});
+ var dv=Ad.map(function(x){return x.d});
+ R.xl={n:A.length,detail:X.length,extra:extra.length,first:D10(mn(dv)),asof:D10(mx(dv)),typ:{ind:cntIf(A,function(x){return x.typ==='ind'}),corp:cntIf(A,function(x){return x.typ==='corp'}),na:cntIf(A,function(x){return x.typ==='na'})},daily:daily,acts:acts,dist:ds,
+  distNA:cntIf(A,function(x){return x.dc==null||isNaN(x.dc)}),distUnk:unk,moved:mv,union:U.size,sapUniq:su.size,wd:wd,hr:hr};return R}
+/* خلايا متنسّقة كتاريخ في عمود رقمي: pandas بيقراها تاريخ فبتبقى قيمة مش رقمية. نعمل نفس الشيء. */
+function undate(XL,ws,rows,col){var ref=ws['!ref'];if(!ref)return rows;var rg=XL.utils.decode_range(ref),ci=-1;for(var c=rg.s.c;c<=rg.e.c;c++){var h=ws[XL.utils.encode_cell({r:rg.s.r,c:c})];if(h&&String(h.v).trim()===col){ci=c;break}}if(ci<0)return rows;
+ var k=null;for(var i=0;i<rows.length&&k==null;i++)for(var kk in rows[i])if(String(kk).trim()===col){k=kk;break}if(k==null)return rows;
+ for(var r=rg.s.r+1;r<=rg.e.r;r++){var cell=ws[XL.utils.encode_cell({r:r,c:ci})];if(cell&&cell.t==='n'&&cell.z&&XL.SSF.is_date(cell.z)){var row=rows[r-rg.s.r-1];if(row)row[k]=null}}return rows}
+var api={prep:prep,xl:xl,undate:undate};if(typeof module!=='undefined'&&module)module.exports=api;else{root.TL_UPD_PROC=root.TL_UPD_PROC||{};root.TL_UPD_PROC.simp=api}};
+__tluSimp(this);if(typeof window!=='undefined')window.__TLU_SIMP_SRC='('+__tluSimp.toString()+')(self);';
 </script><script>/* مركز تحديث البيانات (للأدمن): يقرا ملفات «Data Source» من جهاز الأدمن، يحسب الأرقام المجمّعة في المتصفح،
    يشفّرها وينشرها، والمنصة تتحدث في مكانها. الملفات الأصلية مش بتطلع من الجهاز. */
 ;(function(){
@@ -8464,8 +8597,8 @@ var api={agg:agg,ts:ts};if(typeof module!=='undefined')module.exports=api;else{r
 var OWNER='fouadelwakil-debug',REPO='taxlens-data',VF='vault.json';
 var SRC=[
  {id:'appts',plat:'tsrf',name:'حجز المواعيد في وحدات التصرفات',path:['RTA','Appointments Detials.xlsx'],ready:1},
- {id:'tsrf',plat:'tsrf',name:'التصرفات العقارية (العمليات والمأموريات)',ready:0},
- {id:'simp',plat:'simp',name:'التسهيلات الضريبية',ready:0},
+ {id:'tsrf',plat:'tsrf',name:'التصرفات العقارية (الأرقام اليومية)',path:['RTA','tasrofat.xlsx'],ready:1},
+ {id:'simp',plat:'simp',name:'التسهيلات الضريبية (ساب + اكسيل)',path:['Simplified regestration','Source Data.XLSX'],more:[['Simplified regestration','EXcel DATA.xlsx'],['Simplified regestration','income_districts.xlsx'],{dir:['Simplified regestration','weekly report'],latest:1}],ready:1},
  {id:'reta',plat:'reta',name:'الضرائب العقارية',ready:0},
  {id:'pay',plat:'pay',name:'منظومة المرتبات',ready:0},
  {id:'maps',plat:'tsrf',name:'دليل المأموريات والخرائط',ready:0}];
@@ -8482,9 +8615,12 @@ function kvSet(k,v){return idb().then(function(db){return new Promise(function(o
 var DIR=null;
 function perm(h){return h.queryPermission({mode:'read'}).then(function(p){return p==='granted'?p:h.requestPermission({mode:'read'})})}
 function pickDir(){return window.showDirectoryPicker({id:'tldata',mode:'read'}).then(function(h){DIR=h;return kvSet('dir',h).then(function(){return h})})}
-function findFile(dir,path){var i=0;function step(h){var nm=path[i++];var want=nm.toLowerCase();var it=h.values(),hit=null;
-  function nx(){return it.next().then(function(r){if(r.done)return null;if(r.value.name.toLowerCase()===want){hit=r.value;return hit}return nx()})}
+function findFile(dir,path){var i=0;function step(h){var nm=path[i++];var want=nm.trim().toLowerCase();var it=h.values(),hit=null;
+  function nx(){return it.next().then(function(r){if(r.done)return null;if(r.value.name.trim().toLowerCase()===want){hit=r.value;return hit}return nx()})}
   return nx().then(function(x){if(!x)return null;return i<path.length?(x.kind==='directory'?step(x):null):(x.kind==='file'?x:null)})}return step(dir)}
+function latestIn(dir,path){var i=0;function step(h){if(i>=path.length)return Promise.resolve(h);var want=path[i++].trim().toLowerCase(),it=h.values();function nx(){return it.next().then(function(r){if(r.done)return null;if(r.value.kind==='directory'&&r.value.name.trim().toLowerCase()===want)return step(r.value);return nx()})}return nx()}
+ return step(dir).then(function(d){if(!d)return null;var it=d.values(),best=null,bk=-1;function nx(){return it.next().then(function(r){if(r.done)return best;var f=r.value,m=/(\d{1,2})-(\d{1,2})-(\d{4})/.exec(f.name);if(f.kind==='file'&&/\.xlsx$/i.test(f.name)&&!/^~\$/.test(f.name)&&f.name.indexOf('Copy')<0&&m){var k=(+m[3])*1e4+(+m[2])*100+(+m[1]);if(k>bk){bk=k;best=f}}return nx()})}return nx()})}
+function getFiles(s){var specs=[s.path].concat(s.more||[]);return Promise.all(specs.map(function(sp){return(sp.dir?latestIn(DIR,sp.dir):findFile(DIR,sp)).then(function(h){if(!h)throw new Error('الملف مش موجود: '+(sp.dir?sp.dir.join(' / ')+' (آخر تقرير)':sp.join(' / ')));return h.getFile()})}))}
 /* الخزنة */
 function getVault(){var t=tok();var H={'Accept':'application/vnd.github.raw+json'};if(t)H.Authorization='Bearer '+t;
  return fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+VF+'?t='+Date.now(),{headers:H,cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('مقدرتش أقرا البيانات الحالية من GitHub ('+r.status+')');return r.json()})}
@@ -8493,11 +8629,29 @@ function dec(V,pl){var kb=(window.TL_KEYS||{})[pl];if(!kb)throw new Error('مف�
 function enc(k,obj){var iv=crypto.getRandomValues(new Uint8Array(12));return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,new TextEncoder().encode(JSON.stringify(obj))).then(function(ct){return{iv:b64(iv),ct:b64(ct)}})}
 function xlsxLib(){return window.XLSX?Promise.resolve():new Promise(function(ok,no){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=ok;s.onerror=function(){no(new Error('مكتبة قراءة الإكسل مش قادرة تتحمّل'))};document.head.appendChild(s)})}
 /* المعالجات */
-var PROC={appts:function(file,pay){return file.arrayBuffer().then(function(buf){var wb=XLSX.read(buf,{type:'array'}),sn=wb.SheetNames.filter(function(s){return/^sqllab_reta_trx/i.test(s)})[0]||wb.SheetNames[0];
+function readWB(file,opts){return file.arrayBuffer().then(function(buf){return XLSX.read(buf,Object.assign({type:'array'},opts||{}))})}
+function rowsOf(wb,sn,header,pick){var ws=wb.Sheets[sn];if(!ws)throw new Error('شيت «'+sn+'» مش موجود');if(!pick)return XLSX.utils.sheet_to_json(ws,header?{defval:null,raw:true,header:1}:{defval:null,raw:true});
+ var A=XLSX.utils.sheet_to_json(ws,{defval:null,raw:true,header:1}),H=(A[0]||[]).map(function(h){return String(h==null?'':h).trim()}),ix=pick.map(function(c){return H.indexOf(c)}),out=new Array(Math.max(0,A.length-1));
+ for(var i=1;i<A.length;i++){var r=A[i],o={};for(var j=0;j<pick.length;j++)if(ix[j]>=0)o[pick[j]]=r[ix[j]]==null?null:r[ix[j]];out[i-1]=o;A[i]=null}wb.Sheets[sn]=null;return out}
+var PROC={tsrf:function(file,pay,files,P){return readWB(file,{sheets:['Daily Data']}).then(function(wb){var R=window.TL_UPD_PROC.tsrf.agg(rowsOf(wb,'Daily Data'));pay.daily=R.csv;
+  return{keys:['daily'],note:'اتحدّثت أرقام التصرفات العقارية لحد '+R.to+': '+R.days+' يوم، وآخر يوم فيه '+R.lastDisp+' عملية تصرف.',check:function(p2){return p2.daily===R.csv}}})},
+ simp:function(file,pay,files,P){P('بيقرا ملفات التسهيلات في خلفية المتصفح (الملفات كبيرة وممكن تاخد دقيقة أو اتنين)…');
+  return new Promise(function(ok,no){var src=window.__TLU_SIMP_SRC;if(!src){no(new Error('كود التسهيلات مش متحمّل'));return}
+   var code="importScripts('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');var module=undefined;var self_=self;"+src+
+    ";function rowsOf(wb,sn,header,pick){var ws=wb.Sheets[sn];if(!ws)throw new Error('شيت «'+sn+'» مش موجود');if(!pick)return XLSX.utils.sheet_to_json(ws,header?{defval:null,raw:true,header:1}:{defval:null,raw:true});var A=XLSX.utils.sheet_to_json(ws,{defval:null,raw:true,header:1}),H=(A[0]||[]).map(function(h){return String(h==null?'':h).trim()}),ix=pick.map(function(c){return H.indexOf(c)}),out=new Array(Math.max(0,A.length-1));for(var i=1;i<A.length;i++){var r=A[i],o={};for(var j=0;j<pick.length;j++)if(ix[j]>=0)o[pick[j]]=r[ix[j]]==null?null:r[ix[j]];out[i-1]=o;A[i]=null}return out}"+
+    "\nonmessage=function(e){var f=e.data,S=self.TL_UPD_PROC.simp,say=function(t){postMessage({p:t})};try{say('بيقرا ملف ساب (Source Data)…');var wb=XLSX.read(new FileReaderSync().readAsArrayBuffer(f[0]),{type:'array',sheets:['Simplified','Rejected'],cellNF:true});var a=rowsOf(wb,'Simplified'),b=rowsOf(wb,'Rejected');S.undate(XLSX,wb.Sheets.Simplified,a,'حجم الاعمال عن اقرار 2025');S.undate(XLSX,wb.Sheets.Rejected,b,'حجم الاعمال عن اقرار 2025');wb=null;"+
+    "say('بيحسب مؤشرات ساب…');var R=S.prep(a,b);say('بيقرا طلبات اكسيل (EXcel DATA)…');var wx=XLSX.read(new FileReaderSync().readAsArrayBuffer(f[1]),{type:'array',sheets:['البيانات المجمعة'],dense:true});var xr=rowsOf(wx,'البيانات المجمعة',0,['unique_tax_id','district','senddate','Activity code Level Four','type_name']);wx=null;"+
+    "var dw=XLSX.read(new FileReaderSync().readAsArrayBuffer(f[2]),{type:'array'}),dist=rowsOf(dw,dw.SheetNames[0]);var kw=XLSX.read(new FileReaderSync().readAsArrayBuffer(f[3]),{type:'array',sheets:['EXCEL']}),wk=rowsOf(kw,'EXCEL',1).slice(1).map(function(r){return{a:r[0],b:r[1]}});"+
+    "say('بيحسب مؤشرات اكسيل…');S.xl(R,xr,wk,a,b,dist);postMessage({ok:JSON.stringify(R)})}catch(err){postMessage({err:err.message||String(err)})}}";
+   var url=URL.createObjectURL(new Blob([code],{type:'text/javascript'})),w=new Worker(url);
+   w.onmessage=function(e){var m=e.data;if(m.p){P(m.p);return}w.terminate();URL.revokeObjectURL(url);if(m.err){no(new Error(m.err));return}var R=JSON.parse(m.ok);pay.simp=m.ok;
+    ok({keys:['simp'],note:'اتحدّثت بيانات التسهيلات الضريبية لحد '+R.asof+': '+R.tot.n.toLocaleString('en-US')+' نموذج في ساب و'+R.xl.n.toLocaleString('en-US')+' طلب في اكسيل.',check:function(p2){return JSON.parse(p2.simp).tot.n===R.tot.n}})};
+   w.onerror=function(e){w.terminate();no(new Error('الحساب وقف: '+(e.message||'الذاكرة مش كفاية؟ اقفل التابات التانية وجرّب تاني')))};w.postMessage(files)})},
+ appts:function(file,pay,files,P){return file.arrayBuffer().then(function(buf){var wb=XLSX.read(buf,{type:'array'}),sn=wb.SheetNames.filter(function(s){return/^sqllab_reta_trx/i.test(s)})[0]||wb.SheetNames[0];
   var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:null,raw:true});var geo={};try{geo=typeof pay.geo==='string'?JSON.parse(pay.geo):(pay.geo||{})}catch(e){}
   var prev=null;try{prev=pay.tsrf_appts?JSON.parse(pay.tsrf_appts):null}catch(e){}
   var R=window.TL_UPD_PROC.appts.agg(rows,geo,prev);pay.tsrf_appts=JSON.stringify(R);
-  return{key:'tsrf_appts',note:'اتحدّثت بيانات حجز المواعيد لحد '+fmtT(R.asof)+': '+R.total+' حجز، حضر '+R.past.attended+'، وانتهى تلقائي '+R.past.auto+'.',check:function(p2){return JSON.parse(p2.tsrf_appts).total===R.total}}})}};
+  return{keys:['tsrf_appts'],note:'اتحدّثت بيانات حجز المواعيد لحد '+fmtT(R.asof)+': '+R.total+' حجز، حضر '+R.past.attended+'، وانتهى تلقائي '+R.past.auto+'.',check:function(p2){return JSON.parse(p2.tsrf_appts).total===R.total}}})}};
 /* الواجهة */
 function css(){if(document.getElementById('tlu-css'))return;var s=document.createElement('style');s.id='tlu-css';s.textContent=
  '.tlu-bg{position:fixed;inset:0;z-index:2147483600;background:rgba(15,23,42,.45);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}'+
@@ -8523,28 +8677,29 @@ function draw(){var b=M&&M.querySelector('.body');if(!b)return;
  var H='<div class="dir">📁 المجلد: <b>'+esc(DIR.name)+'</b><button class="chg" style="margin-inline-start:auto;border:0;background:none;color:#2F6FE4;cursor:pointer;font:inherit">تغيير</button></div><div class="list">';
  SRC.forEach(function(s){var x=ST[s.id]||{};var tag=!s.ready?'<span class="tag soon">قريبًا</span>':x.err?'<span class="tag miss">'+esc(x.err)+'</span>':x.changed?'<span class="tag new">✅ فيه تحديث</span>':x.file?'<span class="tag same">⏸ زي ما هو</span>':'<span class="tag same">…</span>';
   H+='<div class="row'+(s.ready?'':' off')+'"><input type="checkbox" data-id="'+s.id+'"'+(s.ready&&x.file?'':' disabled')+(x.sel?' checked':'')+' aria-label="'+esc(s.name)+'"><div><div class="n">'+esc(s.name)+' <small style="color:#94A3B8;font-weight:600">· '+PN[s.plat]+'</small></div><div class="m">'+
-   (s.ready?(x.file?'الملف: '+esc(s.path.join(' / '))+' · اتعدّل '+fmtT(x.mtime)+(x.last?' · آخر تحديث منشور من نسخة '+fmtT(x.last):' · لسه ما اتحدّثش من هنا'):esc(s.path.join(' / '))):'هيتضاف في المرحلة الجاية')+'</div></div>'+tag+'</div>'});
+   (s.ready?(x.msg?esc(x.msg):x.file?((x.files&&x.files.length>1?x.files.length+' ملفات':'الملف: '+esc(s.path.join(' / ')))+' · آخر تعديل '+fmtT(x.mtime)+(x.last?' · آخر تحديث منشور من نسخة '+fmtT(x.last):' · لسه ما اتحدّثش من هنا')):esc(s.path.join(' / '))):'هيتضاف في المرحلة الجاية')+'</div></div>'+tag+'</div>'});
  H+='</div><div class="act"><button class="go run"'+(ST.busy?' disabled':'')+'>حدّث المختار</button><button class="rescan"'+(ST.busy?' disabled':'')+'>افحص تاني</button></div><div class="tlu-pg" hidden><div class="tlu-bar"><i></i></div><div class="tlu-pgt"><span class="st"></span><b class="pc">0%</b></div><div class="tlu-log"></div></div>';
  b.innerHTML=H;b.querySelector('.chg').onclick=function(){pickDir().then(scan).catch(function(){})};b.querySelector('.rescan').onclick=scan;
  b.querySelectorAll('input[data-id]').forEach(function(c){c.onchange=function(){ST[c.dataset.id].sel=c.checked}});b.querySelector('.run').onclick=run}
 function scan(){if(!DIR)return draw();return perm(DIR).then(function(p){if(p!=='granted')throw new Error('محتاج إذن قراءة المجلد');return getVault()}).then(function(V){var U=V.upd||{};
-  return Promise.all(SRC.filter(function(s){return s.ready}).map(function(s){ST[s.id]={};return findFile(DIR,s.path).then(function(h){if(!h){ST[s.id].err='الملف مش موجود';return}return h.getFile().then(function(f){var last=U[s.id]&&U[s.id].mtime;ST[s.id]={h:h,file:f,mtime:f.lastModified,last:last,changed:!last||f.lastModified!==last};ST[s.id].sel=ST[s.id].changed})}).catch(function(e){ST[s.id].err='مش قادر أقرا الملف'})}))})
+  return Promise.all(SRC.filter(function(s){return s.ready}).map(function(s){ST[s.id]={};return getFiles(s).then(function(fs){var sig=fs.map(function(f){return f.name+':'+f.lastModified}).join('|'),mt=Math.max.apply(null,fs.map(function(f){return f.lastModified})),last=U[s.id]&&U[s.id].mtime,lsig=U[s.id]&&U[s.id].sig;
+   ST[s.id]={files:fs,file:fs[0],mtime:mt,sig:sig,last:last,changed:!last||(lsig?lsig!==sig:mt!==last)};ST[s.id].sel=ST[s.id].changed}).catch(function(e){ST[s.id]={err:/مش موجود/.test(e.message)?'ملف ناقص':'مش قادر أقرا الملف',msg:e.message}})}))})
  .then(draw).catch(function(e){draw();var b=M&&M.querySelector('.body');if(b)b.insertAdjacentHTML('afterbegin','<div class="warn">'+esc(e.message||e)+'</div>')})}
 function run(){var ids=SRC.filter(function(s){return ST[s.id]&&ST[s.id].sel&&ST[s.id].file}).map(function(s){return s.id});if(!ids.length)return;
  ST.busy=1;var b=M.querySelector('.body');b.querySelectorAll('button,input').forEach(function(x){x.disabled=true});var pg=b.querySelector('.tlu-pg');pg.hidden=false;var bar=pg.querySelector('.tlu-bar i'),stE=pg.querySelector('.st'),pcE=pg.querySelector('.pc'),lg=pg.querySelector('.tlu-log');
- function P(v,t,cls){bar.style.width=v+'%';pcE.textContent=Math.round(v)+'%';if(t){stE.textContent=t;lg.insertAdjacentHTML('beforeend','<div class="'+(cls||'')+'">'+esc(t)+'</div>')}}
- var V,plats={},notes=[],checks=[];
+ function P(v,t,cls){if(t)try{console.log('[upd] '+t)}catch(e){}bar.style.width=v+'%';pcE.textContent=Math.round(v)+'%';if(t){stE.textContent=t;lg.insertAdjacentHTML('beforeend','<div class="'+(cls||'')+'">'+esc(t)+'</div>')}}
+ var V,plats={},notes=[],checks=[],applied=[];
  P(3,'بيجهّز أدوات القراءة…');
  xlsxLib().then(function(){P(10,'بيقرا آخر نسخة منشورة…');return getVault()}).then(function(v){V=v;
   var need={};ids.forEach(function(id){need[SRC.filter(function(s){return s.id===id})[0].plat]=1});
   return Promise.all(Object.keys(need).map(function(pl){return dec(V,pl).then(function(x){plats[pl]=x})}))}).then(function(){
   var n=ids.length,i=0;return ids.reduce(function(pr,id){return pr.then(function(){var s=SRC.filter(function(z){return z.id===id})[0];P(18+i/n*50,'بيحسب: '+s.name+'…');
-   return PROC[id](ST[id].file,plats[s.plat].d).then(function(r){i++;notes.push({plat:s.plat,text:r.note});checks.push([s.plat,r.check]);V.upd=V.upd||{};V.upd[id]={mtime:ST[id].mtime,at:new Date().toISOString()};P(18+i/n*50,'✓ خلص: '+s.name,'ok')})})},Promise.resolve())}).then(function(){
+   return PROC[id](ST[id].file,plats[s.plat].d,ST[id].files||[ST[id].file],function(t){P(18+(i+.5)/n*50,t)}).then(function(r){i++;applied.push([s.plat,r.keys]);notes.push({plat:s.plat,text:r.note});checks.push([s.plat,r.check]);V.upd=V.upd||{};V.upd[id]={mtime:ST[id].mtime,sig:ST[id].sig,at:new Date().toISOString()};P(18+i/n*50,'✓ خلص: '+s.name,'ok')})})},Promise.resolve())}).then(function(){
   P(72,'بيشفّر البيانات…');return Promise.all(Object.keys(plats).map(function(pl){return enc(plats[pl].k,plats[pl].d).then(function(e){V.vault[pl]=e})}))}).then(function(){
   P(80,'بيتأكد إن البيانات المشفّرة سليمة…');return Promise.all(checks.map(function(c){return dec(V,c[0]).then(function(x){if(!c[1](x.d))throw new Error('التحقق فشل، ومفيش حاجة اتنشرت')})}))}).then(function(){
   var now=new Date();V.built=now.toISOString();V.notices=(V.notices||[]).concat(notes.map(function(n,i){return{id:'n'+(now.getTime()+i),plat:n.plat,type:'data',at:now.toISOString(),text:n.text}})).slice(-60);
   P(86,'بينشر التحديث…');if(!window.TL_PUTFILE)throw new Error('النشر متاح من حساب الأدمن بس');return window.TL_PUTFILE(VF,V,'Data update: '+ids.join(', '))}).then(function(){
-  P(95,'بيطبّق الأرقام الجديدة على المنصة…');Object.keys(plats).forEach(function(pl){var d=plats[pl].d;Object.keys(d).forEach(function(k){window.TL_DATA&&(window.TL_DATA[k]=d[k])})});
+  P(95,'بيطبّق الأرقام الجديدة على المنصة…');var JK={reta_snapshots:1,reta_actions:1,simp:1,pay:1,geo:1,tsrf_appts:1};applied.forEach(function(a){var d=plats[a[0]].d;a[1].forEach(function(k){if(window.TL_DATA)window.TL_DATA[k]=d[k];if(window.dash&&dash.__setData&&k!=='tsrf_appts'){try{var rows=JK[k]?JSON.parse(d[k]):(window.d3?d3.csvParse(String(d[k]).replace(/^\ufeff/,''),function(r){Object.keys(r).forEach(function(c){if(r[c]==='')r[c]=null});return r}):[]);dash.__setData(k,rows)}catch(e){}}})});
   window.TL_VAULT=V.vault;window.TL_NOTICES=V.notices;window.TL_BELL&&window.TL_BELL();try{window.TL_APPTS&&window.TL_APPTS.render()}catch(e){}
   P(100,'✓ اتنشر التحديث. كل المستخدمين هياخدوه أول ما يفتحوا أو خلال دقيقة لو فاتحين.','ok');window.TL_LOG&&window.TL_LOG('data_update',ids.join(','));
   ids.forEach(function(id){ST[id].last=ST[id].mtime;ST[id].changed=false;ST[id].sel=false})}).catch(function(e){P(parseFloat(bar.style.width)||0,'✕ '+(e.message||e),'bad')}).then(function(){ST.busy=0;b.querySelectorAll('.act button').forEach(function(x){x.disabled=false});b.querySelector('.run').onclick=function(){draw()};b.querySelector('.run').textContent='تمام'})}
