@@ -6914,6 +6914,20 @@ function addOfc(D){if(!D||!window.TL_OFC)return D;var k=D.plat==='reta'?'reta':'
  D.metrics.lod={n:D.metrics[base].n+' لكل مقر',u:D.metrics[base].u,note:'الضغط على كل مقر = '+D.metrics[base].n+' ÷ عدد المقار في المحافظة'};D.S.lod=L;D.ofcKey=k;return D}
 var _rd0=retaData,_td0=tsrfData;retaData=function(){return addOfc(_rd0())};tsrfData=function(){return addOfc(_td0())};
 window.TL_RETA_IMAPDATA=function(){try{return retaData()}catch(e){return null}};
+/* التسهيلات الضريبية: من أرقام المأموريات المجمّعة (طلبات اكسيل) */
+var SOFC=null;function simpOfc(){if(SOFC)return SOFC;SOFC=fetch('https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/geo2/simp_ofc.json?v=2',{cache:'no-store'}).then(function(r){return r.ok?r.json():{}}).catch(function(){return{}});return SOFC}
+function simpData(OG){var d=window.dash&&dash.data('simp'),R=d&&d.status==='ok'&&d.data;var g0=R&&R.geo;if(!g0||!OG)return null;var G=Object.keys(geo()||{});if(!G.length)return null;
+ var nW=g0.nW,W=[],lastD=D0(R.asof||(R.xl&&R.xl.asof)||g0.d0).getTime();for(var i=0;i<nW;i++)W.push(iso(new Date(Math.min(lastD,D0(g0.d0).getTime()+(i*7+6)*864e5))));
+ var z=function(){var o={};G.forEach(function(g){o[g]=W.map(function(){return 0})});return o},req=z(),wk=z(),offices=[],app={},pend={},tot={},ind={},corp={};
+ Object.keys(g0.o).forEach(function(k){if(k==='na')return;var o=g0.o[k],g=OG[k];if(!g||!req[g])g=G.filter(function(x){return/القاهر/.test(x)})[0];var a=0;for(var i=0;i<nW;i++){a+=o.w[i]||0;req[g][i]+=a;wk[g][i]+=o.w[i]||0}
+  app[g]=(app[g]||0)+o.sap.app;pend[g]=(pend[g]||0)+o.sap.pend;tot[g]=(tot[g]||0)+o.sap.app+o.sap.rej+o.sap.pend;ind[g]=(ind[g]||0)+o.ind;corp[g]=(corp[g]||0)+o.corp;offices.push({g:g,n:o.n,o:o.nm,tax:0})});
+ var cst=function(f){var o={};G.forEach(function(g){var v=f(g);o[g]=W.map(function(){return v})});return o};
+ var M={req:{n:'طلبات التسهيلات (اكسيل)',u:'طلب'},wk:{n:'طلبات الأسبوع',u:'طلب',rate:1,note:'عدد الطلبات في كل أسبوع لوحده'},
+  acc:{n:'نسبة القبول في ساب',u:'%',rate:1,note:'من نماذج ساب اللي رقم تسجيلها موجود في اكسيل بس'},pend:{n:'تحت المراجعة في ساب',u:'نموذج',rate:1,note:'من نماذج ساب اللي رقم تسجيلها موجود في اكسيل بس'},
+  corp:{n:'نسبة الشركات من الطلبات',u:'%',rate:1}};
+ var S={req:req,wk:wk,acc:cst(function(g){var t=(app[g]||0)+((tot[g]||0)-(app[g]||0)-(pend[g]||0));return t?Math.round(app[g]/t*1000)/10:0}),pend:cst(function(g){return pend[g]||0}),corp:cst(function(g){var t=(ind[g]||0)+(corp[g]||0);return t?Math.round(corp[g]/t*1000)/10:0})};
+ return{plat:'simp',title:'التسهيلات الضريبية',step:'أسبوع',dates:W,govs:G,metrics:M,S:S,def:'req',flows:{},offices:offices}}
+window.TL_IMAP_MOUNT_SIMP=function(sec){if(sec.__im)return;sec.__im=1;sec.innerHTML='<p style="padding:20px">بيجهّز الخريطة…</p>';simpOfc().then(function(OG){var fn=function(){return simpData(OG)};var D=fn();if(!D){sec.__im=0;sec.innerHTML='<p style="padding:20px">بيانات المأموريات هتظهر بعد أول تحديث للتسهيلات من زرار «تحديث البيانات».</p>';return}sec.innerHTML='';css();Map3D(sec,D,fn)})};
 function tsrfData(){var g0=window.TSRF_GEO_DATA&&window.TSRF_GEO_DATA();if(!g0||!g0.imap)return null;var I=g0.imap,G=Object.keys(geo()||{});
  var wk={};['pw','ow','rw'].forEach(function(k){Object.keys(I[k]||{}).forEach(function(g){Object.keys(I[k][g]).forEach(function(w){if(w>='2026-06-01')wk[w]=1})})});
  var lim=g0.d?iso(new Date(D0(g0.d).getTime()-6*864e5)):'9';var W=Object.keys(wk).sort().filter(function(w){return w<=lim});if(W.length<3)return null;
@@ -8991,7 +9005,7 @@ setInterval(btn,1500);window.__TLU={latestIn:function(a,b){return latestIn(a,b)}
 </script>
 <script>/* App version check, refresh without re-login, admin force-update */
 (function(){
- var MY='1795444949',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
+ var MY='1795450771',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
  function css(){if(document.getElementById('tlv-css'))return;var st=document.createElement('style');st.id='tlv-css';st.textContent='.tlv-bar{position:fixed;top:0;left:0;right:0;z-index:99999;display:flex;gap:12px;align-items:center;justify-content:center;padding:9px 14px;background:#12306b;color:#fff;font:inherit;font-size:14px;direction:rtl;box-shadow:0 2px 10px rgba(0,0,0,.2)}.tlv-bar button{border:0;border-radius:8px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}.tlv-go{background:#fff;color:#12306b}.tlv-x{background:transparent;color:#cfd8ee}';document.head.appendChild(st)}
  function where(){var o={};document.querySelectorAll('[id^="plat-"]').forEach(function(x){if(!x.hidden&&x.offsetParent!==null)o.plat=x.id.slice(5)});if(o.plat){var t=document.querySelector('#plat-'+o.plat+' .ex-tab.on,#plat-'+o.plat+' .ex-tab.active,#plat-'+o.plat+' [aria-selected="true"][data-tab]');if(t)o.tab=t.getAttribute('data-tab')}o.y=window.scrollY||0;return o}
  function reloadNow(){try{if(window.TL_USER&&window.__TL_LASTBODY){var w=where();sessionStorage.setItem('tl_resume',JSON.stringify({u:window.TL_USER,b:window.__TL_LASTBODY,plat:w.plat,tab:w.tab,y:w.y,ts:Date.now()}))}}catch(e){}
@@ -12592,7 +12606,7 @@ var XADD={
     chart('s5x',b,{type:'bar',data:{labels:A.map(function(a){return a.a.length>40?a.a.slice(0,39)+'…':a.a}),datasets:[{label:'طبيعي',data:A.map(function(a){return a.ind}),backgroundColor:col('navy'),stack:'s'},{label:'اعتباري',data:A.map(function(a){return a.n-a.ind}),backgroundColor:col('teal'),stack:'s'}]},options:{indexAxis:'y',scales:{x:{stacked:true,ticks:{callback:kfmt}},y:{stacked:true,ticks:{font:{family:'Cairo',size:11}}}}}})},
   s6:function(P,D){var X=XL(D);if(!X)return;var t=X.typ,c=card('شكل الممولين في اكسيل');var k=el('div','sp-ks');k.append(kpi('طبيعي',fN(t.ind),p1(pc(t.ind,X.n))),kpi('اعتباري',fN(t.corp),p1(pc(t.corp,X.n))),kpi('غير محدد',fN(t.na),p1(pc(t.na,X.n))));c.appendChild(k);P.appendChild(c)}};
 var SAPONLY={s4:1,s7:1,s8:1,s9:1,s10:1,s12:1,s13:1};
-var FN={s16:function(P){if(window.SIMPMAP_RENDER)SIMPMAP_RENDER(P)},s15:function(P){if(window.SIMPX_RENDER)SIMPX_RENDER(P);else P.appendChild(el('div','sp-card','الخاصية لسه بتتحمّل…'))},s14:sBoth,s0:s0x,s1:s1x,s2:s2,s3:s3,s4:s4,s5:s5,s6:s6,s7:s7,s8:s8,s9:s9,s10:s10,s11:s11,s12:s12,s13:s13};
+var FN={s16:function(P){var d=document.createElement('div');d.className='sm';P.appendChild(d);if(window.TL_IMAP_MOUNT_SIMP)TL_IMAP_MOUNT_SIMP(d)},s15:function(P){if(window.SIMPX_RENDER)SIMPX_RENDER(P);else P.appendChild(el('div','sp-card','الخاصية لسه بتتحمّل…'))},s14:sBoth,s0:s0x,s1:s1x,s2:s2,s3:s3,s4:s4,s5:s5,s6:s6,s7:s7,s8:s8,s9:s9,s10:s10,s11:s11,s12:s12,s13:s13};
 function draw(){var root=document.getElementById('plat-simp');if(!root||root.hidden)return;var okB=[].filter.call(root.querySelectorAll('#simp-tabs button[data-p]'),function(b){return!b.dataset.tlperm&&b.style.display!=='none'&&!b.hidden});if(okB.length&&!okB.some(function(b){return b.dataset.p===CUR}))CUR=okB[0].dataset.p;var D=model();var body=root.querySelector('.sp-body');if(!body)return;
   if(!D){body.innerHTML='<div class="sp-card">جاري تحميل البيانات…</div>';return}
   var hd=root.querySelector('.sp-asof');if(hd)hd.textContent='من '+dY(D.R.xl&&D.R.xl.first<D.R.first?D.R.xl.first:D.R.first)+' لحد '+dY(D.R.asof)+' · '+fN(D.T.n+(D.R.xl?D.R.xl.n:0))+' طلب (ساب + اكسيل)';
