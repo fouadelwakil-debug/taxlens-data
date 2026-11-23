@@ -6408,7 +6408,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   function nameOf(t){var n=t,h=null;for(var i=0;i<6&&n&&!h;i++){n=n.parentElement;if(n){h=n.querySelector('h2,h3,.ttl')}}return((h&&h.textContent)||'TAX_Lens_table').trim().replace(/[\\/:*?"<>|]+/g,'').slice(0,60)}
   function addXl(){document.querySelectorAll('#plat-tsrf table, #plat-reta table, #plat-simp table, #plat-pay table').forEach(function(t){if(t.dataset.tlx||t.rows.length<3||t.closest('.rp-ov'))return;t.dataset.tlx=1;
     var w=el('div','tlx-xl'),b=el('button',null,'⤓ Excel');b.type='button';b.title='تحميل الجدول كملف Excel';b.onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csvOf(t)],{type:'text/csv;charset=utf-8'}));a.download=nameOf(t)+'.csv';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},2000);window.TL_LOG&&window.TL_LOG('table_export',nameOf(t))};w.appendChild(b);
-    var host=t.parentElement&&/tbl|scroll|wrap/i.test(t.parentElement.className)&&t.parentElement.children.length===1?t.parentElement:t;host.parentNode.insertBefore(w,host)})}
+    var host=t.parentElement&&/tbl|scroll|wrap/i.test(t.parentElement.className)&&t.parentElement.children.length===1?t.parentElement:t;var pd=host.parentNode&&getComputedStyle(host.parentNode).display;if(host!==t&&/grid|flex/.test(pd||''))host.insertBefore(w,t);else host.parentNode.insertBefore(w,host)})}
 
   /* ---------- metric help (ⓘ) ---------- */
   var HELP={
@@ -9016,7 +9016,7 @@ setInterval(btn,1500);window.__TLU={latestIn:function(a,b){return latestIn(a,b)}
 </script>
 <script>/* App version check, refresh without re-login, admin force-update */
 (function(){
- var MY='1795458612',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
+ var MY='1795458835',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
  function css(){if(document.getElementById('tlv-css'))return;var st=document.createElement('style');st.id='tlv-css';st.textContent='.tlv-bar{position:fixed;top:0;left:0;right:0;z-index:99999;display:flex;gap:12px;align-items:center;justify-content:center;padding:9px 14px;background:#12306b;color:#fff;font:inherit;font-size:14px;direction:rtl;box-shadow:0 2px 10px rgba(0,0,0,.2)}.tlv-bar button{border:0;border-radius:8px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}.tlv-go{background:#fff;color:#12306b}.tlv-x{background:transparent;color:#cfd8ee}';document.head.appendChild(st)}
  function where(){var o={};document.querySelectorAll('[id^="plat-"]').forEach(function(x){if(!x.hidden&&x.offsetParent!==null)o.plat=x.id.slice(5)});if(o.plat){var t=document.querySelector('#plat-'+o.plat+' .ex-tab.on,#plat-'+o.plat+' .ex-tab.active,#plat-'+o.plat+' [aria-selected="true"][data-tab]');if(t)o.tab=t.getAttribute('data-tab')}o.y=window.scrollY||0;return o}
  function reloadNow(){try{if(window.TL_USER&&window.__TL_LASTBODY){var w=where();sessionStorage.setItem('tl_resume',JSON.stringify({u:window.TL_USER,b:window.__TL_LASTBODY,plat:w.plat,tab:w.tab,y:w.y,ts:Date.now()}))}}catch(e){}
