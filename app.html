@@ -8978,7 +8978,7 @@ setInterval(btn,1500);window.__TLU={latestIn:function(a,b){return latestIn(a,b)}
 </script>
 <script>/* App version check, refresh without re-login, admin force-update */
 (function(){
- var MY='1795436375',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
+ var MY='1795436713',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
  function css(){if(document.getElementById('tlv-css'))return;var st=document.createElement('style');st.id='tlv-css';st.textContent='.tlv-bar{position:fixed;top:0;left:0;right:0;z-index:99999;display:flex;gap:12px;align-items:center;justify-content:center;padding:9px 14px;background:#12306b;color:#fff;font:inherit;font-size:14px;direction:rtl;box-shadow:0 2px 10px rgba(0,0,0,.2)}.tlv-bar button{border:0;border-radius:8px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}.tlv-go{background:#fff;color:#12306b}.tlv-x{background:transparent;color:#cfd8ee}';document.head.appendChild(st)}
  function where(){var o={};document.querySelectorAll('[id^="plat-"]').forEach(function(x){if(!x.hidden&&x.offsetParent!==null)o.plat=x.id.slice(5)});if(o.plat){var t=document.querySelector('#plat-'+o.plat+' .ex-tab.on,#plat-'+o.plat+' .ex-tab.active,#plat-'+o.plat+' [aria-selected="true"][data-tab]');if(t)o.tab=t.getAttribute('data-tab')}o.y=window.scrollY||0;return o}
  function reloadNow(){try{if(window.TL_USER&&window.__TL_LASTBODY){var w=where();sessionStorage.setItem('tl_resume',JSON.stringify({u:window.TL_USER,b:window.__TL_LASTBODY,plat:w.plat,tab:w.tab,y:w.y,ts:Date.now()}))}}catch(e){}
@@ -12448,6 +12448,7 @@ function draw(){var root=document.getElementById('plat-simp');if(!root||root.hid
   var hd=root.querySelector('.sp-asof');if(hd)hd.textContent='من '+dY(D.R.xl&&D.R.xl.first<D.R.first?D.R.xl.first:D.R.first)+' لحد '+dY(D.R.asof)+' · '+fN(D.T.n+(D.R.xl?D.R.xl.n:0))+' طلب (ساب + اكسيل)';
   root.querySelectorAll('#simp-tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.p===CUR)});
   var P=body.querySelector('.spane#'+CUR);body.querySelectorAll('.spane').forEach(function(x){x.classList.toggle('on',x.id===CUR)});
+  if(CUR==='s15'&&P.querySelector('.sx'))return;
   P.replaceChildren();var h=el('div','sp-ph');h.appendChild(el('h2',null,PANES.filter(function(x){return x[0]===CUR})[0][1]));P.appendChild(h);
   try{if(SAPONLY[CUR]&&XL(D))sapNote(P);FN[CUR](P,D);if(XADD[CUR])XADD[CUR](P,D)}catch(e){console.error('simp',e);P.appendChild(el('div','sp-card','حصلت مشكلة في عرض الشاشة دي.'))}}
 window.SIMP_DRAW=draw;
