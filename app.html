@@ -8360,7 +8360,6 @@ function render(){var sec=document.getElementById('appts');if(!sec)return;var A=
   '<div class="ex-card"><div class="lbl">الأسبوع الجاي</div><div class="big">'+fN(up7)+'</div><div class="ex-note" style="margin:0">ميعاد محجوز</div></div>'+
   '<div class="ex-card"><div class="lbl">قبل الميعاد بـ</div><div class="big">'+A.lead.med+'</div><div class="ex-note" style="margin:0">يوم في المتوسط (الوسيط)</div></div></div>';
  H+='<div class="ex-grid">';
- H+='<div class="ex-card ex-span"><h3>محتاج انتباهك</h3><div class="ap-al">'+alerts(A).map(function(x){return '<div class="'+x[0]+'">'+x[1]+'</div>'}).join('')+'</div></div>';
  var mx=A.total,fr=[['اتحجز',A.total,BLUE],['ميعاده عدّى',p.n,'#5B8DEF'],['مش ملغي',p.due,'#7FA6F2'],['حضر',p.attended,GREEN]].concat(p.auto!=null?[['انتهى تلقائي بدون تسجيل',p.auto,'#94A3B8'],['اتسجل «لم يحضر»',p.absent,RED]]:[['غاب',p.noshow,RED]]).concat([['اتلغى قبل ما ييجي وقته',p.cancelled,AMB]]);
  H+='<div class="ex-card"><h3>من الحجز للحضور</h3><p class="ex-note">كل خطوة من رحلة الميعاد. الحضور بيتحسب من المواعيد اللي جه وقتها ومتلغتش.</p><div class="ap-fun">'+fr.map(function(r){return '<div class="r"><span>'+r[0]+'</span><div class="bar"><i data-w="'+Math.max(1,r[1]/mx*100)+'" style="width:0;background:'+r[2]+'"></i></div><span class="v">'+fN(r[1])+'</span></div>'}).join('')+'</div></div>';
  H+=(function(){var T=A.today,U=(T.units||[]).slice().sort(function(a,b){return b.n-a.n});if(!U.length)return '<div class="ex-card"><h3>لوحة النهارده · '+dA(T.d)+'</h3><p class="ex-note">مفيش مواعيد النهارده.</p></div>';
@@ -9017,7 +9016,7 @@ setInterval(btn,1500);window.__TLU={latestIn:function(a,b){return latestIn(a,b)}
 </script>
 <script>/* App version check, refresh without re-login, admin force-update */
 (function(){
- var MY='1795454211',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
+ var MY='1795454242',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
  function css(){if(document.getElementById('tlv-css'))return;var st=document.createElement('style');st.id='tlv-css';st.textContent='.tlv-bar{position:fixed;top:0;left:0;right:0;z-index:99999;display:flex;gap:12px;align-items:center;justify-content:center;padding:9px 14px;background:#12306b;color:#fff;font:inherit;font-size:14px;direction:rtl;box-shadow:0 2px 10px rgba(0,0,0,.2)}.tlv-bar button{border:0;border-radius:8px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}.tlv-go{background:#fff;color:#12306b}.tlv-x{background:transparent;color:#cfd8ee}';document.head.appendChild(st)}
  function where(){var o={};document.querySelectorAll('[id^="plat-"]').forEach(function(x){if(!x.hidden&&x.offsetParent!==null)o.plat=x.id.slice(5)});if(o.plat){var t=document.querySelector('#plat-'+o.plat+' .ex-tab.on,#plat-'+o.plat+' .ex-tab.active,#plat-'+o.plat+' [aria-selected="true"][data-tab]');if(t)o.tab=t.getAttribute('data-tab')}o.y=window.scrollY||0;return o}
  function reloadNow(){try{if(window.TL_USER&&window.__TL_LASTBODY){var w=where();sessionStorage.setItem('tl_resume',JSON.stringify({u:window.TL_USER,b:window.__TL_LASTBODY,plat:w.plat,tab:w.tab,y:w.y,ts:Date.now()}))}}catch(e){}
