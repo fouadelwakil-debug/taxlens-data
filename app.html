@@ -9016,7 +9016,7 @@ setInterval(btn,1500);window.__TLU={latestIn:function(a,b){return latestIn(a,b)}
 </script>
 <script>/* App version check, refresh without re-login, admin force-update */
 (function(){
- var MY='1795455547',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
+ var MY='1795455766',VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',T0=Date.now(),bar=null,cd=null;
  function css(){if(document.getElementById('tlv-css'))return;var st=document.createElement('style');st.id='tlv-css';st.textContent='.tlv-bar{position:fixed;top:0;left:0;right:0;z-index:99999;display:flex;gap:12px;align-items:center;justify-content:center;padding:9px 14px;background:#12306b;color:#fff;font:inherit;font-size:14px;direction:rtl;box-shadow:0 2px 10px rgba(0,0,0,.2)}.tlv-bar button{border:0;border-radius:8px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}.tlv-go{background:#fff;color:#12306b}.tlv-x{background:transparent;color:#cfd8ee}';document.head.appendChild(st)}
  function where(){var o={};document.querySelectorAll('[id^="plat-"]').forEach(function(x){if(!x.hidden&&x.offsetParent!==null)o.plat=x.id.slice(5)});if(o.plat){var t=document.querySelector('#plat-'+o.plat+' .ex-tab.on,#plat-'+o.plat+' .ex-tab.active,#plat-'+o.plat+' [aria-selected="true"][data-tab]');if(t)o.tab=t.getAttribute('data-tab')}o.y=window.scrollY||0;return o}
  function reloadNow(){try{if(window.TL_USER&&window.__TL_LASTBODY){var w=where();sessionStorage.setItem('tl_resume',JSON.stringify({u:window.TL_USER,b:window.__TL_LASTBODY,plat:w.plat,tab:w.tab,y:w.y,ts:Date.now()}))}}catch(e){}
@@ -9797,7 +9797,7 @@ function draw(){if(!document.body.classList.contains('v2'))return;var s=document
   var al=[].concat(I.reta?I.reta.alerts:[],I.tsrf?I.tsrf.alerts:[],I.simp?I.simp.alerts:[],I.pay?I.pay.alerts:[]);if(al.length){var a=el('div','tlx-al');al.forEach(function(t){a.appendChild(el('p',null,FA(t)))});c.appendChild(a)}
   var b=el('button',null,'تقرير القيادة الأسبوعي (PDF)');b.style.cssText='margin-top:10px;height:40px;border-radius:10px;border:0;background:var(--acc,#14306A);color:#fff;font:700 14px Cairo,Tahoma,sans-serif;padding:0 18px;cursor:pointer';
   b.onclick=function(){b.disabled=true;b.textContent='بنجهّز التقرير…';pdf(I).then(function(){b.textContent='تقرير القيادة الأسبوعي (PDF)'}).catch(function(e){alert('معرفناش نجهّز التقرير: '+e.message);b.textContent='تقرير القيادة الأسبوعي (PDF)'}).then(function(){b.disabled=false})};
-  c.appendChild(b);s.insertBefore(c,s.firstChild)}
+  s.insertBefore(c,s.firstChild)}
 var FAf=function(t){return String(t).replace(/في آخر أسبوع/g,'خلال الأسبوع الأخير').replace(/خلال (\d+) أيام/g,'خلال $1 أيام').replace(/اللي فات/g,'السابق').replace(/اللي قبلها/g,'السابقة').replace(/نزلت/g,'انخفضت').replace(/لحد/g,'حتى').replace(/من (\d+) يوم/g,'منذ $1 يوماً').replace(/من (\d+) أيام/g,'منذ $1 أيام')};
 function pcF(x){return x==null?'':(x>=0?'ارتفاع بنسبة ':'انخفاض بنسبة ')+Math.abs(x*100).toFixed(1)+'%'}
 function sec(i,name,col){if(!i)return'';return'<div style="background:#fff;border-radius:14px;border:1px solid #E1E7F0;margin:0 0 18px;overflow:hidden"><div style="height:6px;background:'+col+'"></div><div style="padding:18px 22px"><div style="font-size:20px;font-weight:800;color:#14306A;margin-bottom:12px">'+FAf(i.title)+'</div><div style="display:grid;grid-template-columns:repeat('+i.k.length+',1fr);gap:12px">'+
@@ -11428,7 +11428,7 @@ function draw(){var home=document.getElementById('tl-home');if(!home||home.hidde
   if(!al.length)A.appendChild(el('p','s1','مفيش تنبيهات دلوقتي.'));
   (showAll?al:al.slice(0,innerWidth<=600?2:3)).forEach(function(a){A.appendChild(el('p',a.s?'s1':'','<em>'+NM[a.p]+'</em>'+esc(String(a.t).replace(/^[⚠⏱]\s*/,''))))});
   if(al.length>(innerWidth<=600?2:3)){var mb=el('button','more',showAll?'عرض أقل':'عرض الكل ('+al.length+') ←');mb.type='button';mb.onclick=function(){showAll=!showAll;sig='';draw()};A.appendChild(mb)}R.appendChild(A);
-  var X=el('div','acts'),pb=pdfBtn(),lb=leadBtn();
+  var X=el('div','acts'),pb=null,lb=leadBtn();
   if(pb){var b1=el('button',null,innerWidth<=600?'📄 تقرير القيادة':'📄 تقرير القيادة الأسبوعي (PDF)');b1.type='button';b1.onclick=function(){var o=b1.textContent;b1.textContent='بنجهّز التقرير…';pb.click();setTimeout(function(){b1.textContent=o},4000)};X.appendChild(b1)}
   if(lb){var b2=el('button','st','▶ حكاية القيادة');b2.type='button';b2.onclick=function(){lb.click()};X.appendChild(b2)}
   if(window.TL_ADMINKEY&&window.TL_UPDATE){var b3=el('button',null,'🔄 تحديث البيانات');b3.type='button';b3.onclick=function(){window.TL_UPDATE.open()};X.appendChild(b3)}
